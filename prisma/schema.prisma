@@ -1,0 +1,262 @@
+// Prisma schema for PROJETO CROCHÊ
+// Multi-tenant SaaS for crochet artisans
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────
+// AUTH (NextAuth compatible)
+// ─────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts Account[]
+  sessions Session[]
+
+  workspaceMembers WorkspaceMember[]
+  ownedWorkspaces  Workspace[]       @relation("WorkspaceOwner")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─────────────────────────────────────────
+// WORKSPACE (ATELIER) — MULTI-TENANT
+// ─────────────────────────────────────────
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  ownerId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  owner   User              @relation("WorkspaceOwner", fields: [ownerId], references: [id])
+  members WorkspaceMember[]
+
+  subscription      Subscription?
+  usageCounters     UsageCounter[]
+  yarns             Yarn[]
+  priceCalculations PriceCalculation[]
+  products          Product[]
+  transactions      Transaction[]
+  monthlyGoals      MonthlyGoal[]
+}
+
+model WorkspaceMember {
+  id          String     @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        MemberRole @default(OWNER)
+  joinedAt    DateTime   @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+}
+
+enum MemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+// ─────────────────────────────────────────
+// SUBSCRIPTION & BILLING
+// ─────────────────────────────────────────
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  workspaceId          String             @unique
+  plan                 Plan               @default(FREE)
+  status               SubscriptionStatus @default(ACTIVE)
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+enum Plan {
+  FREE
+  PREMIUM
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  TRIALING
+}
+
+model UsageCounter {
+  id                       String   @id @default(cuid())
+  workspaceId              String
+  monthYYYYMM              String
+  pricingCalculationsCount Int      @default(0)
+  transactionsCount        Int      @default(0)
+  productsCount            Int      @default(0)
+  updatedAt                DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, monthYYYYMM])
+}
+
+// ─────────────────────────────────────────
+// INVENTORY — YARN STOCK
+// ─────────────────────────────────────────
+
+model Yarn {
+  id                String   @id @default(cuid())
+  workspaceId       String
+  brand             String
+  line              String?
+  color             String
+  gramsAvailable    Float    @default(0)
+  costTotal         Float    @default(0)
+  lowStockThreshold Float    @default(50)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────────────────────
+// PRICING CALCULATOR
+// ─────────────────────────────────────────
+
+model PriceCalculation {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String?
+  inputsJson  Json
+  totalsJson  Json
+  createdAt   DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  product   Product?  @relation(fields: [productId], references: [id])
+  productId String?
+}
+
+// ─────────────────────────────────────────
+// PRODUCTS
+// ─────────────────────────────────────────
+
+model Product {
+  id          String        @id @default(cuid())
+  workspaceId String
+  name        String
+  description String?
+  status      ProductStatus @default(ACTIVE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  workspace         Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  variants          ProductVariant[]
+  priceCalculations PriceCalculation[]
+}
+
+model ProductVariant {
+  id        String   @id @default(cuid())
+  productId String
+  color     String?
+  size      String?
+  sku       String?
+  price     Float?
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+enum ProductStatus {
+  ACTIVE
+  ARCHIVED
+  DRAFT
+}
+
+// ─────────────────────────────────────────
+// FINANCE
+// ─────────────────────────────────────────
+
+model Transaction {
+  id          String          @id @default(cuid())
+  workspaceId String
+  type        TransactionType
+  category    String
+  amount      Float
+  date        DateTime
+  notes       String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+enum TransactionType {
+  IN
+  OUT
+}
+
+model MonthlyGoal {
+  id          String   @id @default(cuid())
+  workspaceId String
+  monthYYYYMM String
+  revenueGoal Float    @default(0)
+  profitGoal  Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, monthYYYYMM])
+}
