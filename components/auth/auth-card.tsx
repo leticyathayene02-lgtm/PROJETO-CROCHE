@@ -14,6 +14,7 @@ const SPINNER = (
 export function AuthCard() {
   const [tab, setTab] = useState<Tab>("signup");
   const [isPending, startTransition] = useTransition();
+  const [redirecting, setRedirecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [name, setName] = useState("");
@@ -21,6 +22,7 @@ export function AuthCard() {
   const [password, setPassword] = useState("");
 
   const isSignup = tab === "signup";
+  const isLoading = isPending || redirecting;
 
   function handleTabChange(t: Tab) {
     setTab(t);
@@ -50,8 +52,8 @@ export function AuthCard() {
         return;
       }
 
-      // Hard redirect ensures the session cookie is sent with the new request.
-      // router.push() can have race conditions with App Router prefetch cache.
+      // Keep spinner visible while browser navigates to the new page
+      setRedirecting(true);
       window.location.href = "/app/overview";
     });
   }
@@ -127,7 +129,7 @@ export function AuthCard() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Seu nome de artesã"
                 className="w-full rounded-xl border border-rose-200 bg-white/80 px-4 py-3 text-sm text-gray-800 placeholder-rose-300 outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-200 disabled:opacity-50"
-                disabled={isPending}
+                disabled={isLoading}
               />
             </div>
           )}
@@ -146,7 +148,7 @@ export function AuthCard() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="voce@email.com"
               className="w-full rounded-xl border border-rose-200 bg-white/80 px-4 py-3 text-sm text-gray-800 placeholder-rose-300 outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-200 disabled:opacity-50"
-              disabled={isPending}
+              disabled={isLoading}
             />
           </div>
 
@@ -165,18 +167,18 @@ export function AuthCard() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder={isSignup ? "Mínimo 6 caracteres" : "Sua senha"}
               className="w-full rounded-xl border border-rose-200 bg-white/80 px-4 py-3 text-sm text-gray-800 placeholder-rose-300 outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-200 disabled:opacity-50"
-              disabled={isPending}
+              disabled={isLoading}
             />
           </div>
 
           {/* Submit */}
           <button
             type="submit"
-            disabled={isPending}
+            disabled={isLoading}
             className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-rose-600 to-pink-500 px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-rose-300/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-rose-300/50 focus-visible:outline-2 focus-visible:outline-rose-600 focus-visible:outline-offset-2 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isPending ? (
-              <>{SPINNER}<span>{isSignup ? "Criando sua conta..." : "Entrando..."}</span></>
+            {isLoading ? (
+              <>{SPINNER}<span>{redirecting ? "Entrando no painel..." : isSignup ? "Criando sua conta..." : "Entrando..."}</span></>
             ) : (
               <>
                 <span>{isSignup ? "Criar minha conta" : "Entrar"}</span>

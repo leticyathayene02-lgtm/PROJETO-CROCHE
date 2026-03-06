@@ -19,8 +19,18 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Redirect already-authenticated users away from /login
+  // If user is on /login with a session cookie, try to send them to dashboard.
+  // If the session is stale (deleted from DB), requireWorkspace() in the layout
+  // will redirect back to /login and clear the cookie — so no infinite loop.
   if (pathname === "/login" && isAuthenticated) {
+    // Allow ?force=logout to bypass redirect (so user can always reach login)
+    const force = req.nextUrl.searchParams.get("force");
+    if (force === "logout") {
+      // Clear the stale cookie and show login page
+      const response = NextResponse.next();
+      response.cookies.set("session", "", { path: "/", expires: new Date(0) });
+      return response;
+    }
     return NextResponse.redirect(new URL("/app/overview", req.url));
   }
 

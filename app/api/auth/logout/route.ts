@@ -3,10 +3,8 @@ export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import { deleteSession, SESSION_COOKIE_NAME } from "@/lib/session";
 
-export async function POST() {
-  await deleteSession();
-
-  const response = NextResponse.json({ ok: true });
+function clearSessionResponse() {
+  const response = NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_APP_URL || "https://projeto-croche-production.up.railway.app"));
   response.cookies.set({
     name: SESSION_COOKIE_NAME,
     value: "",
@@ -16,4 +14,14 @@ export async function POST() {
     expires: new Date(0),
   });
   return response;
+}
+
+export async function POST() {
+  await deleteSession();
+  return clearSessionResponse();
+}
+
+export async function GET() {
+  await deleteSession();
+  return clearSessionResponse();
 }

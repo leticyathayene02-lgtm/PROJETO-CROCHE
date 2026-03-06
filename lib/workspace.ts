@@ -12,15 +12,9 @@ export async function requireWorkspace() {
   const session = await getSession();
 
   if (!session?.user?.id) {
-    // Clear the stale cookie before redirecting so the middleware won't
-    // see a cookie and immediately bounce back to /app/*, causing a loop.
+    // Clear stale cookie so middleware doesn't redirect /login → /app/overview again
     const cookieStore = await cookies();
-    cookieStore.set("session", "", {
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
-      expires: new Date(0),
-    });
+    cookieStore.set("session", "", { path: "/", expires: new Date(0) });
     redirect("/login");
   }
 
