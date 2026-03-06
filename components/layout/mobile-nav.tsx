@@ -6,17 +6,17 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   Calculator,
-  Package,
+  ClipboardList,
   TrendingUp,
-  Archive,
+  Package,
 } from "lucide-react";
 
 const navItems = [
   { href: "/app/overview", label: "Início", icon: LayoutDashboard },
   { href: "/app/pricing", label: "Calcular", icon: Calculator },
-  { href: "/app/products", label: "Produtos", icon: Package },
+  { href: "/app/orders", label: "Pedidos", icon: ClipboardList },
   { href: "/app/finance", label: "Financeiro", icon: TrendingUp },
-  { href: "/app/inventory", label: "Estoque", icon: Archive },
+  { href: "/app/products", label: "Produtos", icon: Package },
 ];
 
 export function MobileNav() {

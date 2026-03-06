@@ -59,6 +59,7 @@ model Workspace {
   products          Product[]
   transactions      Transaction[]
   monthlyGoals      MonthlyGoal[]
+  orders            Order[]
 }
 
 model WorkspaceMember {
@@ -217,6 +218,36 @@ model Transaction {
 enum TransactionType {
   IN
   OUT
+}
+
+// ─────────────────────────────────────────
+// ORDERS (ENCOMENDAS)
+// ─────────────────────────────────────────
+
+enum PaymentStatus {
+  UNPAID
+  HALF_PAID
+  PAID
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  workspaceId     String
+  orderDate       DateTime      @default(now())
+  dueDate         DateTime
+  customerName    String
+  itemDescription String
+  amount          Float
+  paymentStatus   PaymentStatus @default(UNPAID)
+  notes           String?
+  channel         String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, dueDate])
+  @@index([workspaceId, paymentStatus])
 }
 
 model MonthlyGoal {

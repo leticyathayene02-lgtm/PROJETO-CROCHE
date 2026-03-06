@@ -12,6 +12,7 @@ import {
   Settings,
   ChevronRight,
   LogOut,
+  ClipboardList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +33,11 @@ const navItems = [
     href: "/app/products",
     label: "Produtos",
     icon: Package,
+  },
+  {
+    href: "/app/orders",
+    label: "Pedidos",
+    icon: ClipboardList,
   },
   {
     href: "/app/finance",
