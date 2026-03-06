@@ -4,10 +4,10 @@ SaaS para artesãs que vendem peças e precisam precificar, organizar estoque e 
 
 ## Stack
 
-- **Next.js 16** (App Router) + TypeScript
-- **TailwindCSS** + shadcn/ui
-- **PostgreSQL** + Prisma ORM
-- **Auth.js v5** (NextAuth) — Google OAuth
+- **Next.js 15** (App Router) + TypeScript
+- **TailwindCSS v4** + shadcn/ui
+- **PostgreSQL** (embedded via `embedded-postgres`) + **Prisma 7** ORM
+- **Auth próprio** — email + senha (bcrypt) + session cookie httpOnly
 - **Stripe** — assinatura Premium
 - **Zod** — validação
 - **React Hook Form** — formulários
@@ -20,9 +20,9 @@ SaaS para artesãs que vendem peças e precisam precificar, organizar estoque e 
 ### 1. Pré-requisitos
 
 - Node.js 20+
-- PostgreSQL rodando localmente (ou via Docker)
-- Conta Google Cloud (para OAuth)
 - Conta Stripe (para pagamentos)
+
+> **Não precisa instalar PostgreSQL** — o projeto usa `embedded-postgres` embutido.
 
 ### 2. Clonar e instalar
 
@@ -42,22 +42,19 @@ Edite `.env` com suas credenciais:
 
 | Variável | Descrição |
 |---|---|
-| `DATABASE_URL` | URL do PostgreSQL |
-| `NEXTAUTH_URL` | URL da app (ex: `http://localhost:3000`) |
-| `NEXTAUTH_SECRET` | Secret aleatório (gere com `openssl rand -base64 32`) |
-| `GOOGLE_CLIENT_ID` | ID do OAuth Google |
-| `GOOGLE_CLIENT_SECRET` | Secret do OAuth Google |
+| `DATABASE_URL` | URL do PostgreSQL (padrão: `postgresql://postgres:postgres@localhost:5432/projeto_croche`) |
 | `STRIPE_SECRET_KEY` | Chave secreta do Stripe |
 | `STRIPE_WEBHOOK_SECRET` | Secret do webhook Stripe |
 | `STRIPE_PRICE_ID_PREMIUM` | ID do preço no Stripe |
+| `NEXT_PUBLIC_APP_URL` | URL da app (ex: `http://localhost:3000`) |
 
 ### 4. Banco de dados
 
 ```bash
-# Criar o banco
-createdb projeto_croche
+# Iniciar o banco embutido (mantenha o terminal aberto)
+npm run db:start
 
-# Rodar migrations
+# Em outro terminal — rodar migrations
 npm run db:migrate
 
 # (Opcional) Visualizar dados
@@ -74,6 +71,46 @@ Acesse: http://localhost:3000
 
 ---
 
+## Fluxo de Autenticação
+
+O sistema usa **email + senha** com bcrypt e session cookie httpOnly. Sem Google OAuth, sem magic link.
+
+### Criar conta
+
+1. Acesse `/login`
+2. Clique na aba "Criar conta"
+3. Informe nome (opcional), e-mail e senha (mín. 6 caracteres)
+4. Workspace é criado automaticamente → redireciona para `/app/overview`
+
+### Entrar
+
+1. Acesse `/login`
+2. Informe e-mail e senha
+3. Sessão dura 30 dias via cookie `session` (httpOnly, sameSite=lax)
+
+### Sair
+
+- Clique em "Sair" no sidebar — exclui a sessão do banco e limpa o cookie
+
+### Proteção de rotas
+
+- `/app/*` → requer sessão válida → redireciona para `/login` se não autenticada
+- `/login` → se já autenticada → redireciona para `/app/overview`
+- Sem redirect loops: middleware edge-safe só lê o cookie; `/api/*` é excluído do matcher
+
+### Arquivos relevantes do auth
+
+| Arquivo | Função |
+|---|---|
+| `lib/session.ts` | `createSession`, `getSession`, `deleteSession` |
+| `app/api/auth/register/route.ts` | Cria usuário + workspace + sessão |
+| `app/api/auth/login/route.ts` | Valida bcrypt, cria sessão, seta cookie |
+| `app/api/auth/logout/route.ts` | Deleta sessão, limpa cookie |
+| `middleware.ts` | Proteção de rotas (edge-safe) |
+| `lib/workspace.ts` | `requireWorkspace()` — guard para páginas do app |
+
+---
+
 ## Comandos
 
 | Comando | Descrição |
@@ -82,6 +119,7 @@ Acesse: http://localhost:3000
 | `npm run build` | Build de produção |
 | `npm run lint` | Verificar lint |
 | `npm run format` | Formatar código |
+| `npm run db:start` | Iniciar banco embutido |
 | `npm run db:migrate` | Rodar migrations |
 | `npm run db:generate` | Gerar Prisma Client |
 | `npm run db:studio` | Abrir Prisma Studio |
@@ -112,7 +150,7 @@ stripe listen --forward-to localhost:3000/api/stripe/webhook
 ```
 app/
 ├── (root)          → Redireciona para /login ou /app/overview
-├── login/          → Tela de login (Google OAuth)
+├── login/          → Tela de login (email + senha)
 ├── app/            → Dashboard protegido (requer auth)
 │   ├── layout.tsx  → Shell com sidebar + mobile nav
 │   ├── overview/   → Visão geral + resumo financeiro
@@ -122,11 +160,11 @@ app/
 │   ├── inventory/  → Estoque de fios
 │   └── settings/billing/ → Assinatura
 └── api/
-    ├── auth/       → NextAuth handlers
+    ├── auth/login, register, logout → Auth próprio
     └── stripe/     → Checkout + Webhook
 
 lib/
-├── auth.ts         → Auth.js config + auto-create workspace
+├── session.ts      → Sessões customizadas (create/get/delete)
 ├── prisma.ts       → Prisma client singleton
 ├── stripe.ts       → Stripe client + helpers
 ├── limits.ts       → Lógica de limites Free/Premium
@@ -168,7 +206,7 @@ Calcula automaticamente:
 ## Deploy (Vercel)
 
 ```bash
-# Configurar variáveis de ambiente no Vercel Dashboard
+# Configurar variáveis de ambiente no Vercel Dashboard (ver .env.example)
 # Rodar migrations no banco de produção
 npx prisma migrate deploy
 ```
@@ -238,12 +276,11 @@ Para mudar a cor primária de rose para violet, pesquise/substitua `rose-` por `
 
 - **Mobile-first**: sidebar oculta no mobile, bottom nav visível
 - **Multi-tenant desde o início**: tudo isolado por `workspaceId`
-- **Auto-criação de workspace**: no primeiro login, workspace é criado automaticamente
+- **Auto-criação de workspace**: no primeiro registro, workspace é criado automaticamente
 - **Plano Free com limites**: contadores mensais em `UsageCounter`
 - **Server Actions**: CRUD simples usa Server Actions (sem API route desnecessária)
 - **IDOR protection**: todas queries filtram por `workspaceId` e verificam membership
 
 > TODO: Adicionar suporte a múltiplos workspaces (workspace switcher)
-> TODO: Adicionar email magic link como alternativa ao Google
 > TODO: Relatórios PDF exportáveis
 > TODO: Integração com Instagram para publicar preços

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 
 type Tab = "signup" | "signin";
 
@@ -13,7 +12,6 @@ const SPINNER = (
 );
 
 export function AuthCard() {
-  const router = useRouter();
   const [tab, setTab] = useState<Tab>("signup");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
