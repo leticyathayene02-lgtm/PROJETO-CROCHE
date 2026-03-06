@@ -452,10 +452,17 @@ export default async function OverviewPage() {
       </section>
 
       {/* ── Stats pills ──────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-3 gap-3" aria-label="Estatísticas rápidas">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="Estatísticas rápidas">
         <StatPill value={totalProducts} label="Produtos ativos" icon="📦" />
         <StatPill value={calcsUsed} label="Cálculos este mês" icon="🧮" />
         <StatPill value={yarns.length} label="Tipos de fio" icon="🧵" />
+        <Link href="/app/orders/board" className="flex flex-col items-center justify-center gap-1 rounded-2xl border border-rose-100 bg-rose-50 p-4 shadow-sm transition-shadow hover:shadow-md hover:bg-rose-100 dark:border-rose-900/30 dark:bg-rose-950/20">
+          <span className="text-2xl" aria-hidden="true">📋</span>
+          <p className="font-heading text-xs font-bold tracking-tight text-rose-700 dark:text-rose-400 text-center leading-tight">
+            Ver quadro
+          </p>
+          <p className="text-center text-[11px] leading-tight text-rose-500 dark:text-rose-500">Acompanhar pedidos</p>
+        </Link>
       </div>
 
       {/* ── Urgency Cards ─────────────────────────────────────────────────── */}

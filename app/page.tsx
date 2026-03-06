@@ -222,7 +222,7 @@ export default async function HomePage() {
                   className="group relative inline-flex items-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-rose-600 to-pink-500 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-rose-300/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-rose-300/50 active:translate-y-0 dark:shadow-rose-900/30"
                 >
                   <Sparkles className="h-4 w-4" />
-                  Criar conta grátis
+                  Criar conta grátis — 7 dias grátis
                   <span
                     className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full"
                     aria-hidden="true"
@@ -598,7 +598,10 @@ export default async function HomePage() {
                 R$ 0
                 <span className="text-sm font-normal text-gray-400">/mês</span>
               </p>
-              <p className="mt-1 mb-6 text-xs text-gray-400">Para começar e descobrir</p>
+              <p className="mt-1 mb-2 text-xs text-gray-400">Para começar e descobrir</p>
+              <span className="mb-4 inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                🎁 7 dias grátis para experimentar
+              </span>
               <ul className="mb-7 space-y-2.5">
                 {[
                   "3 cálculos/mês",
