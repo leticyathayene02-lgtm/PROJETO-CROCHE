@@ -6,13 +6,15 @@ import {
   Calculator,
   TrendingUp,
   TrendingDown,
-  Package,
   Archive,
   Sparkles,
   ArrowUpRight,
   ChevronRight,
   AlertTriangle,
   Target,
+  ClipboardList,
+  Clock,
+  DollarSign,
 } from "lucide-react";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -275,8 +277,45 @@ export default async function OverviewPage() {
       }),
     ]);
 
-  const yarns = await prisma.yarn.findMany({ where: { workspaceId } });
+  const now = new Date();
+  const in7days = new Date(now);
+  in7days.setDate(in7days.getDate() + 7);
+
+  const [yarns, lateOrders, dueSoonOrders, unpaidOrders] = await Promise.all([
+    prisma.yarn.findMany({ where: { workspaceId } }),
+    prisma.order.findMany({
+      where: {
+        workspaceId,
+        dueDate: { lt: now },
+        productionStatus: { not: "DELIVERED" },
+      },
+      select: { id: true, customerName: true, dueDate: true, amount: true },
+      orderBy: { dueDate: "asc" },
+      take: 5,
+    }),
+    prisma.order.findMany({
+      where: {
+        workspaceId,
+        dueDate: { gte: now, lte: in7days },
+        productionStatus: { not: "DELIVERED" },
+      },
+      select: { id: true, customerName: true, dueDate: true },
+      orderBy: { dueDate: "asc" },
+      take: 5,
+    }),
+    prisma.order.findMany({
+      where: {
+        workspaceId,
+        paymentStatus: { in: ["UNPAID", "HALF_PAID"] },
+      },
+      select: { amount: true, paymentStatus: true },
+    }),
+  ]);
+
   const lowStock = yarns.filter((y) => y.gramsAvailable < y.lowStockThreshold);
+  const totalReceivable = unpaidOrders.reduce((s, o) => {
+    return s + (o.paymentStatus === "HALF_PAID" ? o.amount * 0.5 : o.amount);
+  }, 0);
 
   const totalIn = monthTransactions
     .filter((t) => t.type === "IN")
@@ -419,8 +458,98 @@ export default async function OverviewPage() {
         <StatPill value={yarns.length} label="Tipos de fio" icon="🧵" />
       </div>
 
-      {/* ── Low stock alert ──────────────────────────────────────────────── */}
-      {lowStock.length > 0 && (
+      {/* ── Urgency Cards ─────────────────────────────────────────────────── */}
+      {(lateOrders.length > 0 || dueSoonOrders.length > 0 || totalReceivable > 0 || lowStock.length > 0) && (
+        <section aria-label="Alertas e urgências">
+          <h2 className="font-heading text-title mb-4 text-gray-900 dark:text-white">
+            Atenção necessária
+          </h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {lateOrders.length > 0 && (
+              <Link
+                href="/app/orders?filter=late"
+                className="group flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 transition hover:bg-red-100 dark:border-red-900/40 dark:bg-red-950/20"
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-100 dark:bg-red-900/40">
+                  <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-red-800 dark:text-red-300">
+                    {lateOrders.length} pedido{lateOrders.length > 1 ? "s" : ""} atrasado{lateOrders.length > 1 ? "s" : ""}
+                  </p>
+                  <p className="mt-0.5 truncate text-xs text-red-600 dark:text-red-400">
+                    {lateOrders.map((o) => o.customerName).join(", ")}
+                  </p>
+                </div>
+                <ChevronRight className="h-4 w-4 shrink-0 text-red-400 transition group-hover:translate-x-0.5" />
+              </Link>
+            )}
+
+            {dueSoonOrders.length > 0 && (
+              <Link
+                href="/app/orders"
+                className="group flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 transition hover:bg-amber-100 dark:border-amber-900/40 dark:bg-amber-950/20"
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/40">
+                  <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                    {dueSoonOrders.length} entrega{dueSoonOrders.length > 1 ? "s" : ""} nos próximos 7 dias
+                  </p>
+                  <p className="mt-0.5 truncate text-xs text-amber-600 dark:text-amber-400">
+                    {dueSoonOrders.map((o) => o.customerName).join(", ")}
+                  </p>
+                </div>
+                <ChevronRight className="h-4 w-4 shrink-0 text-amber-400 transition group-hover:translate-x-0.5" />
+              </Link>
+            )}
+
+            {totalReceivable > 0 && (
+              <Link
+                href="/app/orders?filter=UNPAID"
+                className="group flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 transition hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-950/20"
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-100 dark:bg-rose-900/40">
+                  <DollarSign className="h-5 w-5 text-rose-600 dark:text-rose-400" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-rose-800 dark:text-rose-300">
+                    {fmt(totalReceivable)} a receber
+                  </p>
+                  <p className="mt-0.5 text-xs text-rose-600 dark:text-rose-400">
+                    {unpaidOrders.length} pedido{unpaidOrders.length > 1 ? "s" : ""} com pagamento pendente
+                  </p>
+                </div>
+                <ChevronRight className="h-4 w-4 shrink-0 text-rose-400 transition group-hover:translate-x-0.5" />
+              </Link>
+            )}
+
+            {lowStock.length > 0 && (
+              <Link
+                href="/app/inventory"
+                className="group flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 transition hover:bg-amber-100 dark:border-amber-900/40 dark:bg-amber-950/20"
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/40">
+                  <Archive className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                    {lowStock.length} fio{lowStock.length > 1 ? "s" : ""} com estoque baixo
+                  </p>
+                  <p className="mt-0.5 truncate text-xs text-amber-600 dark:text-amber-400">
+                    {lowStock.map((y) => `${y.brand} ${y.color}`).join(", ")}
+                  </p>
+                </div>
+                <ChevronRight className="h-4 w-4 shrink-0 text-amber-400 transition group-hover:translate-x-0.5" />
+              </Link>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* ── Low stock alert (keep old one removed, now in urgency section) ─── */}
+      {lowStock.length > 0 && false && (
         <div
           role="alert"
           className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50 p-4"
@@ -466,11 +595,11 @@ export default async function OverviewPage() {
             color="text-emerald-500 hover:border-emerald-200"
           />
           <QuickAction
-            href="/app/products/new"
-            icon={<Package className="h-5 w-5" />}
-            label="Novo produto"
-            description="Adicione uma peça ao catálogo"
-            color="text-violet-500 hover:border-violet-200"
+            href="/app/orders/new"
+            icon={<ClipboardList className="h-5 w-5" />}
+            label="Nova encomenda"
+            description="Registre um pedido de cliente"
+            color="text-pink-500 hover:border-pink-200"
           />
           <QuickAction
             href="/app/inventory/new"
