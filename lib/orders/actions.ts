@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireWorkspace } from "@/lib/workspace";
-import { orderSchema } from "./validators";
+import { orderSchema, type ChecklistItem } from "./validators";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -25,10 +25,12 @@ export async function createOrder(formData: FormData) {
   const raw = {
     orderDate: formData.get("orderDate") as string,
     customerName: formData.get("customerName") as string,
+    customerId: (formData.get("customerId") as string) || undefined,
     itemDescription: formData.get("itemDescription") as string,
     dueDate: formData.get("dueDate") as string,
     amount: parseFloat(formData.get("amount") as string),
     paymentStatus: formData.get("paymentStatus") as string,
+    productionStatus: (formData.get("productionStatus") as string) || undefined,
     notes: (formData.get("notes") as string) || undefined,
     channel: (formData.get("channel") as string) || undefined,
   };
@@ -61,10 +63,12 @@ export async function updateOrder(orderId: string, formData: FormData) {
   const raw = {
     orderDate: formData.get("orderDate") as string,
     customerName: formData.get("customerName") as string,
+    customerId: (formData.get("customerId") as string) || undefined,
     itemDescription: formData.get("itemDescription") as string,
     dueDate: formData.get("dueDate") as string,
     amount: parseFloat(formData.get("amount") as string),
     paymentStatus: formData.get("paymentStatus") as string,
+    productionStatus: (formData.get("productionStatus") as string) || undefined,
     notes: (formData.get("notes") as string) || undefined,
     channel: (formData.get("channel") as string) || undefined,
   };
@@ -88,7 +92,7 @@ export async function updateOrder(orderId: string, formData: FormData) {
 
   revalidatePath("/app/orders");
   revalidatePath(`/app/orders/${orderId}`);
-  redirect("/app/orders");
+  redirect(`/app/orders/${orderId}`);
 }
 
 export async function deleteOrder(orderId: string) {
@@ -114,4 +118,34 @@ export async function updatePaymentStatus(
   });
 
   revalidatePath("/app/orders");
+  revalidatePath(`/app/orders/${orderId}`);
+}
+
+export async function updateProductionStatus(
+  orderId: string,
+  newStatus: "TODO" | "IN_PROGRESS" | "FINISHING" | "READY" | "DELIVERED"
+) {
+  const { workspace } = await requireWorkspace();
+  await assertOrderOwnership(orderId, workspace.id);
+
+  await prisma.order.update({
+    where: { id: orderId },
+    data: { productionStatus: newStatus },
+  });
+
+  revalidatePath("/app/orders");
+  revalidatePath("/app/orders/board");
+  revalidatePath(`/app/orders/${orderId}`);
+}
+
+export async function updateChecklist(orderId: string, items: ChecklistItem[]) {
+  const { workspace } = await requireWorkspace();
+  await assertOrderOwnership(orderId, workspace.id);
+
+  await prisma.order.update({
+    where: { id: orderId },
+    data: { checklistJson: items },
+  });
+
+  revalidatePath(`/app/orders/${orderId}`);
 }

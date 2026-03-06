@@ -1,11 +1,18 @@
 import Link from "next/link";
 import { requireWorkspace } from "@/lib/workspace";
+import { prisma } from "@/lib/prisma";
 import { OrderForm } from "@/components/orders/OrderForm";
 import { createOrder } from "@/lib/orders/actions";
 import { ChevronLeft } from "lucide-react";
 
 export default async function NewOrderPage() {
-  await requireWorkspace();
+  const { workspace } = await requireWorkspace();
+
+  const customers = await prisma.customer.findMany({
+    where: { workspaceId: workspace.id },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true },
+  });
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -24,7 +31,7 @@ export default async function NewOrderPage() {
       </div>
 
       <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm dark:border-white/8 dark:bg-white/3">
-        <OrderForm action={createOrder} submitLabel="Criar encomenda" />
+        <OrderForm action={createOrder} customers={customers} submitLabel="Criar encomenda" />
       </div>
     </div>
   );

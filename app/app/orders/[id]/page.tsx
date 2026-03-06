@@ -4,8 +4,13 @@ import { requireWorkspace } from "@/lib/workspace";
 import { prisma } from "@/lib/prisma";
 import { OrderForm } from "@/components/orders/OrderForm";
 import { PaymentStatusBadge } from "@/components/orders/PaymentStatusBadge";
+import { ProductionStatusBadge } from "@/components/orders/ProductionStatusBadge";
+import { ChecklistEditor } from "@/components/orders/ChecklistEditor";
+import { ReceiptActions } from "@/components/orders/ReceiptActions";
+import { TimerWidget } from "@/components/time/TimerWidget";
 import { updateOrder, deleteOrder } from "@/lib/orders/actions";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, CheckSquare } from "lucide-react";
+import type { ChecklistItem } from "@/lib/orders/validators";
 
 function toDateInput(d: Date) {
   return new Date(d).toISOString().split("T")[0];
@@ -19,14 +24,25 @@ export default async function OrderDetailPage({
   const { workspace } = await requireWorkspace();
   const { id } = await params;
 
-  const order = await prisma.order.findFirst({
-    where: { id, workspaceId: workspace.id },
-  });
+  const [order, customers] = await Promise.all([
+    prisma.order.findFirst({
+      where: { id, workspaceId: workspace.id },
+    }),
+    prisma.customer.findMany({
+      where: { workspaceId: workspace.id },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    }),
+  ]);
 
   if (!order) notFound();
 
   const updateWithId = updateOrder.bind(null, order.id);
   const deleteWithId = deleteOrder.bind(null, order.id);
+
+  const checklist: ChecklistItem[] = Array.isArray(order.checklistJson)
+    ? (order.checklistJson as ChecklistItem[])
+    : [];
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -43,23 +59,51 @@ export default async function OrderDetailPage({
             {order.customerName}
           </h1>
           <PaymentStatusBadge status={order.paymentStatus} />
+          <ProductionStatusBadge status={order.productionStatus} />
         </div>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          {order.itemDescription}
-        </p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{order.itemDescription}</p>
       </div>
 
+      {/* PDF / WhatsApp */}
+      <ReceiptActions order={{
+        id: order.id,
+        customerName: order.customerName,
+        itemDescription: order.itemDescription,
+        amount: order.amount,
+        dueDate: order.dueDate.toISOString(),
+        orderDate: order.orderDate.toISOString(),
+        paymentStatus: order.paymentStatus,
+        notes: order.notes ?? undefined,
+      }} />
+
+      {/* Timer */}
+      <TimerWidget orderId={order.id} label="Cronômetro desta peça" />
+
+      {/* Checklist */}
+      <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-white/8 dark:bg-white/3">
+        <div className="mb-4 flex items-center gap-2">
+          <CheckSquare className="h-4 w-4 text-rose-500" />
+          <h2 className="text-sm font-semibold text-gray-800 dark:text-white">Checklist</h2>
+        </div>
+        <ChecklistEditor orderId={order.id} initialItems={checklist} />
+      </div>
+
+      {/* Edit form */}
       <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm dark:border-white/8 dark:bg-white/3">
+        <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">Editar pedido</h2>
         <OrderForm
           action={updateWithId}
+          customers={customers}
           submitLabel="Salvar alterações"
           defaultValues={{
             orderDate: toDateInput(order.orderDate),
             customerName: order.customerName,
+            customerId: order.customerId ?? "",
             itemDescription: order.itemDescription,
             dueDate: toDateInput(order.dueDate),
             amount: order.amount,
             paymentStatus: order.paymentStatus,
+            productionStatus: order.productionStatus,
             notes: order.notes ?? "",
             channel: order.channel ?? "",
           }}
