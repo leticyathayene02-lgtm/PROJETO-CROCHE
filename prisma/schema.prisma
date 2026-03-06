@@ -60,6 +60,8 @@ model Workspace {
   transactions      Transaction[]
   monthlyGoals      MonthlyGoal[]
   orders            Order[]
+  customers         Customer[]
+  timeEntries       TimeEntry[]
 }
 
 model WorkspaceMember {
@@ -177,6 +179,7 @@ model Product {
   workspace         Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   variants          ProductVariant[]
   priceCalculations PriceCalculation[]
+  timeEntries       TimeEntry[]
 }
 
 model ProductVariant {
@@ -221,6 +224,27 @@ enum TransactionType {
 }
 
 // ─────────────────────────────────────────
+// CUSTOMERS (CLIENTES)
+// ─────────────────────────────────────────
+
+model Customer {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  instagram   String?
+  whatsapp    String?
+  city        String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  orders    Order[]
+
+  @@index([workspaceId, name])
+}
+
+// ─────────────────────────────────────────
 // ORDERS (ENCOMENDAS)
 // ─────────────────────────────────────────
 
@@ -230,25 +254,63 @@ enum PaymentStatus {
   PAID
 }
 
-model Order {
-  id              String        @id @default(cuid())
-  workspaceId     String
-  orderDate       DateTime      @default(now())
-  dueDate         DateTime
-  customerName    String
-  itemDescription String
-  amount          Float
-  paymentStatus   PaymentStatus @default(UNPAID)
-  notes           String?
-  channel         String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+enum ProductionStatus {
+  TODO
+  IN_PROGRESS
+  FINISHING
+  READY
+  DELIVERED
+}
 
-  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+model Order {
+  id               String           @id @default(cuid())
+  workspaceId      String
+  orderDate        DateTime         @default(now())
+  dueDate          DateTime
+  customerId       String?
+  customerName     String
+  itemDescription  String
+  amount           Float
+  paymentStatus    PaymentStatus    @default(UNPAID)
+  productionStatus ProductionStatus @default(TODO)
+  checklistJson    Json?
+  notes            String?
+  channel          String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  customer    Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  timeEntries TimeEntry[]
 
   @@index([workspaceId, dueDate])
   @@index([workspaceId, paymentStatus])
+  @@index([workspaceId, productionStatus])
 }
+
+// ─────────────────────────────────────────
+// TIME TRACKING
+// ─────────────────────────────────────────
+
+model TimeEntry {
+  id          String   @id @default(cuid())
+  workspaceId String
+  orderId     String?
+  productId   String?
+  stage       String
+  minutes     Int
+  createdAt   DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  order     Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  product   Product?  @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, createdAt])
+}
+
+// ─────────────────────────────────────────
+// MONTHLY GOALS
+// ─────────────────────────────────────────
 
 model MonthlyGoal {
   id          String   @id @default(cuid())
