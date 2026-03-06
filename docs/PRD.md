@@ -8,15 +8,15 @@
 
 ## 1. Visão do Produto
 
-**Problema:** Crocheteiras que vendem peças artesanais frequentemente precificam de forma intuitiva, sem calcular custos reais. Isso leva a margens negativas, falta de controle financeiro e desmotivação.
+**Problema:** Artesãs que vendem peças artesanais frequentemente precificam de forma intuitiva, sem calcular custos reais. Isso leva a margens negativas, falta de controle financeiro e desmotivação.
 
-**Solução:** Um SaaS mobile-first, simples e feminino que ajuda crocheteiras a:
+**Solução:** Um SaaS mobile-first, simples e feminino que ajuda artesãs a:
 - Calcular o preço justo de cada peça
 - Controlar receitas e despesas mensais
 - Monitorar o estoque de fios
 - Acompanhar o lucro real
 
-**Público-alvo:** Crocheteiras brasileiras que vendem peças artesanais (Instagram, WhatsApp, feiras).
+**Público-alvo:** Artesãs brasileiras que vendem peças artesanais (Instagram, WhatsApp, feiras).
 
 ---
 
