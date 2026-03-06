@@ -1,4 +1,4 @@
-# PRD — Ateliê Digital (PROJETO CROCHÊ)
+# PRD — Trama Pro
 
 **Versão:** 0.1-MVP
 **Data:** Março 2026
@@ -39,7 +39,7 @@
 ## 3. Funcionalidades MVP
 
 ### 3.1 Auth + Workspace
-- Login via Google (OAuth)
+- Login via email + senha (bcrypt)
 - Criação automática de workspace (ateliê) no primeiro acesso
 - Middleware protege /app/**
 
@@ -134,7 +134,7 @@ Entidades principais:
 
 ## 7. Roadmap Pós-MVP
 
-- [ ] Magic link (email) além de Google
+- [ ] Magic link (email)
 - [ ] Workspace switcher (múltiplos ateliês)
 - [ ] Export PDF de cálculos e relatórios
 - [ ] Integração com catálogo do Instagram
@@ -149,7 +149,7 @@ Entidades principais:
 
 | Decisão | Escolha | Alternativa considerada | Motivo |
 |---|---|---|---|
-| Auth | NextAuth v5 + Google | Clerk | Open source, sem vendor lock |
+| Auth | Custom (bcrypt + session cookie) | NextAuth, Clerk | Open source, sem vendor lock |
 | DB | PostgreSQL | MySQL, SQLite | Robusto, suporte JSON, full-text |
 | ORM | Prisma | Drizzle | DX superior, migrations automáticas |
 | UI | shadcn/ui | Chakra, MUI | Headless, customizável, TW-native |

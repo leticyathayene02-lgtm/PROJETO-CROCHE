@@ -330,7 +330,7 @@ export default async function OverviewPage() {
           <p className="mb-6 max-w-md text-base text-rose-100/90 md:text-lg">
             {hasData
               ? "Seu ateliê está em movimento. Aqui está o resumo do mês."
-              : "Seu ateliê digital está pronto! Vamos começar?"}
+              : "Bem-vinda ao Trama Pro! Vamos começar?"}
           </p>
 
           <div className="flex flex-wrap gap-3">
@@ -561,7 +561,7 @@ export default async function OverviewPage() {
             <Sparkles className="h-9 w-9 text-white" />
           </div>
           <h2 className="font-heading text-title mb-2 text-rose-900">
-            Seu ateliê digital está pronto!
+            Bem-vinda ao Trama Pro!
           </h2>
           <p className="mx-auto max-w-sm text-sm leading-relaxed text-rose-600/80">
             Comece registrando um fio, calculando o preço de uma peça ou

@@ -1,4 +1,4 @@
-# 🧶 Ateliê Digital — PROJETO CROCHÊ
+# 🧶 Trama Pro
 
 SaaS para artesãs que vendem peças e precisam precificar, organizar estoque e acompanhar lucro.
 
@@ -225,7 +225,7 @@ import Image from "next/image";
 // ...
 <Image
   src="/hero-croche.jpg"
-  alt="Preview do Ateliê Digital"
+  alt="Preview do Trama Pro"
   width={480}
   height={400}
   className="animate-float rounded-3xl shadow-2xl"

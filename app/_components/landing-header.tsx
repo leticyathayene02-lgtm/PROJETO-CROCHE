@@ -24,7 +24,7 @@ export function LandingHeader() {
             🧶
           </span>
           <span className="font-heading text-lg font-bold text-rose-900 dark:text-rose-100">
-            Ateliê Digital
+            Trama Pro
           </span>
         </Link>
 

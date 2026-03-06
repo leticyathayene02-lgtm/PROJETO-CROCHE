@@ -93,11 +93,11 @@ export function AuthCard() {
         {/* Heading */}
         <div className="mb-6">
           <h2 className="text-xl font-bold text-rose-900">
-            {isSignup ? "Crie seu ateliê digital" : "Bem-vinda de volta!"}
+            {isSignup ? "Crie sua conta no Trama Pro" : "Bem-vinda de volta!"}
           </h2>
           <p className="mt-1 text-sm text-rose-500">
             {isSignup
-              ? "No primeiro acesso, criamos seu ateliê automaticamente ✨"
+              ? "No cadastro, criamos sua conta no Trama Pro automaticamente ✨"
               : "Entre com seu e-mail e senha para continuar ✨"}
           </p>
         </div>
@@ -176,7 +176,7 @@ export function AuthCard() {
             className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-rose-600 to-pink-500 px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-rose-300/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-rose-300/50 focus-visible:outline-2 focus-visible:outline-rose-600 focus-visible:outline-offset-2 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isPending ? (
-              <>{SPINNER}<span>{isSignup ? "Criando seu ateliê..." : "Entrando..."}</span></>
+              <>{SPINNER}<span>{isSignup ? "Criando sua conta..." : "Entrando..."}</span></>
             ) : (
               <>
                 <span>{isSignup ? "Criar minha conta" : "Entrar"}</span>

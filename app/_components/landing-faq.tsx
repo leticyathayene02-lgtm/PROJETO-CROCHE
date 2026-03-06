@@ -10,7 +10,7 @@ const QUESTIONS = [
   },
   {
     q: "Preciso instalar alguma coisa?",
-    a: "Não. O Ateliê Digital funciona direto no navegador, em qualquer dispositivo. Funciona perfeitamente no celular, no tablet e no computador.",
+    a: "Não. O Trama Pro funciona direto no navegador, em qualquer dispositivo. Funciona perfeitamente no celular, no tablet e no computador.",
   },
   {
     q: "Como funciona a calculadora de preço?",

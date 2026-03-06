@@ -22,8 +22,8 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Ateliê Digital | Crochê",
-  description: "Precifique, organize e lucre com seu ateliê de crochê.",
+  title: "Trama Pro",
+  description: "Precificação, finanças e estoque para artesãs venderem com lucro",
 };
 
 export default function RootLayout({

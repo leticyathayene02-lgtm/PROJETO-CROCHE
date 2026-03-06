@@ -53,13 +53,13 @@ export default function LoginPage() {
       {/* ── Left hero column (desktop only) ─────────────────── */}
       <aside
         className="relative hidden flex-1 flex-col justify-between p-12 lg:flex"
-        aria-label="Apresentação do Ateliê Digital"
+        aria-label="Apresentação do Trama Pro"
       >
         {/* Logo */}
         <Link href="/" className="flex w-fit items-center gap-3">
           <span className="text-3xl" aria-hidden="true">🧶</span>
           <span className="text-xl font-bold tracking-tight text-rose-900 dark:text-rose-100">
-            Ateliê Digital
+            Trama Pro
           </span>
         </Link>
 
@@ -109,7 +109,7 @@ export default function LoginPage() {
             <blockquote>
               <p className="text-sm leading-relaxed text-rose-800 dark:text-rose-200">
                 &ldquo;Antes eu chutava o preço e sempre saía no prejuízo. Com o
-                Ateliê Digital, aumentei meu faturamento em{" "}
+                Trama Pro, aumentei meu faturamento em{" "}
                 <strong>40%</strong> em dois meses!&rdquo;
               </p>
             </blockquote>
@@ -138,7 +138,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-xs text-rose-400 dark:text-rose-600">
-          © {new Date().getFullYear()} Ateliê Digital. Todos os direitos reservados.
+          © {new Date().getFullYear()} Trama Pro. Todos os direitos reservados.
         </p>
       </aside>
 
@@ -149,7 +149,7 @@ export default function LoginPage() {
           <Link href="/" className="inline-block">
             <span className="mb-2 block text-4xl" aria-hidden="true">🧶</span>
             <h1 className="text-2xl font-bold tracking-tight text-rose-900 dark:text-rose-100">
-              Ateliê Digital
+              Trama Pro
             </h1>
           </Link>
           <p className="mt-1 text-sm text-rose-500 dark:text-rose-400">

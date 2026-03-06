@@ -292,7 +292,7 @@ export default async function HomePage() {
               Três ferramentas. Um só lugar.
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-base text-gray-500 dark:text-gray-400">
-              Chega de planilha bagunçada. O Ateliê Digital reúne tudo que uma
+              Chega de planilha bagunçada. O Trama Pro reúne tudo que uma
               artesã precisa para crescer.
             </p>
           </div>
@@ -400,7 +400,7 @@ export default async function HomePage() {
                 step: "1",
                 icon: <Sparkles className="h-7 w-7" />,
                 title: "Crie sua conta grátis",
-                desc: "Cadastre-se com seu e-mail em segundos. Sem cartão de crédito. Seu ateliê digital estará pronto imediatamente.",
+                desc: "Cadastre-se com seu e-mail em segundos. Sem cartão de crédito. O Trama Pro estará pronto imediatamente.",
               },
               {
                 step: "2",
@@ -529,7 +529,7 @@ export default async function HomePage() {
                 avatar: "M",
                 color: "from-rose-400 to-pink-500",
                 quote:
-                  "Antes eu chutava o preço e sempre saía no prejuízo. Com o Ateliê Digital, aumentei meu faturamento em 40% em dois meses! A calculadora é incrível.",
+                  "Antes eu chutava o preço e sempre saía no prejuízo. Com o Trama Pro, aumentei meu faturamento em 40% em dois meses! A calculadora é incrível.",
               },
               {
                 name: "Ana C.",
@@ -735,7 +735,7 @@ export default async function HomePage() {
                 🧶
               </span>
               <span className="font-heading font-bold text-rose-900 dark:text-rose-100">
-                Ateliê Digital
+                Trama Pro
               </span>
             </div>
             <div className="flex gap-6 text-xs text-gray-400 dark:text-gray-500">
@@ -759,7 +759,7 @@ export default async function HomePage() {
               </Link>
             </div>
             <p className="text-xs text-gray-400 dark:text-gray-500">
-              © {new Date().getFullYear()} Ateliê Digital. Feito com 🧡 para artesãs.
+              © {new Date().getFullYear()} Trama Pro. Feito com 🧡 para artesãs.
             </p>
           </div>
         </div>
