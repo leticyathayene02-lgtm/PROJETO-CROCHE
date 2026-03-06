@@ -6,7 +6,7 @@ import { ChevronDown } from "lucide-react";
 const QUESTIONS = [
   {
     q: "É realmente gratuito?",
-    a: "Sim! O plano gratuito inclui 10 cálculos de preço e 20 transações financeiras por mês — mais que suficiente para começar. Sem cartão de crédito e sem tempo limite.",
+    a: "Sim! O plano gratuito inclui 3 cálculos de preço e 5 transações financeiras por mês — perfeito para experimentar. Sem cartão de crédito e sem tempo limite.",
   },
   {
     q: "Preciso instalar alguma coisa?",

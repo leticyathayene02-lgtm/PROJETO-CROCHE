@@ -396,7 +396,7 @@ export default async function OverviewPage() {
             <div className="flex min-w-0 items-center gap-2.5 text-sm text-white/90">
               <Sparkles className="h-4 w-4 shrink-0 text-amber-300" />
               <span className="truncate">
-                Plano Gratuito · <strong>{calcsUsed}/10</strong> cálculos usados este mês
+                Plano Gratuito · <strong>{calcsUsed}/3</strong> cálculos usados este mês
               </span>
             </div>
             <Link

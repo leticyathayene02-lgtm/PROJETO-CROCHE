@@ -198,9 +198,9 @@ Calcula automaticamente:
 
 | Recurso | Grátis | Premium |
 |---|---|---|
-| Cálculos/mês | 10 | Ilimitado |
-| Transações/mês | 20 | Ilimitado |
-| Produtos | 10 | Ilimitado |
+| Cálculos/mês | 3 | Ilimitado |
+| Transações/mês | 5 | Ilimitado |
+| Produtos | 3 | Ilimitado |
 
 ---
 

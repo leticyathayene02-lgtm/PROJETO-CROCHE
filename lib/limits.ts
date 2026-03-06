@@ -6,9 +6,9 @@ import { Plan } from "@prisma/client";
 // ─────────────────────────────────────────
 export const PLAN_LIMITS = {
   FREE: {
-    pricingCalculations: 10, // per month
-    transactions: 20,        // per month
-    products: 10,            // total (not per month — checked against DB count)
+    pricingCalculations: 3, // per month
+    transactions: 5,        // per month
+    products: 3,            // total (not per month — checked against DB count)
   },
   PREMIUM: {
     pricingCalculations: Infinity,

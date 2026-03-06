@@ -601,9 +601,9 @@ export default async function HomePage() {
               <p className="mt-1 mb-6 text-xs text-gray-400">Para começar e descobrir</p>
               <ul className="mb-7 space-y-2.5">
                 {[
-                  "10 cálculos/mês",
-                  "20 transações/mês",
-                  "10 produtos",
+                  "3 cálculos/mês",
+                  "5 transações/mês",
+                  "3 produtos",
                   "Estoque de fios",
                   "Metas mensais",
                 ].map((f) => (

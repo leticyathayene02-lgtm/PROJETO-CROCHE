@@ -167,9 +167,9 @@ export default async function BillingPage({
                 Gratuito
               </p>
               <ul className="space-y-1 text-gray-500">
-                <li>✓ 10 cálculos/mês</li>
-                <li>✓ 20 transações/mês</li>
-                <li>✓ 10 produtos</li>
+                <li>✓ 3 cálculos/mês</li>
+                <li>✓ 5 transações/mês</li>
+                <li>✓ 3 produtos</li>
                 <li>✓ Controle de estoque</li>
               </ul>
             </div>
