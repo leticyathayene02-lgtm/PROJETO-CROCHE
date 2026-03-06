@@ -1,16 +1,26 @@
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 /**
  * Get the current user's active workspace.
  * Redirects to /login if not authenticated.
- * Redirects to /app/setup if no workspace found.
+ * Clears stale session cookie to prevent middleware redirect loops.
  */
 export async function requireWorkspace() {
   const session = await getSession();
 
   if (!session?.user?.id) {
+    // Clear the stale cookie before redirecting so the middleware won't
+    // see a cookie and immediately bounce back to /app/*, causing a loop.
+    const cookieStore = await cookies();
+    cookieStore.set("session", "", {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      expires: new Date(0),
+    });
     redirect("/login");
   }
 
@@ -27,7 +37,8 @@ export async function requireWorkspace() {
   });
 
   if (!member) {
-    redirect("/app/setup");
+    // No workspace found — route /app/setup does not exist, so fall back to login
+    redirect("/login");
   }
 
   return {
