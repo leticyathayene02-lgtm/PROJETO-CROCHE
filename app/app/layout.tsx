@@ -1,7 +1,6 @@
 import { requireWorkspace } from "@/lib/workspace";
 import { Sidebar } from "@/components/layout/sidebar";
 import { MobileNav } from "@/components/layout/mobile-nav";
-import { signOut } from "@/lib/auth";
 
 export default async function AppLayout({
   children,
@@ -16,8 +15,28 @@ export default async function AppLayout({
       ? "PREMIUM"
       : "FREE";
 
+  async function handleSignOut() {
+    "use server";
+    const { cookies } = await import("next/headers");
+    const { prisma } = await import("@/lib/prisma");
+    const cookieStore = await cookies();
+    const token = cookieStore.get("session")?.value;
+    if (token) {
+      await prisma.session.deleteMany({ where: { sessionToken: token } });
+    }
+    // Clear the session cookie so the middleware stops seeing it
+    cookieStore.set("session", "", {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      expires: new Date(0),
+    });
+    const { redirect } = await import("next/navigation");
+    redirect("/login");
+  }
+
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
       {/* Desktop Sidebar */}
       <div className="hidden md:block">
         <div className="h-full">
@@ -26,10 +45,7 @@ export default async function AppLayout({
             plan={plan}
             userName={user.name}
             userImage={user.image}
-            onSignOut={async () => {
-              "use server";
-              await signOut({ redirectTo: "/login" });
-            }}
+            onSignOut={handleSignOut}
           />
         </div>
       </div>
