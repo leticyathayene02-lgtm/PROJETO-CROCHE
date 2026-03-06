@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
  * Redirects to /app/setup if no workspace found.
  */
 export async function requireWorkspace() {
-  const session = await auth();
+  const session = await getSession();
 
   if (!session?.user?.id) {
     redirect("/login");

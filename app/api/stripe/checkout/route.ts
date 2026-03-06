@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { createCheckoutSession } from "@/lib/stripe";
 
+export const runtime = "nodejs";
+
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth();
+    const session = await getSession();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -37,7 +39,7 @@ export async function POST(req: NextRequest) {
     const checkoutSession = await createCheckoutSession({
       workspaceId,
       userId: session.user.id,
-      email: session.user.email!,
+      email: session.user.email,
       customerId: subscription?.stripeCustomerId,
     });
 

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 const navItems = [
   {
@@ -66,13 +67,13 @@ export function Sidebar({
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-full w-64 flex-col border-r border-rose-100 bg-white">
+    <aside className="flex h-full w-64 flex-col border-r border-rose-100 bg-white dark:border-white/8 dark:bg-gray-900">
       {/* Brand / Workspace */}
-      <div className="border-b border-rose-100 p-4">
+      <div className="border-b border-rose-100 p-4 dark:border-white/8">
         <div className="flex items-center gap-2">
           <span className="text-2xl">🧶</span>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-rose-900">
+            <p className="truncate text-sm font-semibold text-rose-900 dark:text-rose-100">
               {workspaceName}
             </p>
             <div className="flex items-center gap-1">
@@ -82,13 +83,14 @@ export function Sidebar({
                   "h-4 px-1 text-[10px]",
                   plan === "PREMIUM"
                     ? "bg-rose-600 text-white hover:bg-rose-700"
-                    : "bg-gray-100 text-gray-500"
+                    : "bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400"
                 )}
               >
                 {plan === "PREMIUM" ? "Premium ✨" : "Grátis"}
               </Badge>
             </div>
           </div>
+          <ThemeToggle variant="ghost" className="shrink-0" />
         </div>
       </div>
 
@@ -106,19 +108,21 @@ export function Sidebar({
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-rose-50 text-rose-700"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-100"
               )}
             >
               <Icon
                 className={cn(
                   "h-4 w-4 shrink-0",
-                  isActive ? "text-rose-600" : "text-gray-400"
+                  isActive
+                    ? "text-rose-600 dark:text-rose-400"
+                    : "text-gray-400 dark:text-gray-500"
                 )}
               />
               <span className="flex-1">{item.label}</span>
               {isActive && (
-                <ChevronRight className="h-3 w-3 text-rose-400" />
+                <ChevronRight className="h-3 w-3 text-rose-400 dark:text-rose-500" />
               )}
             </Link>
           );
@@ -126,12 +130,12 @@ export function Sidebar({
       </nav>
 
       {/* User / Sign Out */}
-      <div className="border-t border-rose-100 p-3">
+      <div className="border-t border-rose-100 p-3 dark:border-white/8">
         <div className="mb-2 flex items-center gap-2 px-3 py-1">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-rose-100 text-xs font-semibold text-rose-700">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-rose-100 text-xs font-semibold text-rose-700 dark:bg-rose-900/50 dark:text-rose-400">
             {userName?.charAt(0)?.toUpperCase() ?? "U"}
           </div>
-          <span className="flex-1 truncate text-xs text-gray-600">
+          <span className="flex-1 truncate text-xs text-gray-600 dark:text-gray-400">
             {userName}
           </span>
         </div>
@@ -139,7 +143,7 @@ export function Sidebar({
           variant="ghost"
           size="sm"
           onClick={onSignOut}
-          className="w-full justify-start gap-2 text-gray-500 hover:text-gray-900"
+          className="w-full justify-start gap-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
         >
           <LogOut className="h-4 w-4" />
           Sair
