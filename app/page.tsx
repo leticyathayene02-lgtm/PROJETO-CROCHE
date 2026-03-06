@@ -7,6 +7,7 @@ import {
   Calculator,
   TrendingUp,
   Archive,
+  ClipboardList,
   Check,
   ArrowRight,
   Sparkles,
@@ -289,7 +290,7 @@ export default async function HomePage() {
           <div className="mb-14 text-center">
             <SectionTag>Tudo que você precisa</SectionTag>
             <h2 className="font-heading text-title mt-4 text-gray-900 dark:text-white">
-              Três ferramentas. Um só lugar.
+              Quatro ferramentas. Um só lugar.
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-base text-gray-500 dark:text-gray-400">
               Chega de planilha bagunçada. O Trama Pro reúne tudo que uma
@@ -297,7 +298,7 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
                 icon: <Calculator className="h-6 w-6" />,
@@ -344,10 +345,25 @@ export default async function HomePage() {
                   "Alerta de estoque baixo",
                 ],
               },
+              {
+                icon: <ClipboardList className="h-6 w-6" />,
+                bg: "bg-amber-50 dark:bg-amber-950/20",
+                border: "border-amber-100 dark:border-amber-900/20",
+                iconBg:
+                  "bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400",
+                title: "Pedidos & Encomendas",
+                desc: "Do pedido ao pagamento: tudo organizado. Acompanhe prazos, clientes e status de cada encomenda do ateliê.",
+                features: [
+                  "Qual peça e detalhes do pedido",
+                  "Quem pediu (cliente)",
+                  "Status: não pago / 50% / pago",
+                  "Data prevista de entrega",
+                ],
+              },
             ].map((feature) => (
               <div
                 key={feature.title}
-                className={`group rounded-3xl border p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${feature.bg} ${feature.border}`}
+                className={`group flex flex-col rounded-3xl border p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${feature.bg} ${feature.border}`}
               >
                 <div
                   className={`mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl ${feature.iconBg}`}
@@ -360,7 +376,7 @@ export default async function HomePage() {
                 <p className="mb-5 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
                   {feature.desc}
                 </p>
-                <ul className="space-y-2">
+                <ul className="mt-auto space-y-2">
                   {feature.features.map((f) => (
                     <li
                       key={f}
