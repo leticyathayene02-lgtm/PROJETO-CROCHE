@@ -116,6 +116,7 @@ O sistema usa **email + senha** com bcrypt e session cookie httpOnly. Sem Google
 | Comando | Descrição |
 |---|---|
 | `npm run dev` | Iniciar desenvolvimento |
+| `npm run dev:clean` | Limpar cache `.next` e iniciar dev |
 | `npm run build` | Build de produção |
 | `npm run lint` | Verificar lint |
 | `npm run format` | Formatar código |
@@ -200,6 +201,37 @@ Calcula automaticamente:
 | Cálculos/mês | 10 | Ilimitado |
 | Transações/mês | 20 | Ilimitado |
 | Produtos | 10 | Ilimitado |
+
+---
+
+## Troubleshooting
+
+### Erro estranho no browser / "module is not a function"
+
+O `.next` pode ter cache corrompido (comum quando o banco não estava rodando durante o build). Solução:
+
+**Windows:**
+```bash
+# 1. Matar todos os processos Node.js
+taskkill /IM node.exe /F
+
+# 2. Iniciar banco + dev limpo
+npm run db:start
+npm run dev:clean
+```
+
+**Mac/Linux:**
+```bash
+pkill -f node
+npm run db:start
+npm run dev:clean
+```
+
+> `dev:clean` remove a pasta `.next` antes de subir o servidor, garantindo build fresco.
+
+### Múltiplos servidores na mesma porta
+
+Se o Next.js subir em portas 3001, 3002... é porque processos antigos não foram encerrados. Use `taskkill /IM node.exe /F` (Windows) ou `pkill -f node` (Mac/Linux) para matar todos e reiniciar.
 
 ---
 
