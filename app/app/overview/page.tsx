@@ -257,24 +257,24 @@ export default async function OverviewPage() {
           },
         },
         select: { type: true, amount: true },
-      }),
-      prisma.product.count({ where: { workspaceId, status: "ACTIVE" } }),
+      }).catch(() => [] as { type: "IN" | "OUT"; amount: number }[]),
+      prisma.product.count({ where: { workspaceId, status: "ACTIVE" } }).catch(() => 0),
       prisma.priceCalculation.findMany({
         where: { workspaceId },
         take: 5,
         orderBy: { createdAt: "desc" },
         select: { id: true, name: true, totalsJson: true, createdAt: true },
-      }),
+      }).catch(() => []),
       prisma.usageCounter.findUnique({
         where: {
           workspaceId_monthYYYYMM: { workspaceId, monthYYYYMM: monthKey },
         },
-      }),
+      }).catch(() => null),
       prisma.monthlyGoal.findUnique({
         where: {
           workspaceId_monthYYYYMM: { workspaceId, monthYYYYMM: monthKey },
         },
-      }),
+      }).catch(() => null),
     ]);
 
   const now = new Date();
@@ -282,7 +282,7 @@ export default async function OverviewPage() {
   in7days.setDate(in7days.getDate() + 7);
 
   const [yarns, lateOrders, dueSoonOrders, unpaidOrders] = await Promise.all([
-    prisma.yarn.findMany({ where: { workspaceId } }),
+    prisma.yarn.findMany({ where: { workspaceId } }).catch(() => []),
     prisma.order.findMany({
       where: {
         workspaceId,
@@ -292,7 +292,7 @@ export default async function OverviewPage() {
       select: { id: true, customerName: true, dueDate: true, amount: true },
       orderBy: { dueDate: "asc" },
       take: 5,
-    }),
+    }).catch(() => []),
     prisma.order.findMany({
       where: {
         workspaceId,
@@ -302,14 +302,14 @@ export default async function OverviewPage() {
       select: { id: true, customerName: true, dueDate: true },
       orderBy: { dueDate: "asc" },
       take: 5,
-    }),
+    }).catch(() => []),
     prisma.order.findMany({
       where: {
         workspaceId,
         paymentStatus: { in: ["UNPAID", "HALF_PAID"] },
       },
       select: { amount: true, paymentStatus: true },
-    }),
+    }).catch(() => []),
   ]);
 
   const lowStock = yarns.filter((y) => y.gramsAvailable < y.lowStockThreshold);

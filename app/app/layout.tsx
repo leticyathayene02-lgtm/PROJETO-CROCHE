@@ -17,14 +17,10 @@ export default async function AppLayout({
 
   async function handleSignOut() {
     "use server";
+    const { deleteSession } = await import("@/lib/session");
     const { cookies } = await import("next/headers");
-    const { prisma } = await import("@/lib/prisma");
+    await deleteSession();
     const cookieStore = await cookies();
-    const token = cookieStore.get("session")?.value;
-    if (token) {
-      await prisma.session.deleteMany({ where: { sessionToken: token } });
-    }
-    // Clear the session cookie so the middleware stops seeing it
     cookieStore.set("session", "", {
       httpOnly: true,
       sameSite: "lax",

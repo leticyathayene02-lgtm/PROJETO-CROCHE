@@ -1,6 +1,4 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getSession } from "@/lib/session";
 import { LandingHeader } from "./_components/landing-header";
 import { LandingFaq } from "./_components/landing-faq";
 import {
@@ -149,10 +147,7 @@ function StarRating({ count = 5 }: { count?: number }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default async function HomePage() {
-  const session = await getSession();
-  if (session?.user) redirect("/app/overview");
-
+export default function HomePage() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
       <LandingHeader />
