@@ -55,6 +55,7 @@ model Workspace {
   subscription      Subscription?
   usageCounters     UsageCounter[]
   yarns             Yarn[]
+  materials         Material[]
   priceCalculations PriceCalculation[]
   products          Product[]
   transactions      Transaction[]
@@ -62,6 +63,7 @@ model Workspace {
   orders            Order[]
   customers         Customer[]
   timeEntries       TimeEntry[]
+  overheadCosts     OverheadCost[]
 }
 
 model WorkspaceMember {
@@ -324,4 +326,67 @@ model MonthlyGoal {
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@unique([workspaceId, monthYYYYMM])
+}
+
+// ─────────────────────────────────────────
+// MATERIALS CATALOG (Catálogo de Insumos)
+// ─────────────────────────────────────────
+
+enum MaterialUnit {
+  GRAMS
+  METERS
+  UNITS
+  PACKS
+}
+
+enum MaterialCategory {
+  YARN
+  FILLING
+  EYES
+  LABEL
+  BUTTON
+  ZIPPER
+  RING
+  PACKAGING
+  TAG
+  GIFT
+  OTHER
+}
+
+model Material {
+  id          String           @id @default(cuid())
+  workspaceId String
+  name        String
+  category    MaterialCategory @default(OTHER)
+  brand       String?
+  color       String?
+  unit        MaterialUnit     @default(UNITS)
+  costPerUnit Float
+  stock       Float            @default(0)
+  lowStockMin Float            @default(0)
+  supplier    String?
+  notes       String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, category])
+}
+
+// ─────────────────────────────────────────
+// OVERHEAD COSTS (Custos Fixos do Ateliê)
+// ─────────────────────────────────────────
+
+model OverheadCost {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  amount      Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
 }

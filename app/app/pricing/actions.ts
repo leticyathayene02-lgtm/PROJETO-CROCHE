@@ -7,23 +7,55 @@ import {
   checkPricingCalculationLimit,
   incrementPricingCounter,
 } from "@/lib/limits";
-import { computePricingTotals } from "@/lib/pricing";
+import { computePricingTotals, type PricingInputs } from "@/lib/pricing";
 
 // ─────────────────────────────────────────
-// Zod schema
+// Zod schema (accepts both old and new format)
 // ─────────────────────────────────────────
+
+const materialItemSchema = z.object({
+  name: z.string(),
+  unit: z.string(),
+  quantity: z.number().min(0),
+  costPerUnit: z.number().min(0),
+});
+
+const laborStageSchema = z.object({
+  name: z.string(),
+  minutes: z.number().min(0),
+});
+
+const overheadItemSchema = z.object({
+  name: z.string(),
+  monthlyAmount: z.number().min(0),
+});
+
+const scenarioSchema = z.object({
+  name: z.string(),
+  feePercent: z.number().min(0).max(100),
+});
 
 export const pricingSchema = z.object({
   name: z.string().optional(),
-  yarnCostPerGram: z.number().min(0, "Deve ser ≥ 0"),
-  yarnGramsUsed: z.number().min(0, "Deve ser ≥ 0"),
-  packaging: z.number().min(0, "Deve ser ≥ 0"),
-  gift: z.number().min(0, "Deve ser ≥ 0"),
-  labels: z.number().min(0, "Deve ser ≥ 0"),
-  hoursSpent: z.number().min(0, "Deve ser ≥ 0"),
-  hourlyRate: z.number().min(0, "Deve ser ≥ 0"),
-  cardFeePercent: z.number().min(0, "Deve ser ≥ 0").max(100, "Deve ser ≤ 100"),
-  profitMarginPercent: z.number().min(0, "Deve ser ≥ 0").max(100000, "Margem muito alta"),
+
+  // New format
+  materials: z.array(materialItemSchema).optional(),
+  laborStages: z.array(laborStageSchema).optional(),
+  hourlyRate: z.number().min(0).optional(),
+  overheadItems: z.array(overheadItemSchema).optional(),
+  monthlyHoursWorked: z.number().min(0).optional(),
+  profitMarginPercent: z.number().min(0).max(100000),
+  taxPercent: z.number().min(0).max(100).optional(),
+  scenarios: z.array(scenarioSchema).optional(),
+
+  // Legacy fields (still accepted)
+  yarnCostPerGram: z.number().min(0).optional(),
+  yarnGramsUsed: z.number().min(0).optional(),
+  packaging: z.number().min(0).optional(),
+  gift: z.number().min(0).optional(),
+  labels: z.number().min(0).optional(),
+  hoursSpent: z.number().min(0).optional(),
+  cardFeePercent: z.number().min(0).max(100).optional(),
 });
 
 export type PricingFormValues = z.infer<typeof pricingSchema>;
@@ -39,7 +71,6 @@ export type CreatePricingResult =
 export async function createPricingCalculation(
   raw: PricingFormValues
 ): Promise<CreatePricingResult> {
-  // 1. Validate input
   const parsed = pricingSchema.safeParse(raw);
   if (!parsed.success) {
     const firstError = parsed.error.issues[0]?.message ?? "Dados inválidos";
@@ -47,53 +78,44 @@ export async function createPricingCalculation(
   }
 
   const data = parsed.data;
-
-  // 2. Require authenticated workspace
   const { workspace } = await requireWorkspace();
 
-  // 3. Check plan limit
   const limitCheck = await checkPricingCalculationLimit(workspace.id);
   if (!limitCheck.allowed) {
     return { success: false, error: limitCheck.reason };
   }
 
-  // 4. Compute totals
-  const totals = computePricingTotals(data);
-
-  const inputsJson = {
+  const inputs: PricingInputs = {
+    materials: data.materials ?? [],
+    laborStages: data.laborStages ?? [],
+    hourlyRate: data.hourlyRate ?? 0,
+    overheadItems: data.overheadItems ?? [],
+    monthlyHoursWorked: data.monthlyHoursWorked ?? 160,
+    profitMarginPercent: data.profitMarginPercent ?? 0,
+    taxPercent: data.taxPercent ?? 0,
+    scenarios: data.scenarios ?? [],
+    // Legacy
     yarnCostPerGram: data.yarnCostPerGram,
     yarnGramsUsed: data.yarnGramsUsed,
     packaging: data.packaging,
     gift: data.gift,
     labels: data.labels,
     hoursSpent: data.hoursSpent,
-    hourlyRate: data.hourlyRate,
     cardFeePercent: data.cardFeePercent,
-    profitMarginPercent: data.profitMarginPercent,
   };
 
-  const totalsJson = {
-    yarnCost: totals.yarnCost,
-    materialsCost: totals.materialsCost,
-    laborCost: totals.laborCost,
-    subtotal: totals.subtotal,
-    fees: totals.fees,
-    profit: totals.profit,
-    suggestedPrice: totals.suggestedPrice,
-  };
+  const totals = computePricingTotals(inputs);
 
-  // 5. Persist to database
   const record = await prisma.priceCalculation.create({
     data: {
       workspaceId: workspace.id,
       name: data.name?.trim() || null,
-      inputsJson,
-      totalsJson,
+      inputsJson: JSON.parse(JSON.stringify(inputs)),
+      totalsJson: JSON.parse(JSON.stringify(totals)),
     },
     select: { id: true },
   });
 
-  // 6. Increment usage counter
   await incrementPricingCounter(workspace.id);
 
   return { success: true, data: { id: record.id } };

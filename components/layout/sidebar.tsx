@@ -14,6 +14,7 @@ import {
   LogOut,
   ClipboardList,
   Users,
+  Palette,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +30,11 @@ const navItems = [
     href: "/app/pricing",
     label: "Calculadora",
     icon: Calculator,
+  },
+  {
+    href: "/app/materials",
+    label: "Materiais",
+    icon: Palette,
   },
   {
     href: "/app/products",
