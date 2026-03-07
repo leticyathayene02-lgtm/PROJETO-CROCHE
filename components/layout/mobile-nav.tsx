@@ -8,15 +8,15 @@ import {
   Calculator,
   ClipboardList,
   TrendingUp,
-  Users,
+  Ellipsis,
 } from "lucide-react";
 
 const navItems = [
   { href: "/app/overview", label: "Início", icon: LayoutDashboard },
   { href: "/app/pricing", label: "Calcular", icon: Calculator },
-  { href: "/app/customers", label: "Clientes", icon: Users },
   { href: "/app/orders", label: "Pedidos", icon: ClipboardList },
   { href: "/app/finance", label: "Financeiro", icon: TrendingUp },
+  { href: "/app/materials", label: "Mais", icon: Ellipsis },
 ];
 
 export function MobileNav() {

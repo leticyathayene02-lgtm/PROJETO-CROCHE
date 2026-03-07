@@ -181,6 +181,20 @@ export default async function FinancePage() {
         </Card>
       </div>
 
+      {/* DRE Simples */}
+      {transactions.length > 0 && (
+        <Card className="border-rose-100">
+          <CardHeader>
+            <CardTitle className="text-base font-semibold text-rose-900 dark:text-white">
+              DRE Simplificado — {now.toLocaleDateString("pt-BR", { month: "long" })}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <DreSection transactions={transactions} />
+          </CardContent>
+        </Card>
+      )}
+
       {/* Chart */}
       <Card className="border-rose-100">
         <CardHeader>
@@ -247,6 +261,79 @@ export default async function FinancePage() {
           )}
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+// ─── DRE Component ──────────────────────────────────────────────────
+
+type Tx = { type: string; amount: number; category: string };
+
+function DreSection({ transactions }: { transactions: Tx[] }) {
+  const entradas = transactions.filter((t) => t.type === "IN");
+  const saidas = transactions.filter((t) => t.type === "OUT");
+
+  // Group by category
+  const groupBy = (txs: Tx[]) => {
+    const map = new Map<string, number>();
+    for (const t of txs) {
+      const cat = t.category || "Sem categoria";
+      map.set(cat, (map.get(cat) || 0) + t.amount);
+    }
+    return [...map.entries()].sort((a, b) => b[1] - a[1]);
+  };
+
+  const entradasByCat = groupBy(entradas);
+  const saidasByCat = groupBy(saidas);
+  const totalIn = entradas.reduce((s, t) => s + t.amount, 0);
+  const totalOut = saidas.reduce((s, t) => s + t.amount, 0);
+  const lucro = totalIn - totalOut;
+
+  return (
+    <div className="space-y-1 text-sm">
+      {/* Receitas */}
+      <p className="font-semibold text-emerald-700 dark:text-emerald-400 uppercase text-xs tracking-wider">
+        Receitas
+      </p>
+      {entradasByCat.map(([cat, amount]) => (
+        <div key={cat} className="flex justify-between py-0.5 pl-4">
+          <span className="text-gray-600 dark:text-gray-400">{cat}</span>
+          <span className="font-medium text-emerald-600 tabular-nums">{brl(amount)}</span>
+        </div>
+      ))}
+      <div className="flex justify-between border-t border-emerald-100 pt-1 font-semibold dark:border-emerald-900/30">
+        <span className="text-gray-700 dark:text-gray-300">Total receitas</span>
+        <span className="text-emerald-700 dark:text-emerald-400 tabular-nums">{brl(totalIn)}</span>
+      </div>
+
+      <div className="h-3" />
+
+      {/* Custos */}
+      <p className="font-semibold text-red-600 dark:text-red-400 uppercase text-xs tracking-wider">
+        Custos e despesas
+      </p>
+      {saidasByCat.map(([cat, amount]) => (
+        <div key={cat} className="flex justify-between py-0.5 pl-4">
+          <span className="text-gray-600 dark:text-gray-400">{cat}</span>
+          <span className="font-medium text-red-500 tabular-nums">-{brl(amount)}</span>
+        </div>
+      ))}
+      <div className="flex justify-between border-t border-red-100 pt-1 font-semibold dark:border-red-900/30">
+        <span className="text-gray-700 dark:text-gray-300">Total custos</span>
+        <span className="text-red-600 dark:text-red-400 tabular-nums">-{brl(totalOut)}</span>
+      </div>
+
+      <div className="h-3" />
+
+      {/* Lucro */}
+      <div className={`flex justify-between rounded-xl px-4 py-3 font-bold ${
+        lucro >= 0
+          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400"
+          : "bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-400"
+      }`}>
+        <span>RESULTADO LÍQUIDO</span>
+        <span className="tabular-nums">{brl(lucro)}</span>
+      </div>
     </div>
   );
 }
