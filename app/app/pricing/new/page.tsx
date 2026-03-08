@@ -1,16 +1,17 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import {
   Loader2,
   ArrowLeft,
-  Plus,
-  Trash2,
   AlertTriangle,
   Info,
   AlertCircle,
+  Banknote,
+  CreditCard,
+  ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -21,20 +22,15 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
 
 import { createPricingCalculation } from "../actions";
 import {
   computePricingTotals,
   getPricingAlerts,
-  DEFAULT_SCENARIOS,
   type PricingInputs,
-  type MaterialItem,
-  type LaborStage,
-  type OverheadItem,
-  type SalesScenario,
   type PricingAlert,
+  type ProfitMode,
 } from "@/lib/pricing";
 
 // ─── Helpers ────────────────────────────────────────────────────────
@@ -50,18 +46,20 @@ function NumInput({
   onChange,
   placeholder,
   className,
+  step,
 }: {
   value: number;
   onChange: (v: number) => void;
   placeholder?: string;
   className?: string;
+  step?: string;
 }) {
   return (
     <Input
       type="number"
       inputMode="decimal"
       min={0}
-      step="any"
+      step={step ?? "any"}
       placeholder={placeholder ?? "0"}
       value={value || ""}
       onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
@@ -74,94 +72,61 @@ function NumInput({
 
 export default function NewPricingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState(0);
+
+  // Prefill from query params (used by "Usar novamente")
+  const prefill = useMemo(() => {
+    const raw = searchParams.get("prefill");
+    if (!raw) return null;
+    try {
+      return JSON.parse(decodeURIComponent(raw));
+    } catch {
+      return null;
+    }
+  }, [searchParams]);
 
   // Form state
-  const [name, setName] = useState("");
-  const [materials, setMaterials] = useState<MaterialItem[]>([
-    { name: "Fio principal", unit: "g", quantity: 0, costPerUnit: 0 },
-  ]);
-  const [laborStages, setLaborStages] = useState<LaborStage[]>([
-    { name: "Produção", minutes: 0 },
-    { name: "Acabamento", minutes: 0 },
-    { name: "Embalagem", minutes: 0 },
-  ]);
-  const [hourlyRate, setHourlyRate] = useState(0);
-  const [overheadItems, setOverheadItems] = useState<OverheadItem[]>([
-    { name: "Aluguel / espaço", monthlyAmount: 0 },
-    { name: "Internet", monthlyAmount: 0 },
-    { name: "Energia", monthlyAmount: 0 },
-  ]);
-  const [monthlyHoursWorked, setMonthlyHoursWorked] = useState(160);
-  const [profitMarginPercent, setProfitMarginPercent] = useState(30);
-  const [taxPercent, setTaxPercent] = useState(0);
-  const [scenarios] = useState<SalesScenario[]>([...DEFAULT_SCENARIOS]);
+  const [name, setName] = useState(prefill?.name ?? "");
+  const [material, setMaterial] = useState<number>(prefill?.material ?? 0);
+  const [embalagem, setEmbalagem] = useState<number>(prefill?.embalagem ?? 0);
+  const [etiqueta, setEtiqueta] = useState<number>(prefill?.etiqueta ?? 0);
+  const [mimo, setMimo] = useState<number>(prefill?.mimo ?? 0);
 
-  // Compute
+  const [horas, setHoras] = useState<number>(prefill?.horas ?? 0);
+  const [valorHora, setValorHora] = useState<number>(prefill?.valorHora ?? 0);
+
+  const [taxaCartao, setTaxaCartao] = useState<number>(prefill?.taxaCartao ?? 0);
+  const [impostoMarketplace, setImpostoMarketplace] = useState<number>(prefill?.impostoMarketplace ?? 0);
+
+  const [profitMode, setProfitMode] = useState<ProfitMode>(prefill?.profitMode ?? "percent");
+  const [margemPercent, setMargemPercent] = useState<number>(prefill?.margemPercent ?? 30);
+  const [lucroFixo, setLucroFixo] = useState<number>(prefill?.lucroFixo ?? 0);
+
+  // Compute em tempo real
   const inputs: PricingInputs = useMemo(
     () => ({
-      materials,
-      laborStages,
-      hourlyRate,
-      overheadItems,
-      monthlyHoursWorked,
-      profitMarginPercent,
-      taxPercent,
-      scenarios,
+      material, embalagem, etiqueta, mimo,
+      horas, valorHora,
+      taxaCartao, impostoMarketplace,
+      profitMode, margemPercent, lucroFixo,
+      name,
     }),
-    [materials, laborStages, hourlyRate, overheadItems, monthlyHoursWorked, profitMarginPercent, taxPercent, scenarios]
+    [material, embalagem, etiqueta, mimo, horas, valorHora, taxaCartao, impostoMarketplace, profitMode, margemPercent, lucroFixo, name]
   );
 
   const totals = useMemo(() => computePricingTotals(inputs), [inputs]);
   const alerts = useMemo(() => getPricingAlerts(inputs, totals), [inputs, totals]);
-
-  // Material handlers
-  const addMaterial = useCallback(() => {
-    setMaterials((m) => [...m, { name: "", unit: "un", quantity: 0, costPerUnit: 0 }]);
-  }, []);
-  const removeMaterial = useCallback((i: number) => {
-    setMaterials((m) => m.filter((_, idx) => idx !== i));
-  }, []);
-  const updateMaterial = useCallback((i: number, field: keyof MaterialItem, value: string | number) => {
-    setMaterials((m) => m.map((item, idx) => (idx === i ? { ...item, [field]: value } : item)));
-  }, []);
-
-  // Labor handlers
-  const addLaborStage = useCallback(() => {
-    setLaborStages((s) => [...s, { name: "", minutes: 0 }]);
-  }, []);
-  const removeLaborStage = useCallback((i: number) => {
-    setLaborStages((s) => s.filter((_, idx) => idx !== i));
-  }, []);
-  const updateLaborStage = useCallback((i: number, field: keyof LaborStage, value: string | number) => {
-    setLaborStages((s) => s.map((item, idx) => (idx === i ? { ...item, [field]: value } : item)));
-  }, []);
-
-  // Overhead handlers
-  const addOverhead = useCallback(() => {
-    setOverheadItems((o) => [...o, { name: "", monthlyAmount: 0 }]);
-  }, []);
-  const removeOverhead = useCallback((i: number) => {
-    setOverheadItems((o) => o.filter((_, idx) => idx !== i));
-  }, []);
-  const updateOverhead = useCallback((i: number, field: keyof OverheadItem, value: string | number) => {
-    setOverheadItems((o) => o.map((item, idx) => (idx === i ? { ...item, [field]: value } : item)));
-  }, []);
 
   // Submit
   async function onSubmit() {
     setSaving(true);
     const result = await createPricingCalculation({
       name,
-      materials,
-      laborStages,
-      hourlyRate,
-      overheadItems,
-      monthlyHoursWorked,
-      profitMarginPercent,
-      taxPercent,
-      scenarios,
+      material, embalagem, etiqueta, mimo,
+      horas, valorHora,
+      taxaCartao, impostoMarketplace,
+      profitMode, margemPercent, lucroFixo,
     });
     setSaving(false);
 
@@ -173,12 +138,8 @@ export default function NewPricingPage() {
     router.push("/app/pricing");
   }
 
-  const totalMinutesFormatted = totals.totalMinutes >= 60
-    ? `${Math.floor(totals.totalMinutes / 60)}h${totals.totalMinutes % 60 > 0 ? ` ${totals.totalMinutes % 60}min` : ""}`
-    : `${totals.totalMinutes}min`;
-
   return (
-    <div className="mx-auto max-w-3xl space-y-6 pb-20">
+    <div className="mx-auto max-w-xl space-y-5 pb-24">
       {/* Header */}
       <div>
         <Link
@@ -188,19 +149,19 @@ export default function NewPricingPage() {
           <ArrowLeft className="h-4 w-4" />
           Voltar ao histórico
         </Link>
-        <h1 className="font-heading text-2xl font-bold tracking-tight text-rose-900 dark:text-white">
-          Motor de Precificação
+        <h1 className="font-heading text-2xl font-bold tracking-tight text-rose-900">
+          Calculadora de Preços
         </h1>
-        <p className="mt-1 text-sm text-rose-500 dark:text-rose-400">
-          Calcule o preço ideal considerando materiais, tempo, custos fixos e canais de venda
+        <p className="mt-1 text-sm text-rose-500">
+          Descubra o preço ideal da sua peça
         </p>
       </div>
 
-      {/* Name */}
-      <Card className="border-rose-100 dark:border-rose-900/30">
+      {/* Nome */}
+      <Card className="border-rose-100">
         <CardContent className="pt-5">
-          <label className="mb-1.5 block text-sm font-medium text-rose-700 dark:text-rose-300">
-            Nome do cálculo (opcional)
+          <label className="mb-1.5 block text-sm font-medium text-rose-700">
+            Nome da peça (opcional)
           </label>
           <Input
             placeholder="Ex.: Amigurumi urso GG"
@@ -211,236 +172,169 @@ export default function NewPricingPage() {
         </CardContent>
       </Card>
 
-      {/* ── Materials ────────────────────────────────────────────────── */}
-      <Card className="border-rose-100 dark:border-rose-900/30">
+      {/* ── Card: Custos ──────────────────────────────────────────────── */}
+      <Card className="border-rose-100">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base text-rose-900 dark:text-white">
-            Materiais
+          <CardTitle className="text-base text-rose-900">
+            💰 Custos de Material
           </CardTitle>
-          <CardDescription>Todos os insumos usados na peça</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          {materials.map((m, i) => (
-            <div key={i} className="flex items-start gap-2">
-              <div className="grid flex-1 grid-cols-2 gap-2 sm:grid-cols-4">
-                <Input
-                  placeholder="Material"
-                  value={m.name}
-                  onChange={(e) => updateMaterial(i, "name", e.target.value)}
-                  className="col-span-2 border-rose-200 bg-white text-sm sm:col-span-1"
-                />
-                <select
-                  value={m.unit}
-                  onChange={(e) => updateMaterial(i, "unit", e.target.value)}
-                  className="rounded-md border border-rose-200 bg-white px-2 py-2 text-sm"
-                >
-                  <option value="g">gramas</option>
-                  <option value="m">metros</option>
-                  <option value="un">unidades</option>
-                  <option value="pct">pacotes</option>
-                </select>
-                <NumInput
-                  value={m.quantity}
-                  onChange={(v) => updateMaterial(i, "quantity", v)}
-                  placeholder="Qtd"
-                />
-                <NumInput
-                  value={m.costPerUnit}
-                  onChange={(v) => updateMaterial(i, "costPerUnit", v)}
-                  placeholder="R$/un"
-                />
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <span className="whitespace-nowrap text-xs font-semibold text-rose-600">
-                  {brl(m.quantity * m.costPerUnit)}
-                </span>
-                {materials.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeMaterial(i)}
-                    className="text-gray-400 hover:text-red-500"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={addMaterial}
-            className="border-rose-200 text-rose-600 hover:bg-rose-50"
-          >
-            <Plus className="mr-1 h-3.5 w-3.5" />
-            Adicionar material
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* ── Labor ────────────────────────────────────────────────────── */}
-      <Card className="border-rose-100 dark:border-rose-900/30">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base text-rose-900 dark:text-white">
-            Mão de obra
-          </CardTitle>
-          <CardDescription>Tempo por etapa + valor/hora</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {laborStages.map((s, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <Input
-                placeholder="Etapa"
-                value={s.name}
-                onChange={(e) => updateLaborStage(i, "name", e.target.value)}
-                className="flex-1 border-rose-200 bg-white text-sm"
-              />
-              <div className="flex items-center gap-1">
-                <NumInput
-                  value={s.minutes}
-                  onChange={(v) => updateLaborStage(i, "minutes", v)}
-                  placeholder="min"
-                  className="w-20"
-                />
-                <span className="text-xs text-gray-400">min</span>
-              </div>
-              {laborStages.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => removeLaborStage(i)}
-                  className="text-gray-400 hover:text-red-500"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              )}
-            </div>
-          ))}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={addLaborStage}
-            className="border-rose-200 text-rose-600 hover:bg-rose-50"
-          >
-            <Plus className="mr-1 h-3.5 w-3.5" />
-            Adicionar etapa
-          </Button>
-          <div className="mt-3 flex items-center gap-3 rounded-xl bg-rose-50 p-3 dark:bg-rose-950/20">
-            <div className="flex-1">
-              <label className="mb-1 block text-xs font-medium text-rose-700 dark:text-rose-300">
-                Valor da sua hora (R$/h)
+          <div>
+            <label className="mb-1 block text-sm font-medium text-rose-700">
+              Custo de material (R$) *
+            </label>
+            <NumInput value={material} onChange={setMaterial} placeholder="0.00" />
+            <p className="mt-1 text-xs text-rose-400">
+              Total que você gastou de fio, linha, etc.
+            </p>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-rose-600">
+                Embalagem
               </label>
-              <NumInput value={hourlyRate} onChange={setHourlyRate} placeholder="25" />
+              <NumInput value={embalagem} onChange={setEmbalagem} placeholder="0" />
             </div>
-            <div className="text-right">
-              <p className="text-xs text-rose-400">Tempo total</p>
-              <p className="text-sm font-bold text-rose-700">{totalMinutesFormatted}</p>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-rose-600">
+                Etiqueta
+              </label>
+              <NumInput value={etiqueta} onChange={setEtiqueta} placeholder="0" />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-rose-600">
+                Mimo
+              </label>
+              <NumInput value={mimo} onChange={setMimo} placeholder="0" />
             </div>
           </div>
+          {totals.materialTotal > 0 && (
+            <div className="flex items-center justify-between rounded-lg bg-rose-50 px-3 py-2">
+              <span className="text-xs font-medium text-rose-600">Total materiais</span>
+              <span className="text-sm font-bold text-rose-700">{brl(totals.materialTotal)}</span>
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* ── Overhead ─────────────────────────────────────────────────── */}
-      <Card className="border-rose-100 dark:border-rose-900/30">
+      {/* ── Card: Tempo ───────────────────────────────────────────────── */}
+      <Card className="border-rose-100">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base text-rose-900 dark:text-white">
-            Custos fixos do ateliê
-          </CardTitle>
-          <CardDescription>
-            Rateio automático por horas trabalhadas no mês
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {overheadItems.map((o, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <Input
-                placeholder="Custo"
-                value={o.name}
-                onChange={(e) => updateOverhead(i, "name", e.target.value)}
-                className="flex-1 border-rose-200 bg-white text-sm"
-              />
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-gray-400">R$</span>
-                <NumInput
-                  value={o.monthlyAmount}
-                  onChange={(v) => updateOverhead(i, "monthlyAmount", v)}
-                  placeholder="0"
-                  className="w-24"
-                />
-                <span className="text-xs text-gray-400">/mês</span>
-              </div>
-              {overheadItems.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => removeOverhead(i)}
-                  className="text-gray-400 hover:text-red-500"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              )}
-            </div>
-          ))}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={addOverhead}
-            className="border-rose-200 text-rose-600 hover:bg-rose-50"
-          >
-            <Plus className="mr-1 h-3.5 w-3.5" />
-            Adicionar custo fixo
-          </Button>
-          <div className="mt-3 flex items-center gap-3 rounded-xl bg-rose-50 p-3 dark:bg-rose-950/20">
-            <div className="flex-1">
-              <label className="mb-1 block text-xs font-medium text-rose-700 dark:text-rose-300">
-                Horas trabalhadas por mês
-              </label>
-              <NumInput value={monthlyHoursWorked} onChange={setMonthlyHoursWorked} placeholder="160" />
-            </div>
-            <div className="text-right">
-              <p className="text-xs text-rose-400">Overhead/peça</p>
-              <p className="text-sm font-bold text-rose-700">{brl(totals.overheadCost)}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* ── Profit & Tax ─────────────────────────────────────────────── */}
-      <Card className="border-rose-100 dark:border-rose-900/30">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base text-rose-900 dark:text-white">
-            Lucro e impostos
+          <CardTitle className="text-base text-rose-900">
+            ⏱️ Tempo de Trabalho
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-rose-700 dark:text-rose-300">
-                Margem de lucro (%)
+              <label className="mb-1 block text-sm font-medium text-rose-700">
+                Horas gastas
               </label>
-              <NumInput
-                value={profitMarginPercent}
-                onChange={setProfitMarginPercent}
-                placeholder="30"
-              />
+              <NumInput value={horas} onChange={setHoras} placeholder="0" step="0.5" />
+              <p className="mt-1 text-xs text-rose-400">Aceita decimal (ex: 2.5)</p>
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-rose-700 dark:text-rose-300">
-                Impostos (%)
+              <label className="mb-1 block text-sm font-medium text-rose-700">
+                Valor da hora (R$)
               </label>
-              <NumInput
-                value={taxPercent}
-                onChange={setTaxPercent}
-                placeholder="0"
-              />
-              <p className="mt-1 text-xs text-rose-400">MEI, Simples, etc.</p>
+              <NumInput value={valorHora} onChange={setValorHora} placeholder="25" />
+            </div>
+          </div>
+          {totals.maoObra > 0 && (
+            <div className="mt-3 flex items-center justify-between rounded-lg bg-rose-50 px-3 py-2">
+              <span className="text-xs font-medium text-rose-600">Mão de obra</span>
+              <span className="text-sm font-bold text-rose-700">{brl(totals.maoObra)}</span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ── Card: Taxas ───────────────────────────────────────────────── */}
+      <Card className="border-rose-100">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base text-rose-900">
+            📊 Taxas
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-rose-700">
+                Taxa do cartão (%)
+              </label>
+              <NumInput value={taxaCartao} onChange={setTaxaCartao} placeholder="0" />
+              <p className="mt-1 text-xs text-rose-400">Maquininha, gateway</p>
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-rose-700">
+                Imposto / Marketplace (%)
+              </label>
+              <NumInput value={impostoMarketplace} onChange={setImpostoMarketplace} placeholder="0" />
+              <p className="mt-1 text-xs text-rose-400">MEI, Elo7, Shopee...</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* ── Alerts ───────────────────────────────────────────────────── */}
+      {/* ── Card: Lucro ───────────────────────────────────────────────── */}
+      <Card className="border-rose-100">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base text-rose-900">
+            🎯 Lucro Desejado
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {/* Toggle */}
+          <div className="flex rounded-xl bg-rose-100/60 p-1">
+            <button
+              type="button"
+              onClick={() => setProfitMode("percent")}
+              className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition-all ${
+                profitMode === "percent"
+                  ? "bg-white text-rose-700 shadow-sm"
+                  : "text-rose-400 hover:text-rose-600"
+              }`}
+            >
+              % sobre custo
+            </button>
+            <button
+              type="button"
+              onClick={() => setProfitMode("fixed")}
+              className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition-all ${
+                profitMode === "fixed"
+                  ? "bg-white text-rose-700 shadow-sm"
+                  : "text-rose-400 hover:text-rose-600"
+              }`}
+            >
+              Valor fixo (R$)
+            </button>
+          </div>
+
+          {profitMode === "percent" ? (
+            <div>
+              <label className="mb-1 block text-sm font-medium text-rose-700">
+                Margem de lucro (%)
+              </label>
+              <NumInput value={margemPercent} onChange={setMargemPercent} placeholder="30" />
+              {totals.custoBase > 0 && (
+                <p className="mt-1 text-xs text-rose-400">
+                  = {brl(totals.lucroAlvo)} de lucro sobre {brl(totals.custoBase)} de custo
+                </p>
+              )}
+            </div>
+          ) : (
+            <div>
+              <label className="mb-1 block text-sm font-medium text-rose-700">
+                Lucro desejado (R$)
+              </label>
+              <NumInput value={lucroFixo} onChange={setLucroFixo} placeholder="50" />
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ── Alerts ────────────────────────────────────────────────────── */}
       {alerts.length > 0 && (
         <div className="space-y-2">
           {alerts.map((a, i) => (
@@ -449,120 +343,122 @@ export default function NewPricingPage() {
         </div>
       )}
 
-      {/* ── Result: Scenario Tabs ────────────────────────────────────── */}
-      <Card className="border-rose-200 bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/20 dark:to-pink-950/10 dark:border-rose-900/40">
+      {/* ── Card: Resultado ───────────────────────────────────────────── */}
+      <Card className="border-rose-200 bg-gradient-to-br from-rose-50 to-pink-50">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base text-rose-900 dark:text-white">
-            Resultado por canal de venda
+          <CardTitle className="text-lg text-rose-900">
+            Resultado
           </CardTitle>
-          <CardDescription>
-            Custo base: {brl(totals.baseCost)} (materiais + mão de obra + overhead)
-          </CardDescription>
+          <p className="text-xs text-rose-500">
+            Custo base: {brl(totals.custoBase)} (materiais {brl(totals.materialTotal)} + mão de obra {brl(totals.maoObra)})
+          </p>
         </CardHeader>
-        <CardContent>
-          {/* Tabs */}
-          <div className="mb-4 flex gap-1 overflow-x-auto rounded-xl bg-rose-100/60 p-1 dark:bg-rose-900/20">
-            {totals.scenarios.map((s, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => setActiveTab(i)}
-                className={`flex-1 whitespace-nowrap rounded-lg px-3 py-2 text-xs font-semibold transition-all ${
-                  activeTab === i
-                    ? "bg-white text-rose-700 shadow-sm dark:bg-gray-800 dark:text-rose-300"
-                    : "text-rose-400 hover:text-rose-600"
-                }`}
-              >
-                {s.name}
-              </button>
-            ))}
-          </div>
+        <CardContent className="space-y-4">
 
-          {/* Active scenario detail */}
-          {totals.scenarios[activeTab] && (
-            <div className="space-y-2">
-              <Row label="Custo base" value={totals.baseCost} muted />
-              {totals.scenarios[activeTab].feePercent > 0 && (
-                <Row
-                  label={`Taxa ${totals.scenarios[activeTab].name} (${totals.scenarios[activeTab].feePercent}%)`}
-                  value={totals.scenarios[activeTab].fees}
-                  muted
-                />
-              )}
-              {taxPercent > 0 && (
-                <Row
-                  label={`Impostos (${taxPercent}%)`}
-                  value={totals.scenarios[activeTab].tax}
-                  muted
-                />
-              )}
-              <Row
-                label={`Lucro (${profitMarginPercent}%)`}
-                value={totals.scenarios[activeTab].profit}
-              />
-              <div className="my-2 border-t border-rose-200 dark:border-rose-800" />
-
-              {/* Price box */}
-              <div className="flex items-center justify-between rounded-2xl bg-rose-600 px-5 py-4 dark:bg-rose-700">
-                <div>
-                  <p className="text-xs font-semibold text-rose-200">
-                    PREÇO SUGERIDO — {totals.scenarios[activeTab].name}
-                  </p>
-                  <p className="text-xs text-rose-300">
-                    Lucro: {brl(totals.scenarios[activeTab].profit)} ({totals.scenarios[activeTab].profitPercent.toFixed(1)}%)
-                  </p>
-                </div>
-                <span className="font-heading text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
-                  {brl(totals.scenarios[activeTab].suggestedPrice)}
-                </span>
+          {/* ── PIX ── */}
+          <div className="rounded-2xl bg-emerald-600 p-4 text-white">
+            <div className="mb-2 flex items-center gap-2">
+              <Banknote className="h-5 w-5" />
+              <span className="text-sm font-semibold">PIX / À vista</span>
+            </div>
+            <div className="flex items-end justify-between">
+              <div>
+                <p className="text-xs text-emerald-200">Preço sugerido</p>
+                <p className="font-heading text-3xl font-extrabold tracking-tight">
+                  {brl(totals.precoPix)}
+                </p>
               </div>
-
-              {/* Minimum price */}
-              <div className="flex items-center justify-between rounded-xl bg-amber-50 px-4 py-2.5 dark:bg-amber-950/20">
-                <span className="text-xs font-medium text-amber-700 dark:text-amber-400">
-                  Preço mínimo (sem lucro)
-                </span>
-                <span className="text-sm font-bold text-amber-700 dark:text-amber-400">
-                  {brl(totals.minimumPrice)}
-                </span>
+              <div className="text-right">
+                <p className="text-xs text-emerald-200">Lucro líquido</p>
+                <p className="text-lg font-bold">
+                  {brl(totals.lucroLiquidoPix)}
+                </p>
+                <p className="text-xs text-emerald-300">
+                  {totals.lucroPercentPix.toFixed(1)}% do preço
+                </p>
               </div>
             </div>
-          )}
+          </div>
 
-          {/* All scenarios comparison */}
-          <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {totals.scenarios.map((s, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => setActiveTab(i)}
-                className={`rounded-xl border p-3 text-center transition-all ${
-                  activeTab === i
-                    ? "border-rose-300 bg-white shadow-sm dark:border-rose-700 dark:bg-gray-800"
-                    : "border-rose-100 bg-white/50 hover:bg-white dark:border-rose-900/20"
-                }`}
-              >
-                <p className="text-[10px] font-semibold uppercase text-gray-400">
-                  {s.name}
+          {/* ── Cartão ── */}
+          <div className="rounded-2xl bg-blue-600 p-4 text-white">
+            <div className="mb-2 flex items-center gap-2">
+              <CreditCard className="h-5 w-5" />
+              <span className="text-sm font-semibold">
+                Cartão / Marketplace
+                {(taxaCartao > 0 || impostoMarketplace > 0) &&
+                  ` (${taxaCartao + impostoMarketplace}%)`}
+              </span>
+            </div>
+            {totals.taxaError ? (
+              <p className="text-sm text-red-200">{totals.taxaError}</p>
+            ) : (
+              <div className="flex items-end justify-between">
+                <div>
+                  <p className="text-xs text-blue-200">Preço sugerido</p>
+                  <p className="font-heading text-3xl font-extrabold tracking-tight">
+                    {brl(totals.precoCartao)}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-blue-200">Lucro líquido</p>
+                  <p className="text-lg font-bold">
+                    {brl(totals.lucroLiquidoCartao)}
+                  </p>
+                  <p className="text-xs text-blue-300">
+                    {totals.lucroPercentCartao.toFixed(1)}% do preço
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ── Break-even ── */}
+          <div className="flex gap-3">
+            <div className="flex flex-1 items-center gap-2 rounded-xl bg-amber-50 px-3 py-2.5 border border-amber-200">
+              <ShieldCheck className="h-4 w-4 text-amber-600 shrink-0" />
+              <div>
+                <p className="text-[10px] font-semibold uppercase text-amber-600">
+                  Break-even PIX
                 </p>
-                <p className="font-heading text-lg font-bold text-rose-700 dark:text-rose-400">
-                  {brl(s.suggestedPrice)}
+                <p className="text-sm font-bold text-amber-700">
+                  {brl(totals.breakevenPix)}
                 </p>
-                <p className={`text-[10px] font-semibold ${
-                  s.profit >= 0 ? "text-emerald-600" : "text-red-600"
-                }`}>
-                  {s.profit >= 0 ? "+" : ""}{brl(s.profit)}
+              </div>
+            </div>
+            <div className="flex flex-1 items-center gap-2 rounded-xl bg-amber-50 px-3 py-2.5 border border-amber-200">
+              <ShieldCheck className="h-4 w-4 text-amber-600 shrink-0" />
+              <div>
+                <p className="text-[10px] font-semibold uppercase text-amber-600">
+                  Break-even Cartão
                 </p>
-              </button>
-            ))}
+                <p className="text-sm font-bold text-amber-700">
+                  {totals.taxaError ? "—" : brl(totals.breakevenCartao)}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Resumo detalhado ── */}
+          <div className="space-y-1 rounded-xl bg-white/80 p-3 text-sm">
+            <Row label="Material total" value={totals.materialTotal} />
+            <Row label="Mão de obra" value={totals.maoObra} />
+            <div className="my-1.5 border-t border-rose-100" />
+            <Row label="Custo base" value={totals.custoBase} bold />
+            <Row label="Lucro alvo" value={totals.lucroAlvo} />
+            <div className="my-1.5 border-t border-rose-100" />
+            <Row label="Preço PIX" value={totals.precoPix} bold accent />
+            {!totals.taxaError && (
+              <Row label="Preço Cartão" value={totals.precoCartao} bold accent />
+            )}
           </div>
         </CardContent>
       </Card>
 
-      {/* ── Save ─────────────────────────────────────────────────────── */}
+      {/* ── Salvar ────────────────────────────────────────────────────── */}
       <Button
         onClick={onSubmit}
-        disabled={saving}
+        disabled={saving || totals.custoBase === 0}
         className="w-full bg-rose-600 hover:bg-rose-700 disabled:opacity-60"
         size="lg"
       >
@@ -581,11 +477,25 @@ export default function NewPricingPage() {
 
 // ─── Sub components ─────────────────────────────────────────────────
 
-function Row({ label, value, muted }: { label: string; value: number; muted?: boolean }) {
+function Row({
+  label,
+  value,
+  bold,
+  accent,
+}: {
+  label: string;
+  value: number;
+  bold?: boolean;
+  accent?: boolean;
+}) {
   return (
-    <div className={`flex items-center justify-between py-0.5 ${muted ? "text-rose-400 dark:text-rose-500" : "text-rose-800 dark:text-rose-200"}`}>
-      <span className="text-sm">{label}</span>
-      <span className="text-sm font-medium tabular-nums">{brl(value)}</span>
+    <div className="flex items-center justify-between py-0.5">
+      <span className={`${bold ? "font-semibold" : ""} ${accent ? "text-rose-700" : "text-rose-600"}`}>
+        {label}
+      </span>
+      <span className={`tabular-nums ${bold ? "font-bold" : "font-medium"} ${accent ? "text-rose-700" : "text-rose-600"}`}>
+        {brl(value)}
+      </span>
     </div>
   );
 }
@@ -593,18 +503,18 @@ function Row({ label, value, muted }: { label: string; value: number; muted?: bo
 function AlertBox({ alert }: { alert: PricingAlert }) {
   const config = {
     danger: {
-      bg: "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-900/40",
-      text: "text-red-700 dark:text-red-400",
+      bg: "bg-red-50 border-red-200",
+      text: "text-red-700",
       icon: <AlertCircle className="h-4 w-4 text-red-500" />,
     },
     warning: {
-      bg: "bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-900/40",
-      text: "text-amber-700 dark:text-amber-400",
+      bg: "bg-amber-50 border-amber-200",
+      text: "text-amber-700",
       icon: <AlertTriangle className="h-4 w-4 text-amber-500" />,
     },
     info: {
-      bg: "bg-blue-50 border-blue-200 dark:bg-blue-950/20 dark:border-blue-900/40",
-      text: "text-blue-700 dark:text-blue-400",
+      bg: "bg-blue-50 border-blue-200",
+      text: "text-blue-700",
       icon: <Info className="h-4 w-4 text-blue-500" />,
     },
   }[alert.type];

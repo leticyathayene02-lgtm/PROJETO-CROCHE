@@ -3,7 +3,7 @@ import { requireWorkspace } from "@/lib/workspace";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calculator, Plus, ChevronRight } from "lucide-react";
+import { Calculator, Plus, RotateCcw } from "lucide-react";
 
 export default async function PricingPage() {
   const { workspace } = await requireWorkspace();
@@ -11,7 +11,7 @@ export default async function PricingPage() {
   const calculations = await prisma.priceCalculation.findMany({
     where: { workspaceId: workspace.id },
     orderBy: { createdAt: "desc" },
-    take: 20,
+    take: 10,
   });
 
   return (
@@ -32,7 +32,7 @@ export default async function PricingPage() {
         >
           <Link href="/app/pricing/new">
             <Plus className="mr-2 h-4 w-4" />
-            Nova calculadora
+            Novo cálculo
           </Link>
         </Button>
       </div>
@@ -47,7 +47,7 @@ export default async function PricingPage() {
             Nenhum cálculo ainda
           </h2>
           <p className="mt-1 max-w-sm text-sm text-rose-400">
-            Use a calculadora para definir o preço ideal das suas peças de crochê
+            Use a calculadora para definir o preço ideal das suas peças
             com base em materiais, mão de obra e margem de lucro.
           </p>
           <Button
@@ -56,7 +56,7 @@ export default async function PricingPage() {
           >
             <Link href="/app/pricing/new">
               <Plus className="mr-2 h-4 w-4" />
-              Nova calculadora
+              Novo cálculo
             </Link>
           </Button>
         </div>
@@ -67,24 +67,32 @@ export default async function PricingPage() {
         <div className="grid gap-3">
           {calculations.map((calc) => {
             const totals = calc.totalsJson as Record<string, number>;
-            const suggestedPrice = totals?.suggestedPrice ?? 0;
+            const inputs = calc.inputsJson as Record<string, unknown>;
 
-            const formattedPrice = new Intl.NumberFormat("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            }).format(suggestedPrice);
+            // Support both new and old format
+            const precoPix = totals?.precoPix ?? totals?.suggestedPrice ?? 0;
+            const precoCartao = totals?.precoCartao ?? 0;
+            const custoBase = totals?.custoBase ?? totals?.baseCost ?? 0;
 
+            const formattedPix = fmt(precoPix);
+            const formattedCartao = fmt(precoCartao);
             const formattedDate = new Intl.DateTimeFormat("pt-BR", {
               day: "2-digit",
               month: "short",
               year: "numeric",
             }).format(new Date(calc.createdAt));
 
+            // Build prefill URL for "Usar novamente"
+            const prefillData = encodeURIComponent(JSON.stringify(inputs));
+
             return (
-              <Link key={calc.id} href={`/app/pricing/${calc.id}`}>
-                <Card className="cursor-pointer border-rose-100 transition-shadow hover:shadow-md hover:shadow-rose-100">
-                  <CardContent className="flex items-center justify-between p-4">
-                    <div className="flex items-center gap-3">
+              <Card
+                key={calc.id}
+                className="border-rose-100 transition-shadow hover:shadow-md hover:shadow-rose-100"
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-100">
                         <Calculator className="h-5 w-5 text-rose-600" />
                       </div>
@@ -93,17 +101,47 @@ export default async function PricingPage() {
                           {calc.name ?? "Sem nome"}
                         </p>
                         <p className="text-xs text-rose-400">{formattedDate}</p>
+                        {custoBase > 0 && (
+                          <p className="mt-0.5 text-xs text-gray-400">
+                            Custo: {fmt(custoBase)}
+                          </p>
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold text-rose-700">
-                        {formattedPrice}
-                      </span>
-                      <ChevronRight className="h-4 w-4 text-rose-300" />
+                    <div className="text-right">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-medium uppercase text-emerald-500">PIX</span>
+                        <span className="text-base font-bold text-emerald-700">
+                          {formattedPix}
+                        </span>
+                      </div>
+                      {precoCartao > 0 && precoCartao !== precoPix && (
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] font-medium uppercase text-blue-500">Cartão</span>
+                          <span className="text-sm font-semibold text-blue-700">
+                            {formattedCartao}
+                          </span>
+                        </div>
+                      )}
                     </div>
-                  </CardContent>
-                </Card>
-              </Link>
+                  </div>
+
+                  {/* Action: Usar novamente */}
+                  <div className="mt-3 flex justify-end">
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="border-rose-200 text-rose-600 hover:bg-rose-50"
+                    >
+                      <Link href={`/app/pricing/new?prefill=${prefillData}`}>
+                        <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
+                        Usar novamente
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             );
           })}
         </div>
@@ -118,4 +156,11 @@ export default async function PricingPage() {
       )}
     </div>
   );
+}
+
+function fmt(v: number) {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(v);
 }

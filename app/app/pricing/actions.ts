@@ -10,58 +10,36 @@ import {
 import { computePricingTotals, type PricingInputs } from "@/lib/pricing";
 
 // ─────────────────────────────────────────
-// Zod schema (accepts both old and new format)
+// Zod schema
 // ─────────────────────────────────────────
-
-const materialItemSchema = z.object({
-  name: z.string(),
-  unit: z.string(),
-  quantity: z.number().min(0),
-  costPerUnit: z.number().min(0),
-});
-
-const laborStageSchema = z.object({
-  name: z.string(),
-  minutes: z.number().min(0),
-});
-
-const overheadItemSchema = z.object({
-  name: z.string(),
-  monthlyAmount: z.number().min(0),
-});
-
-const scenarioSchema = z.object({
-  name: z.string(),
-  feePercent: z.number().min(0).max(100),
-});
 
 export const pricingSchema = z.object({
   name: z.string().optional(),
 
-  // New format
-  materials: z.array(materialItemSchema).optional(),
-  laborStages: z.array(laborStageSchema).optional(),
-  hourlyRate: z.number().min(0).optional(),
-  overheadItems: z.array(overheadItemSchema).optional(),
-  monthlyHoursWorked: z.number().min(0).optional(),
-  profitMarginPercent: z.number().min(0).max(100000),
-  taxPercent: z.number().min(0).max(100).optional(),
-  scenarios: z.array(scenarioSchema).optional(),
+  // Materiais
+  material: z.number().min(0),
+  embalagem: z.number().min(0),
+  etiqueta: z.number().min(0),
+  mimo: z.number().min(0),
 
-  // Legacy fields (still accepted)
-  yarnCostPerGram: z.number().min(0).optional(),
-  yarnGramsUsed: z.number().min(0).optional(),
-  packaging: z.number().min(0).optional(),
-  gift: z.number().min(0).optional(),
-  labels: z.number().min(0).optional(),
-  hoursSpent: z.number().min(0).optional(),
-  cardFeePercent: z.number().min(0).max(100).optional(),
+  // Tempo
+  horas: z.number().min(0),
+  valorHora: z.number().min(0),
+
+  // Taxas
+  taxaCartao: z.number().min(0).max(99),
+  impostoMarketplace: z.number().min(0).max(99),
+
+  // Lucro
+  profitMode: z.enum(["percent", "fixed"]),
+  margemPercent: z.number().min(0).max(500),
+  lucroFixo: z.number().min(0),
 });
 
 export type PricingFormValues = z.infer<typeof pricingSchema>;
 
 // ─────────────────────────────────────────
-// Server action
+// Server action: criar cálculo
 // ─────────────────────────────────────────
 
 export type CreatePricingResult =
@@ -86,22 +64,18 @@ export async function createPricingCalculation(
   }
 
   const inputs: PricingInputs = {
-    materials: data.materials ?? [],
-    laborStages: data.laborStages ?? [],
-    hourlyRate: data.hourlyRate ?? 0,
-    overheadItems: data.overheadItems ?? [],
-    monthlyHoursWorked: data.monthlyHoursWorked ?? 160,
-    profitMarginPercent: data.profitMarginPercent ?? 0,
-    taxPercent: data.taxPercent ?? 0,
-    scenarios: data.scenarios ?? [],
-    // Legacy
-    yarnCostPerGram: data.yarnCostPerGram,
-    yarnGramsUsed: data.yarnGramsUsed,
-    packaging: data.packaging,
-    gift: data.gift,
-    labels: data.labels,
-    hoursSpent: data.hoursSpent,
-    cardFeePercent: data.cardFeePercent,
+    material: data.material,
+    embalagem: data.embalagem,
+    etiqueta: data.etiqueta,
+    mimo: data.mimo,
+    horas: data.horas,
+    valorHora: data.valorHora,
+    taxaCartao: data.taxaCartao,
+    impostoMarketplace: data.impostoMarketplace,
+    profitMode: data.profitMode,
+    margemPercent: data.margemPercent,
+    lucroFixo: data.lucroFixo,
+    name: data.name,
   };
 
   const totals = computePricingTotals(inputs);
