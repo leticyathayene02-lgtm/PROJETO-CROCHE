@@ -91,13 +91,13 @@ export default async function FinancePage() {
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-rose-900">Financeiro</h1>
-          <p className="text-sm text-rose-500 mt-0.5">
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Financeiro</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
             {now.toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}
           </p>
         </div>
         <div className="flex gap-2">
-          <Button asChild variant="outline" size="sm" className="border-rose-200 text-rose-700 hover:bg-rose-50">
+          <Button asChild variant="outline" size="sm" className="border-rose-200 dark:border-rose-800/40 text-gray-900 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-rose-950/30">
             <Link href="/app/finance/goals">
               <Target className="h-4 w-4 mr-1.5" />
               Metas
@@ -114,22 +114,22 @@ export default async function FinancePage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="border-rose-100">
+        <Card className="card-3d border-0">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-rose-600 flex items-center gap-2">
+            <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
               Total Entradas
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-rose-700">{brl(totalEntradas)}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{brl(totalEntradas)}</p>
             {monthlyGoal?.revenueGoal ? (
               <div className="mt-2 space-y-1">
-                <div className="flex justify-between text-xs text-rose-400">
+                <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                   <span>Meta: {brl(monthlyGoal.revenueGoal)}</span>
                   <span>{goalProgress}%</span>
                 </div>
-                <div className="w-full bg-rose-100 rounded-full h-1.5">
+                <div className="w-full bg-rose-100 dark:bg-rose-900/40 rounded-full h-1.5">
                   <div
                     className="bg-rose-400 h-1.5 rounded-full transition-all"
                     style={{ width: `${goalProgress}%` }}
@@ -137,30 +137,30 @@ export default async function FinancePage() {
                 </div>
               </div>
             ) : (
-              <p className="text-xs text-rose-300 mt-1">Sem meta definida</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Sem meta definida</p>
             )}
           </CardContent>
         </Card>
 
-        <Card className="border-rose-100">
+        <Card className="card-3d border-0">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500 flex items-center gap-2">
+            <CardTitle className="text-sm font-medium text-slate-500 dark:text-gray-400 flex items-center gap-2">
               <TrendingDown className="h-4 w-4" />
               Total Saídas
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-slate-700">{brl(totalSaidas)}</p>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-2xl font-bold text-slate-700 dark:text-gray-300">{brl(totalSaidas)}</p>
+            <p className="text-xs text-slate-400 dark:text-gray-500 mt-1">
               {transactions.filter((t) => t.type === "OUT").length} transações
             </p>
           </CardContent>
         </Card>
 
-        <Card className={lucroLiquido >= 0 ? "border-emerald-100" : "border-red-100"}>
+        <Card className={lucroLiquido >= 0 ? "border-emerald-100 dark:border-emerald-900/30" : "border-red-100 dark:border-red-900/30"}>
           <CardHeader className="pb-2">
             <CardTitle
-              className={`text-sm font-medium flex items-center gap-2 ${lucroLiquido >= 0 ? "text-emerald-600" : "text-red-500"}`}
+              className={`text-sm font-medium flex items-center gap-2 ${lucroLiquido >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"}`}
             >
               <DollarSign className="h-4 w-4" />
               Lucro Líquido
@@ -168,12 +168,12 @@ export default async function FinancePage() {
           </CardHeader>
           <CardContent>
             <p
-              className={`text-2xl font-bold ${lucroLiquido >= 0 ? "text-emerald-700" : "text-red-600"}`}
+              className={`text-2xl font-bold ${lucroLiquido >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
             >
               {brl(lucroLiquido)}
             </p>
             {monthlyGoal?.profitGoal ? (
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-400 dark:text-gray-500 mt-1">
                 Meta: {brl(monthlyGoal.profitGoal)}
               </p>
             ) : null}
@@ -183,9 +183,9 @@ export default async function FinancePage() {
 
       {/* DRE Simples */}
       {transactions.length > 0 && (
-        <Card className="border-rose-100">
+        <Card className="card-3d border-0">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-rose-900 dark:text-white">
+            <CardTitle className="text-base font-semibold text-gray-900 dark:text-white">
               DRE Simplificado — {now.toLocaleDateString("pt-BR", { month: "long" })}
             </CardTitle>
           </CardHeader>
@@ -196,9 +196,9 @@ export default async function FinancePage() {
       )}
 
       {/* Chart */}
-      <Card className="border-rose-100">
+      <Card className="card-3d border-0">
         <CardHeader>
-          <CardTitle className="text-base font-semibold text-rose-900">
+          <CardTitle className="text-base font-semibold text-gray-900 dark:text-white">
             Resumo dos últimos 6 meses
           </CardTitle>
         </CardHeader>
@@ -208,49 +208,49 @@ export default async function FinancePage() {
       </Card>
 
       {/* Recent Transactions */}
-      <Card className="border-rose-100">
+      <Card className="card-3d border-0">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base font-semibold text-rose-900">
+            <CardTitle className="text-base font-semibold text-gray-900 dark:text-white">
               Transações recentes
             </CardTitle>
-            <span className="text-xs text-rose-400">{recentTransactions.length} registros</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">{recentTransactions.length} registros</span>
           </div>
         </CardHeader>
         <CardContent className="p-0">
           {recentTransactions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center px-6">
-              <p className="text-rose-300 text-sm">Nenhuma transação registrada ainda.</p>
-              <Button asChild variant="link" className="mt-2 text-rose-500">
+              <p className="text-gray-400 dark:text-gray-500 text-sm">Nenhuma transação registrada ainda.</p>
+              <Button asChild variant="link" className="mt-2 text-gray-500 dark:text-gray-400">
                 <Link href="/app/finance/new">Adicionar primeira transação</Link>
               </Button>
             </div>
           ) : (
-            <ul className="divide-y divide-rose-50">
+            <ul className="divide-y divide-rose-50 dark:divide-white/8">
               {recentTransactions.map((tx) => (
                 <li
                   key={tx.id}
-                  className="flex items-center justify-between px-6 py-3 hover:bg-rose-50/50 transition-colors"
+                  className="flex items-center justify-between px-6 py-3 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition-colors"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <Badge
                       className={
                         tx.type === "IN"
-                          ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 shrink-0"
-                          : "bg-rose-100 text-rose-600 hover:bg-rose-100 shrink-0"
+                          ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 shrink-0"
+                          : "bg-rose-100 dark:bg-rose-900/40 text-gray-700 dark:text-gray-300 hover:bg-rose-100 dark:hover:bg-rose-900/40 shrink-0"
                       }
                     >
                       {tx.type === "IN" ? "Entrada" : "Saída"}
                     </Badge>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-slate-700 truncate">{tx.category}</p>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-sm font-medium text-slate-700 dark:text-gray-300 truncate">{tx.category}</p>
+                      <p className="text-xs text-slate-400 dark:text-gray-500">
                         {new Date(tx.date).toLocaleDateString("pt-BR")}
                       </p>
                     </div>
                   </div>
                   <span
-                    className={`text-sm font-semibold shrink-0 ml-4 ${tx.type === "IN" ? "text-emerald-600" : "text-rose-600"}`}
+                    className={`text-sm font-semibold shrink-0 ml-4 ${tx.type === "IN" ? "text-emerald-600 dark:text-emerald-400" : "text-gray-700 dark:text-gray-300"}`}
                   >
                     {tx.type === "IN" ? "+" : "-"}
                     {brl(tx.amount)}
@@ -298,10 +298,10 @@ function DreSection({ transactions }: { transactions: Tx[] }) {
       {entradasByCat.map(([cat, amount]) => (
         <div key={cat} className="flex justify-between py-0.5 pl-4">
           <span className="text-gray-600 dark:text-gray-400">{cat}</span>
-          <span className="font-medium text-emerald-600 tabular-nums">{brl(amount)}</span>
+          <span className="font-medium text-emerald-600 dark:text-emerald-400 tabular-nums">{brl(amount)}</span>
         </div>
       ))}
-      <div className="flex justify-between border-t border-emerald-100 pt-1 font-semibold dark:border-emerald-900/30">
+      <div className="flex justify-between border-t border-emerald-100 dark:border-emerald-900/30 pt-1 font-semibold">
         <span className="text-gray-700 dark:text-gray-300">Total receitas</span>
         <span className="text-emerald-700 dark:text-emerald-400 tabular-nums">{brl(totalIn)}</span>
       </div>
@@ -315,10 +315,10 @@ function DreSection({ transactions }: { transactions: Tx[] }) {
       {saidasByCat.map(([cat, amount]) => (
         <div key={cat} className="flex justify-between py-0.5 pl-4">
           <span className="text-gray-600 dark:text-gray-400">{cat}</span>
-          <span className="font-medium text-red-500 tabular-nums">-{brl(amount)}</span>
+          <span className="font-medium text-red-500 dark:text-red-400 tabular-nums">-{brl(amount)}</span>
         </div>
       ))}
-      <div className="flex justify-between border-t border-red-100 pt-1 font-semibold dark:border-red-900/30">
+      <div className="flex justify-between border-t border-red-100 dark:border-red-900/30 pt-1 font-semibold">
         <span className="text-gray-700 dark:text-gray-300">Total custos</span>
         <span className="text-red-600 dark:text-red-400 tabular-nums">-{brl(totalOut)}</span>
       </div>

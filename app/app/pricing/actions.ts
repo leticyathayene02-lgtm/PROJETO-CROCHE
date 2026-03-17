@@ -1,6 +1,5 @@
 "use server";
 
-import { z } from "zod";
 import { requireWorkspace } from "@/lib/workspace";
 import { prisma } from "@/lib/prisma";
 import {
@@ -8,47 +7,45 @@ import {
   incrementPricingCounter,
 } from "@/lib/limits";
 import { computePricingTotals, type PricingInputs } from "@/lib/pricing";
+import { pricingSchema, type PricingFormValues } from "./schema";
 
-// ─────────────────────────────────────────
-// Zod schema
-// ─────────────────────────────────────────
+// ─── Buscar materiais cadastrados do workspace ──────────────────────
 
-export const pricingSchema = z.object({
-  name: z.string().optional(),
+export interface CatalogMaterial {
+  id: string;
+  name: string;
+  category: string;
+  brand: string | null;
+  color: string | null;
+  unit: string;
+  costPerUnit: number;
+  stock: number;
+}
 
-  // Materiais
-  material: z.number().min(0),
-  embalagem: z.number().min(0),
-  etiqueta: z.number().min(0),
-  mimo: z.number().min(0),
+export async function getWorkspaceMaterials(): Promise<CatalogMaterial[]> {
+  const { workspace } = await requireWorkspace();
+  const materials = await prisma.material.findMany({
+    where: { workspaceId: workspace.id },
+    select: {
+      id: true,
+      name: true,
+      category: true,
+      brand: true,
+      color: true,
+      unit: true,
+      costPerUnit: true,
+      stock: true,
+    },
+    orderBy: { name: "asc" },
+  });
+  return materials;
+}
 
-  // Tempo
-  horas: z.number().min(0),
-  valorHora: z.number().min(0),
-
-  // Taxas
-  taxaCartao: z.number().min(0).max(99),
-  impostoMarketplace: z.number().min(0).max(99),
-
-  // Lucro
-  profitMode: z.enum(["percent", "fixed"]),
-  margemPercent: z.number().min(0).max(500),
-  lucroFixo: z.number().min(0),
-});
-
-export type PricingFormValues = z.infer<typeof pricingSchema>;
-
-// ─────────────────────────────────────────
-// Server action: criar cálculo
-// ─────────────────────────────────────────
-
-export type CreatePricingResult =
-  | { success: true; data: { id: string } }
-  | { success: false; error: string };
+// ─── Criar cálculo de precificação ──────────────────────────────────
 
 export async function createPricingCalculation(
   raw: PricingFormValues
-): Promise<CreatePricingResult> {
+): Promise<{ success: true; data: { id: string } } | { success: false; error: string }> {
   const parsed = pricingSchema.safeParse(raw);
   if (!parsed.success) {
     const firstError = parsed.error.issues[0]?.message ?? "Dados inválidos";
@@ -63,11 +60,19 @@ export async function createPricingCalculation(
     return { success: false, error: limitCheck.reason };
   }
 
+  // Soma dos complementares do catálogo
+  const complementaresTotal = (data.selectedMaterials ?? []).reduce(
+    (sum, m) => sum + m.cost,
+    0
+  );
+
   const inputs: PricingInputs = {
     material: data.material,
-    embalagem: data.embalagem,
-    etiqueta: data.etiqueta,
-    mimo: data.mimo,
+    embalagem: 0,
+    mimo: 0,
+    acessorios: 0,
+    grafica: 0,
+    complementares: complementaresTotal,
     horas: data.horas,
     valorHora: data.valorHora,
     taxaCartao: data.taxaCartao,
@@ -76,6 +81,7 @@ export async function createPricingCalculation(
     margemPercent: data.margemPercent,
     lucroFixo: data.lucroFixo,
     name: data.name,
+    selectedMaterials: data.selectedMaterials,
   };
 
   const totals = computePricingTotals(inputs);

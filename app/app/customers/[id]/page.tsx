@@ -15,9 +15,9 @@ function formatDate(d: Date) {
 }
 
 const paymentColors: Record<string, string> = {
-  UNPAID: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-  HALF_PAID: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
-  PAID: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+  UNPAID: "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400",
+  HALF_PAID: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400",
+  PAID: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400",
 };
 const paymentLabels: Record<string, string> = {
   UNPAID: "Não pago",
@@ -63,7 +63,7 @@ export default async function CustomerDetailPage({
       <div>
         <Link
           href="/app/customers"
-          className="mb-4 inline-flex items-center gap-1 text-sm text-rose-600 hover:text-rose-800 dark:text-rose-400"
+          className="mb-4 inline-flex items-center gap-1 text-sm text-gray-700 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300"
         >
           <ChevronLeft className="h-4 w-4" />
           Voltar às clientes
@@ -85,27 +85,27 @@ export default async function CustomerDetailPage({
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4 text-center dark:border-rose-900/30 dark:bg-rose-950/20">
-          <p className="text-2xl font-bold text-rose-700 dark:text-rose-400">{customer.orders.length}</p>
-          <p className="text-xs text-gray-500">Pedidos</p>
+        <div className="card-3d rounded-2xl border-0 bg-rose-50 dark:bg-rose-950/20 p-4 text-center dark:border-rose-900/30">
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{customer.orders.length}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Pedidos</p>
         </div>
-        <div className="rounded-2xl border border-green-100 bg-green-50 p-4 text-center dark:border-green-900/30 dark:bg-green-950/20">
+        <div className="rounded-2xl border border-green-100 dark:border-green-900/30 bg-green-50 dark:bg-green-950/20 p-4 text-center">
           <p className="text-lg font-bold text-green-700 dark:text-green-400">{formatCurrency(totalSpent)}</p>
-          <p className="text-xs text-gray-500">Total gasto</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Total gasto</p>
         </div>
         {customer.orders[0] && (
-          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4 text-center dark:border-white/8 dark:bg-white/3">
+          <div className="rounded-2xl border border-gray-100 dark:border-white/8 bg-gray-50 dark:bg-[oklch(0.15_0.008_280)] p-4 text-center">
             <p className="text-sm font-bold text-gray-700 dark:text-gray-300">{formatDate(customer.orders[0].orderDate)}</p>
-            <p className="text-xs text-gray-500">Último pedido</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Último pedido</p>
           </div>
         )}
       </div>
 
       {/* Recent orders */}
       {customer.orders.length > 0 && (
-        <div className="rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-white/8 dark:bg-white/3">
-          <div className="flex items-center gap-2 border-b border-gray-100 px-4 py-3 dark:border-white/8">
-            <ShoppingBag className="h-4 w-4 text-rose-500" />
+        <div className="rounded-2xl border border-gray-100 dark:border-white/8 bg-white dark:bg-[oklch(0.18_0.01_280)] shadow-sm">
+          <div className="flex items-center gap-2 border-b border-gray-100 dark:border-white/8 px-4 py-3">
+            <ShoppingBag className="h-4 w-4 text-gray-500 dark:text-gray-400" />
             <h2 className="text-sm font-semibold text-gray-800 dark:text-white">Histórico de pedidos</h2>
           </div>
           <div className="divide-y divide-gray-50 dark:divide-white/5">
@@ -123,7 +123,7 @@ export default async function CustomerDetailPage({
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${paymentColors[order.paymentStatus]}`}>
                     {paymentLabels[order.paymentStatus]}
                   </span>
-                  <span className="text-sm font-semibold text-rose-700 dark:text-rose-400">
+                  <span className="text-sm font-semibold text-gray-900 dark:text-gray-300">
                     {formatCurrency(order.amount)}
                   </span>
                 </div>
@@ -134,7 +134,7 @@ export default async function CustomerDetailPage({
       )}
 
       {/* Edit form */}
-      <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm dark:border-white/8 dark:bg-white/3">
+      <div className="rounded-3xl border border-gray-100 dark:border-white/8 bg-white dark:bg-[oklch(0.18_0.01_280)] p-6 shadow-sm">
         <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">Editar dados</h2>
         <CustomerForm
           action={updateWithId}
@@ -150,14 +150,14 @@ export default async function CustomerDetailPage({
       </div>
 
       {/* Delete */}
-      <div className="rounded-2xl border border-red-100 bg-red-50/50 p-4 dark:border-red-900/30 dark:bg-red-950/10">
+      <div className="rounded-2xl border border-red-100 dark:border-red-900/30 bg-red-50/50 dark:bg-red-950/10 p-4">
         <p className="mb-3 text-sm font-medium text-red-700 dark:text-red-400">
           Excluir esta cliente permanentemente
         </p>
         <form action={deleteWithId}>
           <button
             type="submit"
-            className="rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 dark:border-red-800 dark:bg-transparent dark:text-red-400 dark:hover:bg-red-950/30"
+            className="rounded-lg border border-red-300 dark:border-red-800 bg-white dark:bg-transparent px-4 py-2 text-sm font-semibold text-red-600 dark:text-red-400 transition hover:bg-red-50 dark:hover:bg-red-950/30"
             onClick={(e) => {
               if (!confirm("Excluir esta cliente? Os pedidos vinculados não serão apagados.")) {
                 e.preventDefault();

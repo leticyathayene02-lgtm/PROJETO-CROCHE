@@ -34,7 +34,7 @@ export function LandingHeader() {
             <a
               key={link.href}
               href={link.href}
-              className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-rose-50 hover:text-rose-700 dark:text-gray-300 dark:hover:bg-rose-950/40 dark:hover:text-rose-300"
+              className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-rose-50 hover:text-rose-700 dark:text-gray-300 dark:hover:bg-rose-950/30 dark:hover:text-rose-300"
             >
               {link.label}
             </a>
@@ -59,7 +59,7 @@ export function LandingHeader() {
 
           {/* Mobile hamburger */}
           <button
-            className="ml-1 flex h-9 w-9 items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 md:hidden"
+            className="ml-1 flex h-9 w-9 items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/10 md:hidden"
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
             aria-expanded={isOpen}
@@ -78,7 +78,7 @@ export function LandingHeader() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setIsOpen(false)}
-                className="rounded-xl px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-rose-50 hover:text-rose-700 dark:text-gray-300 dark:hover:bg-rose-950/40"
+                className="rounded-xl px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-rose-50 hover:text-rose-700 dark:text-gray-300 dark:hover:bg-rose-950/30"
               >
                 {link.label}
               </a>
@@ -87,7 +87,7 @@ export function LandingHeader() {
               <Link
                 href="/login"
                 onClick={() => setIsOpen(false)}
-                className="rounded-xl border border-rose-200 px-4 py-2.5 text-center text-sm font-medium text-rose-600 transition-colors hover:bg-rose-50 dark:border-rose-800 dark:text-rose-400"
+                className="rounded-xl border border-rose-200 px-4 py-2.5 text-center text-sm font-medium text-rose-600 transition-colors hover:bg-rose-50 dark:border-rose-800/40 dark:text-rose-400 dark:hover:bg-rose-950/30"
               >
                 Entrar na conta
               </Link>

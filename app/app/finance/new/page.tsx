@@ -80,27 +80,27 @@ export default function NewTransactionPage() {
     <div className="max-w-lg mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Button asChild variant="ghost" size="icon" className="text-rose-500 hover:bg-rose-50">
+        <Button asChild variant="ghost" size="icon" className="text-gray-500 dark:text-gray-400 hover:bg-rose-50 dark:hover:bg-rose-950/30">
           <Link href="/app/finance">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div>
-          <h1 className="text-xl font-semibold text-rose-900">Nova transação</h1>
-          <p className="text-sm text-rose-400">Registre uma entrada ou saída financeira</p>
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Nova transação</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Registre uma entrada ou saída financeira</p>
         </div>
       </div>
 
-      <Card className="border-rose-100">
+      <Card className="card-3d border-0">
         <CardHeader>
-          <CardTitle className="text-base text-rose-800">Detalhes da transação</CardTitle>
+          <CardTitle className="text-base text-gray-900 dark:text-white">Detalhes da transação</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* Type */}
             <div className="space-y-1.5">
-              <Label htmlFor="type" className="text-rose-700">
-                Tipo <span className="text-rose-400">*</span>
+              <Label htmlFor="type" className="text-gray-900 dark:text-white">
+                Tipo <span className="text-gray-500 dark:text-gray-400">*</span>
               </Label>
               <Select
                 onValueChange={(v) => {
@@ -110,7 +110,7 @@ export default function NewTransactionPage() {
               >
                 <SelectTrigger
                   id="type"
-                  className={`border-rose-200 focus:ring-rose-300 ${errors.type ? "border-red-400" : ""}`}
+                  className={`border-rose-200 dark:border-white/10 focus:ring-rose-300 dark:focus:ring-rose-500/20 ${errors.type ? "border-red-400" : ""}`}
                 >
                   <SelectValue placeholder="Selecione..." />
                 </SelectTrigger>
@@ -134,14 +134,14 @@ export default function NewTransactionPage() {
 
             {/* Category */}
             <div className="space-y-1.5">
-              <Label htmlFor="category" className="text-rose-700">
-                Categoria <span className="text-rose-400">*</span>
+              <Label htmlFor="category" className="text-gray-900 dark:text-white">
+                Categoria <span className="text-gray-500 dark:text-gray-400">*</span>
               </Label>
               <Input
                 id="category"
                 placeholder="Ex: Venda de produto, Materiais..."
                 {...register("category")}
-                className={`border-rose-200 focus-visible:ring-rose-300 ${errors.category ? "border-red-400" : ""}`}
+                className={`border-rose-200 dark:border-white/10 focus-visible:ring-rose-300 dark:focus-visible:ring-rose-500/20 ${errors.category ? "border-red-400" : ""}`}
               />
               {suggestedCategories.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-1">
@@ -150,7 +150,7 @@ export default function NewTransactionPage() {
                       key={cat}
                       type="button"
                       onClick={() => setValue("category", cat, { shouldValidate: true })}
-                      className="text-xs px-2 py-0.5 rounded-full border border-rose-200 text-rose-600 hover:bg-rose-50 transition-colors"
+                      className="text-xs px-2 py-0.5 rounded-full border border-rose-200 dark:border-rose-800/40 text-gray-700 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
                     >
                       {cat}
                     </button>
@@ -166,8 +166,8 @@ export default function NewTransactionPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Amount */}
               <div className="space-y-1.5">
-                <Label htmlFor="amount" className="text-rose-700">
-                  Valor (R$) <span className="text-rose-400">*</span>
+                <Label htmlFor="amount" className="text-gray-900 dark:text-white">
+                  Valor (R$) <span className="text-gray-500 dark:text-gray-400">*</span>
                 </Label>
                 <Input
                   id="amount"
@@ -176,7 +176,7 @@ export default function NewTransactionPage() {
                   min="0.01"
                   placeholder="0,00"
                   {...register("amount", { valueAsNumber: true })}
-                  className={`border-rose-200 focus-visible:ring-rose-300 ${errors.amount ? "border-red-400" : ""}`}
+                  className={`border-rose-200 dark:border-white/10 focus-visible:ring-rose-300 dark:focus-visible:ring-rose-500/20 ${errors.amount ? "border-red-400" : ""}`}
                 />
                 {errors.amount && (
                   <p className="text-xs text-red-500">{errors.amount.message}</p>
@@ -185,14 +185,14 @@ export default function NewTransactionPage() {
 
               {/* Date */}
               <div className="space-y-1.5">
-                <Label htmlFor="date" className="text-rose-700">
-                  Data <span className="text-rose-400">*</span>
+                <Label htmlFor="date" className="text-gray-900 dark:text-white">
+                  Data <span className="text-gray-500 dark:text-gray-400">*</span>
                 </Label>
                 <Input
                   id="date"
                   type="date"
                   {...register("date")}
-                  className={`border-rose-200 focus-visible:ring-rose-300 ${errors.date ? "border-red-400" : ""}`}
+                  className={`border-rose-200 dark:border-white/10 focus-visible:ring-rose-300 dark:focus-visible:ring-rose-500/20 ${errors.date ? "border-red-400" : ""}`}
                 />
                 {errors.date && <p className="text-xs text-red-500">{errors.date.message}</p>}
               </div>
@@ -200,16 +200,16 @@ export default function NewTransactionPage() {
 
             {/* Notes */}
             <div className="space-y-1.5">
-              <Label htmlFor="notes" className="text-rose-700">
+              <Label htmlFor="notes" className="text-gray-900 dark:text-white">
                 Observações{" "}
-                <span className="text-rose-300 font-normal text-xs">(opcional)</span>
+                <span className="text-gray-400 dark:text-gray-500 font-normal text-xs">(opcional)</span>
               </Label>
               <Textarea
                 id="notes"
                 placeholder="Informações adicionais sobre esta transação..."
                 rows={3}
                 {...register("notes")}
-                className="border-rose-200 focus-visible:ring-rose-300 resize-none"
+                className="border-rose-200 dark:border-white/10 focus-visible:ring-rose-300 dark:focus-visible:ring-rose-500/20 resize-none"
               />
             </div>
 
@@ -218,7 +218,7 @@ export default function NewTransactionPage() {
               <Button
                 type="button"
                 variant="outline"
-                className="flex-1 border-rose-200 text-rose-600 hover:bg-rose-50"
+                className="flex-1 border-rose-200 dark:border-rose-800/40 text-gray-700 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-rose-950/30"
                 asChild
               >
                 <Link href="/app/finance">Cancelar</Link>

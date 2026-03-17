@@ -69,7 +69,7 @@ export default async function OrdersPage({
         <div className="flex gap-2">
           <Link
             href="/app/orders/board"
-            className="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-semibold text-rose-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-rose-50 dark:border-rose-800/50 dark:bg-transparent dark:text-rose-400"
+            className="inline-flex items-center gap-2 rounded-xl border border-rose-200 dark:border-rose-800/40 bg-white dark:bg-[oklch(0.18_0.01_280)] px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-gray-300 shadow-sm dark:shadow-black/10 transition hover:-translate-y-0.5 hover:bg-rose-50 dark:hover:bg-rose-950/30"
           >
             <LayoutGrid className="h-4 w-4" />
             Quadro
@@ -93,7 +93,7 @@ export default async function OrdersPage({
               className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
                 filter === tab.key
                   ? "bg-rose-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-rose-50 hover:text-rose-700 dark:bg-white/8 dark:text-gray-300 dark:hover:bg-rose-950/30"
+                  : "bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-gray-900 dark:hover:text-white"
               }`}
             >
               {tab.label}
@@ -105,7 +105,7 @@ export default async function OrdersPage({
           <input
             name="q" type="search" defaultValue={q}
             placeholder="Buscar cliente..."
-            className="w-full rounded-xl border border-rose-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-200 dark:border-white/10 dark:bg-white/5 dark:text-gray-100 dark:placeholder-gray-500"
+            className="w-full rounded-xl border border-rose-200 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-2 text-sm text-gray-800 dark:text-white outline-none transition placeholder-rose-300 dark:placeholder-gray-500 focus:border-rose-400 dark:focus:border-rose-500 focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-500/20"
           />
         </form>
       </div>
@@ -121,7 +121,7 @@ export default async function OrdersPage({
             return (
               <div
                 key={order.id}
-                className="group flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-md dark:border-white/8 dark:bg-white/3 sm:flex-row sm:items-center sm:gap-4"
+                className="group flex flex-col gap-3 rounded-2xl border border-gray-100 dark:border-white/8 bg-white dark:bg-[oklch(0.18_0.01_280)] p-4 shadow-sm dark:shadow-black/10 transition hover:shadow-md sm:flex-row sm:items-center sm:gap-4"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
@@ -131,7 +131,7 @@ export default async function OrdersPage({
                     <PaymentStatusBadge status={order.paymentStatus} />
                     <ProductionStatusBadge status={order.productionStatus} />
                     {isLate && (
-                      <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-600 dark:bg-red-900/40 dark:text-red-400">
+                      <span className="rounded-full bg-red-100 dark:bg-red-900/40 px-2 py-0.5 text-[10px] font-bold text-red-600 dark:text-red-400">
                         ATRASADO
                       </span>
                     )}
@@ -154,7 +154,7 @@ export default async function OrdersPage({
                 </div>
 
                 <div className="flex flex-shrink-0 items-center gap-3">
-                  <span className="font-semibold text-rose-700 dark:text-rose-400">
+                  <span className="font-semibold text-gray-900 dark:text-white">
                     {formatCurrency(order.amount)}
                   </span>
 
@@ -168,7 +168,7 @@ export default async function OrdersPage({
                       <button
                         type="submit"
                         title={`Marcar como ${nextStatus(order.paymentStatus) === "HALF_PAID" ? "50% pago" : "Pago"}`}
-                        className="rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 dark:border-rose-800/50 dark:bg-rose-950/30 dark:text-rose-400 dark:hover:bg-rose-950/50"
+                        className="rounded-lg border border-rose-200 dark:border-rose-800/40 bg-rose-50 dark:bg-rose-950/20 px-2.5 py-1 text-xs font-semibold text-gray-900 dark:text-gray-300 transition hover:bg-rose-100 dark:hover:bg-rose-950/40"
                       >
                         {nextStatus(order.paymentStatus) === "HALF_PAID" ? "→ 50%" : "→ Pago"}
                       </button>
@@ -177,7 +177,7 @@ export default async function OrdersPage({
 
                   <Link
                     href={`/app/orders/${order.id}`}
-                    className="rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-semibold text-gray-600 transition hover:bg-gray-100 dark:border-white/10 dark:bg-white/5 dark:text-gray-300"
+                    className="rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[oklch(0.15_0.008_280)] px-2.5 py-1 text-xs font-semibold text-gray-600 dark:text-gray-300 transition hover:bg-gray-100 dark:hover:bg-white/10"
                   >
                     Detalhes
                   </Link>
@@ -194,14 +194,14 @@ export default async function OrdersPage({
 function EmptyState({ filter }: { filter: FilterKey }) {
   const isFiltered = filter !== "all";
   return (
-    <div className="flex flex-col items-center justify-center rounded-3xl border border-rose-100 bg-gradient-to-br from-rose-50 via-pink-50 to-fuchsia-50 px-6 py-16 text-center dark:border-rose-900/30 dark:from-rose-950/20 dark:via-gray-950 dark:to-gray-950">
+    <div className="card-3d-strong flex flex-col items-center justify-center rounded-3xl border-0 bg-gradient-to-br from-rose-50 via-pink-50 to-fuchsia-50 dark:from-rose-950/20 dark:via-gray-950 dark:to-gray-950 px-6 py-16 text-center dark:border-rose-900/30">
       <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-rose-400 to-pink-500 shadow-lg shadow-rose-200/50">
         {isFiltered ? <Package className="h-8 w-8 text-white" /> : <ClipboardList className="h-8 w-8 text-white" />}
       </div>
-      <h2 className="mb-2 text-lg font-bold text-rose-900 dark:text-rose-100">
+      <h2 className="mb-2 text-lg font-bold text-gray-900 dark:text-rose-100">
         {isFiltered ? "Nenhum pedido neste filtro" : "Nenhum pedido ainda"}
       </h2>
-      <p className="mb-6 max-w-xs text-sm text-rose-600/80 dark:text-rose-300/60">
+      <p className="mb-6 max-w-xs text-sm text-gray-700 dark:text-gray-400">
         {isFiltered
           ? "Tente outro filtro ou limpe a busca."
           : "Registre sua primeira encomenda e acompanhe os pagamentos de forma organizada."}

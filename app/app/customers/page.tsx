@@ -62,20 +62,20 @@ export default async function CustomersPage({
         <input
           name="q" type="search" defaultValue={q}
           placeholder="Buscar por nome ou @instagram..."
-          className="w-full rounded-xl border border-rose-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-200 dark:border-white/10 dark:bg-white/5 dark:text-gray-100 dark:placeholder-gray-500"
+          className="w-full rounded-xl border border-rose-200 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-2 text-sm outline-none transition focus:border-rose-400 dark:focus:border-rose-500 focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-500/20 dark:text-gray-100 dark:placeholder-gray-500"
         />
       </form>
 
       {/* List */}
       {customers.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-rose-100 bg-gradient-to-br from-rose-50 via-pink-50 to-fuchsia-50 px-6 py-16 text-center dark:border-rose-900/30 dark:from-rose-950/20 dark:via-gray-950 dark:to-gray-950">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-rose-400 to-pink-500 shadow-lg shadow-rose-200/50">
+        <div className="card-3d-strong flex flex-col items-center justify-center rounded-3xl border-0 bg-gradient-to-br from-rose-50 via-pink-50 to-fuchsia-50 dark:from-rose-950/20 dark:via-gray-950 dark:to-gray-950 px-6 py-16 text-center dark:border-rose-900/30">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-rose-400 to-pink-500 shadow-lg shadow-rose-200/50 dark:shadow-rose-900/20">
             <Users className="h-8 w-8 text-white" />
           </div>
-          <h2 className="mb-2 text-lg font-bold text-rose-900 dark:text-rose-100">
+          <h2 className="mb-2 text-lg font-bold text-gray-900 dark:text-rose-100">
             {q ? "Nenhuma cliente encontrada" : "Nenhuma cliente ainda"}
           </h2>
-          <p className="mb-6 max-w-xs text-sm text-rose-600/80 dark:text-rose-300/60">
+          <p className="mb-6 max-w-xs text-sm text-gray-700 dark:text-gray-400">
             {q
               ? "Tente outra busca."
               : "Cadastre suas clientes para vincular pedidos e ver o histórico de compras."}
@@ -98,7 +98,7 @@ export default async function CustomersPage({
               <Link
                 key={customer.id}
                 href={`/app/customers/${customer.id}`}
-                className="group flex flex-col gap-2 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-md dark:border-white/8 dark:bg-white/3 sm:flex-row sm:items-center sm:gap-4"
+                className="group flex flex-col gap-2 rounded-2xl border border-gray-100 dark:border-white/8 bg-white dark:bg-[oklch(0.18_0.01_280)] p-4 shadow-sm transition hover:shadow-md dark:hover:shadow-black/10 sm:flex-row sm:items-center sm:gap-4"
               >
                 {/* Avatar */}
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-rose-400 to-pink-500 text-sm font-bold text-white">
@@ -130,14 +130,14 @@ export default async function CustomersPage({
                 {/* Stats */}
                 <div className="flex shrink-0 items-center gap-4 text-right text-sm">
                   <div>
-                    <p className="font-semibold text-rose-700 dark:text-rose-400">
+                    <p className="font-semibold text-gray-900 dark:text-gray-300">
                       {formatCurrency(totalSpent)}
                     </p>
                     <p className="text-xs text-gray-400">
                       {customer._count.orders} pedido{customer._count.orders !== 1 ? "s" : ""}
                     </p>
                   </div>
-                  <span className="hidden text-xs text-rose-500 transition group-hover:block sm:block">
+                  <span className="hidden text-xs text-gray-500 transition group-hover:block sm:block">
                     Ver →
                   </span>
                 </div>

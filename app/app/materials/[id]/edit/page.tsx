@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -9,7 +9,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { createMaterial } from "@/lib/materials/actions";
+import { updateMaterial } from "@/lib/materials/actions";
+import { getMaterialById } from "./actions";
 
 const CATEGORIES = [
   { value: "YARN", label: "Fio / Lã" },
@@ -32,14 +33,12 @@ const UNITS = [
   { value: "PACKS", label: "Pacotes" },
 ] as const;
 
-// Parse valor monetário: aceita "0,05" ou "0.05"
 function parseDecimal(raw: string): number {
   const normalized = raw.replace(",", ".");
   const val = parseFloat(normalized);
   return isNaN(val) ? 0 : val;
 }
 
-// Input monetário que aceita vírgula e centavos corretamente
 function MoneyInput({
   value,
   onChange,
@@ -66,7 +65,6 @@ function MoneyInput({
   );
 }
 
-// Input numérico inteiro
 function IntInput({
   value,
   onChange,
@@ -92,11 +90,20 @@ function IntInput({
   );
 }
 
+// Formata número para exibição (usa ponto como decimal para o input)
+function numToStr(n: number): string {
+  return n > 0 ? String(n) : "";
+}
+
 const brl = (v: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
 
-export default function NewMaterialPage() {
+export default function EditMaterialPage() {
   const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
+
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const [name, setName] = useState("");
@@ -105,7 +112,6 @@ export default function NewMaterialPage() {
   const [color, setColor] = useState("");
   const [unit, setUnit] = useState<string>("GRAMS");
 
-  // Valores monetários como string para aceitar centavos
   const [costPerUnitStr, setCostPerUnitStr] = useState("");
   const [costPerUnit, setCostPerUnit] = useState(0);
 
@@ -118,7 +124,6 @@ export default function NewMaterialPage() {
   const [supplier, setSupplier] = useState("");
   const [notes, setNotes] = useState("");
 
-  // Campos específicos para fio/lã
   const [pricePerRollStr, setPricePerRollStr] = useState("");
   const [pricePerRoll, setPricePerRoll] = useState(0);
   const [weightPerRollStr, setWeightPerRollStr] = useState("");
@@ -126,18 +131,52 @@ export default function NewMaterialPage() {
   const [rolls, setRolls] = useState(0);
 
   const isYarn = category === "YARN";
-
-  // Auto-calcula custo/g quando tem preço e peso do rolo
   const autoCalcCost = isYarn && pricePerRoll > 0 && weightPerRoll > 0;
   const calculatedCostPerUnit = autoCalcCost
     ? Math.round((pricePerRoll / weightPerRoll) * 10000) / 10000
     : costPerUnit;
-
-  // Auto-calcula estoque total em gramas
   const autoCalcStock = isYarn && weightPerRoll > 0 && rolls > 0;
-  const calculatedStock = autoCalcStock
-    ? weightPerRoll * rolls
-    : stock;
+  const calculatedStock = autoCalcStock ? weightPerRoll * rolls : stock;
+
+  useEffect(() => {
+    getMaterialById(id)
+      .then((m) => {
+        if (!m) {
+          toast.error("Material não encontrado");
+          router.push("/app/materials");
+          return;
+        }
+        setName(m.name);
+        setCategory(m.category);
+        setBrand(m.brand ?? "");
+        setColor(m.color ?? "");
+        setUnit(m.unit);
+        setCostPerUnit(m.costPerUnit);
+        setCostPerUnitStr(numToStr(m.costPerUnit));
+        setStock(m.stock);
+        setStockStr(numToStr(m.stock));
+        setLowStockMin(m.lowStockMin);
+        setLowStockMinStr(numToStr(m.lowStockMin));
+        setSupplier(m.supplier ?? "");
+        setNotes(m.notes ?? "");
+        if (m.pricePerRoll) {
+          setPricePerRoll(m.pricePerRoll);
+          setPricePerRollStr(numToStr(m.pricePerRoll));
+        }
+        if (m.weightPerRoll) {
+          setWeightPerRoll(m.weightPerRoll);
+          setWeightPerRollStr(numToStr(m.weightPerRoll));
+        }
+        if (m.rolls) {
+          setRolls(m.rolls);
+        }
+      })
+      .catch(() => {
+        toast.error("Erro ao carregar material");
+        router.push("/app/materials");
+      })
+      .finally(() => setLoading(false));
+  }, [id, router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -153,7 +192,7 @@ export default function NewMaterialPage() {
     }
 
     setSaving(true);
-    const result = await createMaterial({
+    const result = await updateMaterial(id, {
       name,
       category: category as (typeof CATEGORIES)[number]["value"],
       brand: brand || undefined,
@@ -174,8 +213,16 @@ export default function NewMaterialPage() {
       toast.error(result.error);
       return;
     }
-    toast.success("Material cadastrado!");
+    toast.success("Material atualizado!");
     router.push("/app/materials");
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-rose-500" />
+      </div>
+    );
   }
 
   return (
@@ -189,11 +236,8 @@ export default function NewMaterialPage() {
           Voltar ao catálogo
         </Link>
         <h1 className="font-heading text-2xl font-bold text-gray-900 dark:text-white">
-          Novo Material
+          Editar Material
         </h1>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          Cadastre um insumo para usar na calculadora de preços
-        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -279,7 +323,7 @@ export default function NewMaterialPage() {
           </CardContent>
         </Card>
 
-        {/* Card específico para fio/lã: dados do rolo */}
+        {/* Card específico para fio/lã */}
         {isYarn && (
           <Card className="card-3d border-0 dark:border-rose-900/30">
             <CardHeader className="pb-3">
@@ -327,7 +371,6 @@ export default function NewMaterialPage() {
                 <IntInput value={rolls} onChange={setRolls} placeholder="0" />
               </div>
 
-              {/* Auto-cálculo custo/g */}
               {autoCalcCost && (
                 <div className="rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/30 px-3 py-2.5">
                   <div className="flex items-center justify-between">
@@ -344,7 +387,6 @@ export default function NewMaterialPage() {
                 </div>
               )}
 
-              {/* Auto-cálculo estoque */}
               {autoCalcStock && (
                 <div className="rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/30 px-3 py-2.5">
                   <div className="flex items-center justify-between">
@@ -470,7 +512,7 @@ export default function NewMaterialPage() {
               Salvando...
             </>
           ) : (
-            "Cadastrar material"
+            "Salvar alterações"
           )}
         </Button>
       </form>

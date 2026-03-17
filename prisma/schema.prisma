@@ -55,6 +55,7 @@ model Workspace {
   subscription      Subscription?
   usageCounters     UsageCounter[]
   yarns             Yarn[]
+  stockItems        StockItem[]
   materials         Material[]
   priceCalculations PriceCalculation[]
   products          Product[]
@@ -130,7 +131,7 @@ model UsageCounter {
 }
 
 // ─────────────────────────────────────────
-// INVENTORY — YARN STOCK
+// INVENTORY — FINISHED PRODUCTS STOCK
 // ─────────────────────────────────────────
 
 model Yarn {
@@ -146,6 +147,24 @@ model Yarn {
   updatedAt         DateTime @updatedAt
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model StockItem {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  color       String?
+  size        String?
+  quantity    Int      @default(0)
+  price       Float?
+  cost        Float?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
 }
 
 // ─────────────────────────────────────────
@@ -354,20 +373,24 @@ enum MaterialCategory {
 }
 
 model Material {
-  id          String           @id @default(cuid())
-  workspaceId String
-  name        String
-  category    MaterialCategory @default(OTHER)
-  brand       String?
-  color       String?
-  unit        MaterialUnit     @default(UNITS)
-  costPerUnit Float
-  stock       Float            @default(0)
-  lowStockMin Float            @default(0)
-  supplier    String?
-  notes       String?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  id             String           @id @default(cuid())
+  workspaceId    String
+  name           String
+  category       MaterialCategory @default(OTHER)
+  brand          String?
+  color          String?
+  unit           MaterialUnit     @default(UNITS)
+  costPerUnit    Float
+  stock          Float            @default(0)
+  lowStockMin    Float            @default(0)
+  supplier       String?
+  notes          String?
+  // Campos específicos para fio/lã (YARN)
+  weightPerRoll  Float?           // peso por rolo em gramas
+  pricePerRoll   Float?           // preço pago por rolo (R$)
+  rolls          Int?             // quantidade de rolos em estoque
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 

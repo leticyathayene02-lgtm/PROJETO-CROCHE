@@ -19,10 +19,10 @@ export default async function PricingPage() {
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-rose-900">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
             Calculadora de Preços
           </h1>
-          <p className="mt-1 text-sm text-rose-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Histórico dos seus cálculos de precificação
           </p>
         </div>
@@ -39,14 +39,14 @@ export default async function PricingPage() {
 
       {/* Empty state */}
       {calculations.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-rose-200 bg-rose-50/50 px-6 py-16 text-center">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-rose-100">
-            <Calculator className="h-7 w-7 text-rose-500" />
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-rose-200 dark:border-rose-800/40 bg-rose-50/50 dark:bg-rose-950/20 px-6 py-16 text-center">
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-900/40">
+            <Calculator className="h-7 w-7 text-rose-500 dark:text-rose-400" />
           </div>
-          <h2 className="text-lg font-semibold text-rose-900">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
             Nenhum cálculo ainda
           </h2>
-          <p className="mt-1 max-w-sm text-sm text-rose-400">
+          <p className="mt-1 max-w-sm text-sm text-gray-500 dark:text-gray-400">
             Use a calculadora para definir o preço ideal das suas peças
             com base em materiais, mão de obra e margem de lucro.
           </p>
@@ -88,19 +88,19 @@ export default async function PricingPage() {
             return (
               <Card
                 key={calc.id}
-                className="border-rose-100 transition-shadow hover:shadow-md hover:shadow-rose-100"
+                className="border-rose-100 dark:border-rose-800/30 transition-shadow hover:shadow-md hover:shadow-rose-100 dark:hover:shadow-black/10"
               >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-100">
-                        <Calculator className="h-5 w-5 text-rose-600" />
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-100 dark:bg-rose-900/40">
+                        <Calculator className="h-5 w-5 text-rose-600 dark:text-rose-400" />
                       </div>
                       <div>
-                        <p className="font-semibold text-rose-900">
+                        <p className="font-semibold text-gray-900 dark:text-white">
                           {calc.name ?? "Sem nome"}
                         </p>
-                        <p className="text-xs text-rose-400">{formattedDate}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{formattedDate}</p>
                         {custoBase > 0 && (
                           <p className="mt-0.5 text-xs text-gray-400">
                             Custo: {fmt(custoBase)}
@@ -111,7 +111,7 @@ export default async function PricingPage() {
                     <div className="text-right">
                       <div className="flex items-center gap-1.5">
                         <span className="text-[10px] font-medium uppercase text-emerald-500">PIX</span>
-                        <span className="text-base font-bold text-emerald-700">
+                        <span className="text-base font-bold text-emerald-700 dark:text-emerald-400">
                           {formattedPix}
                         </span>
                       </div>
@@ -132,7 +132,7 @@ export default async function PricingPage() {
                       asChild
                       variant="outline"
                       size="sm"
-                      className="border-rose-200 text-rose-600 hover:bg-rose-50"
+                      className="border-rose-200 dark:border-rose-800/40 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30"
                     >
                       <Link href={`/app/pricing/new?prefill=${prefillData}`}>
                         <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
@@ -149,7 +149,7 @@ export default async function PricingPage() {
 
       {/* Footer hint */}
       {calculations.length > 0 && (
-        <p className="text-center text-xs text-rose-300">
+        <p className="text-center text-xs text-gray-400">
           Exibindo os últimos {calculations.length} cálculo
           {calculations.length !== 1 ? "s" : ""}
         </p>

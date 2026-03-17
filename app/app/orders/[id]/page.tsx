@@ -49,7 +49,7 @@ export default async function OrderDetailPage({
       <div>
         <Link
           href="/app/orders"
-          className="mb-4 inline-flex items-center gap-1 text-sm text-rose-600 hover:text-rose-800 dark:text-rose-400"
+          className="mb-4 inline-flex items-center gap-1 text-sm text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
         >
           <ChevronLeft className="h-4 w-4" />
           Voltar aos pedidos
@@ -80,17 +80,17 @@ export default async function OrderDetailPage({
       <TimerWidget orderId={order.id} label="Cronômetro desta peça" />
 
       {/* Checklist */}
-      <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-white/8 dark:bg-white/3">
+      <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-white/8 dark:bg-[oklch(0.18_0.01_280)]">
         <div className="mb-4 flex items-center gap-2">
-          <CheckSquare className="h-4 w-4 text-rose-500" />
-          <h2 className="text-sm font-semibold text-gray-800 dark:text-white">Checklist</h2>
+          <CheckSquare className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Checklist</h2>
         </div>
         <ChecklistEditor orderId={order.id} initialItems={checklist} />
       </div>
 
       {/* Edit form */}
-      <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm dark:border-white/8 dark:bg-white/3">
-        <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-white">Editar pedido</h2>
+      <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm dark:border-white/8 dark:bg-[oklch(0.18_0.01_280)]">
+        <h2 className="mb-4 text-base font-semibold text-gray-900 dark:text-white">Editar pedido</h2>
         <OrderForm
           action={updateWithId}
           customers={customers}

@@ -99,31 +99,31 @@ function KpiCard({
 }) {
   const palette = {
     green: {
-      bg: "from-emerald-50 via-green-50 to-teal-50",
-      border: "border-emerald-100",
-      text: "text-emerald-700",
-      badge: "bg-emerald-100 text-emerald-700",
+      bg: "from-emerald-50 via-green-50 to-teal-50 dark:from-emerald-950/30 dark:via-gray-900 dark:to-gray-900",
+      border: "border-emerald-100 dark:border-emerald-800/40",
+      text: "text-emerald-700 dark:text-emerald-400",
+      badge: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400",
       bar: "bg-emerald-400",
     },
     red: {
-      bg: "from-red-50 via-rose-50 to-orange-50",
-      border: "border-red-100",
-      text: "text-red-600",
-      badge: "bg-red-100 text-red-600",
+      bg: "from-red-50 via-rose-50 to-orange-50 dark:from-red-950/30 dark:via-gray-900 dark:to-gray-900",
+      border: "border-red-100 dark:border-red-800/40",
+      text: "text-red-600 dark:text-red-400",
+      badge: "bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400",
       bar: "bg-red-400",
     },
     rose: {
-      bg: "from-rose-50 via-pink-50 to-fuchsia-50",
-      border: "border-rose-100",
-      text: "text-rose-700",
-      badge: "bg-rose-100 text-rose-700",
+      bg: "from-rose-50 via-pink-50 to-fuchsia-50 dark:from-rose-950/30 dark:via-gray-900 dark:to-gray-900",
+      border: "border-rose-100 dark:border-rose-800/40",
+      text: "text-gray-900 dark:text-gray-100",
+      badge: "bg-rose-100 text-gray-900 dark:bg-rose-900/40 dark:text-gray-100",
       bar: "bg-rose-500",
     },
     amber: {
-      bg: "from-amber-50 via-yellow-50 to-orange-50",
-      border: "border-amber-100",
-      text: "text-amber-700",
-      badge: "bg-amber-100 text-amber-700",
+      bg: "from-amber-50 via-yellow-50 to-orange-50 dark:from-amber-950/30 dark:via-gray-900 dark:to-gray-900",
+      border: "border-amber-100 dark:border-amber-800/40",
+      text: "text-amber-700 dark:text-amber-400",
+      badge: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400",
       bar: "bg-amber-400",
     },
   };
@@ -132,7 +132,7 @@ function KpiCard({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border bg-gradient-to-br p-5 shadow-sm transition-shadow hover:shadow-md ${p.bg} ${p.border}`}
+      className={`relative overflow-hidden rounded-2xl border bg-gradient-to-br p-5 shadow-sm transition-shadow hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-black/20 ${p.bg} ${p.border}`}
     >
       {/* Background orb */}
       <div className={`pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-20 ${p.bar}`} />
@@ -150,27 +150,27 @@ function KpiCard({
           )}
         </div>
 
-        <p className="mb-0.5 text-xs font-semibold tracking-widest text-gray-500 uppercase">
+        <p className="mb-0.5 text-xs font-semibold tracking-widest text-gray-500 dark:text-gray-400 uppercase">
           {label}
         </p>
         <p className={`font-heading text-3xl font-bold tracking-tight ${p.text}`}>
           {value}
         </p>
-        {sub && <p className="mt-1 text-xs text-gray-400">{sub}</p>}
+        {sub && <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">{sub}</p>}
 
         {progress !== null && goal && (
           <div className="mt-3">
-            <div className="mb-1 flex justify-between text-[11px] text-gray-400">
+            <div className="mb-1 flex justify-between text-[11px] text-gray-400 dark:text-gray-500">
               <span>Meta</span>
               <span>{progress}%</span>
             </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-white/8">
               <div
                 className={`h-full rounded-full transition-all ${p.bar}`}
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <p className="mt-1 text-[11px] text-gray-400">
+            <p className="mt-1 text-[11px] text-gray-400 dark:text-gray-500">
               Meta: {fmt(goal.target)}
             </p>
           </div>
@@ -190,12 +190,12 @@ function StatPill({
   icon: string;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-1 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+    <div className="flex flex-col items-center justify-center gap-1 rounded-2xl border border-gray-100 dark:border-white/8 bg-white dark:bg-[oklch(0.18_0.01_280)] p-4 shadow-sm transition-shadow hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-black/20">
       <span className="text-2xl" aria-hidden="true">{icon}</span>
-      <p className="font-heading text-2xl font-bold tracking-tight text-gray-800">
+      <p className="font-heading text-2xl font-bold tracking-tight text-gray-800 dark:text-gray-100">
         {value}
       </p>
-      <p className="text-center text-[11px] leading-tight text-gray-400">{label}</p>
+      <p className="text-center text-[11px] leading-tight text-gray-400 dark:text-gray-500">{label}</p>
     </div>
   );
 }
@@ -216,16 +216,16 @@ function QuickAction({
   return (
     <Link href={href}>
       <div
-        className={`group flex items-center gap-3 rounded-2xl border border-transparent bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${color}`}
+        className={`group flex items-center gap-3 rounded-2xl border border-transparent bg-white dark:bg-[oklch(0.18_0.01_280)] dark:border-white/8 p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-black/20 ${color}`}
       >
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-current/10">
           <span className="text-inherit">{icon}</span>
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-gray-800">{label}</p>
-          <p className="truncate text-xs text-gray-400">{description}</p>
+          <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{label}</p>
+          <p className="truncate text-xs text-gray-400 dark:text-gray-500">{description}</p>
         </div>
-        <ChevronRight className="ml-auto h-4 w-4 shrink-0 text-gray-300 transition-transform group-hover:translate-x-0.5 group-hover:text-gray-400" />
+        <ChevronRight className="ml-auto h-4 w-4 shrink-0 text-gray-300 dark:text-gray-600 transition-transform group-hover:translate-x-0.5 group-hover:text-gray-400 dark:group-hover:text-gray-500" />
       </div>
     </Link>
   );
@@ -347,7 +347,7 @@ export default async function OverviewPage() {
       />
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose-700 via-rose-600 to-pink-500 p-6 text-white shadow-xl shadow-rose-300/40 md:p-8 lg:p-10">
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose-700 via-rose-600 to-pink-500 p-6 text-white shadow-xl shadow-rose-300/40 dark:shadow-rose-900/20 md:p-8 lg:p-10">
 
         {/* Decorative yarn ball SVG — desktop right */}
         <YarnBallSvg className="pointer-events-none absolute -right-4 -top-4 h-52 w-52 opacity-60 lg:h-64 lg:w-64" />
@@ -375,7 +375,7 @@ export default async function OverviewPage() {
           <div className="flex flex-wrap gap-3">
             <Link
               href="/app/pricing/new"
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-rose-600 shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
+              className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-700 shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0"
             >
               <Calculator className="h-4 w-4" />
               Novo cálculo
@@ -413,12 +413,12 @@ export default async function OverviewPage() {
       {/* ── KPI Cards ────────────────────────────────────────────────────── */}
       <section aria-label="Resumo financeiro do mês">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-heading text-title text-gray-900">
+          <h2 className="font-heading text-title text-gray-900 dark:text-white">
             Financeiro — {monthName}
           </h2>
           <Link
             href="/app/finance"
-            className="flex items-center gap-1 text-sm font-medium text-rose-600 hover:underline"
+            className="flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:underline"
           >
             Detalhes <ChevronRight className="h-4 w-4" />
           </Link>
@@ -456,12 +456,12 @@ export default async function OverviewPage() {
         <StatPill value={totalProducts} label="Produtos ativos" icon="📦" />
         <StatPill value={calcsUsed} label="Cálculos este mês" icon="🧮" />
         <StatPill value={yarns.length} label="Tipos de fio" icon="🧵" />
-        <Link href="/app/orders/board" className="flex flex-col items-center justify-center gap-1 rounded-2xl border border-rose-100 bg-rose-50 p-4 shadow-sm transition-shadow hover:shadow-md hover:bg-rose-100 dark:border-rose-900/30 dark:bg-rose-950/20">
+        <Link href="/app/orders/board" className="flex flex-col items-center justify-center gap-1 rounded-2xl border border-rose-100 dark:border-rose-800/40 bg-rose-50 dark:bg-rose-950/20 p-4 shadow-sm transition-shadow hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-black/20 hover:bg-rose-100 dark:hover:bg-rose-950/30">
           <span className="text-2xl" aria-hidden="true">📋</span>
-          <p className="font-heading text-xs font-bold tracking-tight text-rose-700 dark:text-rose-400 text-center leading-tight">
+          <p className="font-heading text-xs font-bold tracking-tight text-gray-900 dark:text-rose-400 text-center leading-tight">
             Ver quadro
           </p>
-          <p className="text-center text-[11px] leading-tight text-rose-500 dark:text-rose-500">Acompanhar pedidos</p>
+          <p className="text-center text-[11px] leading-tight text-gray-500 dark:text-rose-500">Acompanhar pedidos</p>
         </Link>
       </div>
 
@@ -475,7 +475,7 @@ export default async function OverviewPage() {
             {lateOrders.length > 0 && (
               <Link
                 href="/app/orders?filter=late"
-                className="group flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 transition hover:bg-red-100 dark:border-red-900/40 dark:bg-red-950/20"
+                className="group flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 transition hover:bg-red-100 dark:border-red-900/40 dark:bg-red-950/20 dark:hover:bg-red-950/30"
               >
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-100 dark:bg-red-900/40">
                   <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
@@ -495,7 +495,7 @@ export default async function OverviewPage() {
             {dueSoonOrders.length > 0 && (
               <Link
                 href="/app/orders"
-                className="group flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 transition hover:bg-amber-100 dark:border-amber-900/40 dark:bg-amber-950/20"
+                className="group flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 transition hover:bg-amber-100 dark:border-amber-900/40 dark:bg-amber-950/20 dark:hover:bg-amber-950/30"
               >
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/40">
                   <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
@@ -515,27 +515,27 @@ export default async function OverviewPage() {
             {totalReceivable > 0 && (
               <Link
                 href="/app/orders?filter=UNPAID"
-                className="group flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 transition hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-950/20"
+                className="group flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 transition hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-950/20 dark:hover:bg-rose-950/30"
               >
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-100 dark:bg-rose-900/40">
-                  <DollarSign className="h-5 w-5 text-rose-600 dark:text-rose-400" />
+                  <DollarSign className="h-5 w-5 text-gray-700 dark:text-rose-400" />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-rose-800 dark:text-rose-300">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-rose-300">
                     {fmt(totalReceivable)} a receber
                   </p>
-                  <p className="mt-0.5 text-xs text-rose-600 dark:text-rose-400">
+                  <p className="mt-0.5 text-xs text-gray-700 dark:text-rose-400">
                     {unpaidOrders.length} pedido{unpaidOrders.length > 1 ? "s" : ""} com pagamento pendente
                   </p>
                 </div>
-                <ChevronRight className="h-4 w-4 shrink-0 text-rose-400 transition group-hover:translate-x-0.5" />
+                <ChevronRight className="h-4 w-4 shrink-0 text-gray-500 dark:text-gray-400 transition group-hover:translate-x-0.5" />
               </Link>
             )}
 
             {lowStock.length > 0 && (
               <Link
                 href="/app/inventory"
-                className="group flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 transition hover:bg-amber-100 dark:border-amber-900/40 dark:bg-amber-950/20"
+                className="group flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 transition hover:bg-amber-100 dark:border-amber-900/40 dark:bg-amber-950/20 dark:hover:bg-amber-950/30"
               >
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/40">
                   <Archive className="h-5 w-5 text-amber-600 dark:text-amber-400" />
@@ -559,22 +559,22 @@ export default async function OverviewPage() {
       {lowStock.length > 0 && false && (
         <div
           role="alert"
-          className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50 p-4"
+          className="flex items-start gap-3 rounded-2xl border border-amber-200 dark:border-amber-900/40 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-gray-900 p-4"
         >
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-100">
-            <AlertTriangle className="h-4 w-4 text-amber-600" />
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/40">
+            <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
           </span>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-amber-900">
+            <p className="text-sm font-semibold text-amber-900 dark:text-amber-300">
               {lowStock.length} fio{lowStock.length > 1 ? "s" : ""} com estoque baixo
             </p>
-            <p className="mt-0.5 truncate text-xs text-amber-700">
+            <p className="mt-0.5 truncate text-xs text-amber-700 dark:text-amber-400">
               {lowStock.map((y) => `${y.brand} ${y.color}`).join(", ")}
             </p>
           </div>
           <Link
             href="/app/inventory"
-            className="shrink-0 rounded-xl border border-amber-200 bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
+            className="shrink-0 rounded-xl border border-amber-200 dark:border-amber-800/40 bg-white dark:bg-[oklch(0.18_0.01_280)] px-3 py-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 transition hover:bg-amber-100 dark:hover:bg-amber-900/40"
           >
             Ver estoque
           </Link>
@@ -583,7 +583,7 @@ export default async function OverviewPage() {
 
       {/* ── Quick Actions ─────────────────────────────────────────────────── */}
       <section aria-label="Ações rápidas">
-        <h2 className="font-heading text-title mb-4 text-gray-900">
+        <h2 className="font-heading text-title mb-4 text-gray-900 dark:text-white">
           Ações rápidas
         </h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -592,28 +592,28 @@ export default async function OverviewPage() {
             icon={<Calculator className="h-5 w-5" />}
             label="Calcular preço"
             description="Calcule o valor justo de uma peça"
-            color="text-rose-500 hover:border-rose-200"
+            color="text-gray-500 hover:border-rose-200 dark:hover:border-rose-800/40"
           />
           <QuickAction
             href="/app/finance/new"
             icon={<TrendingUp className="h-5 w-5" />}
             label="Nova transação"
             description="Registre uma venda ou gasto"
-            color="text-emerald-500 hover:border-emerald-200"
+            color="text-emerald-500 hover:border-emerald-200 dark:hover:border-emerald-800/40"
           />
           <QuickAction
             href="/app/orders/new"
             icon={<ClipboardList className="h-5 w-5" />}
             label="Nova encomenda"
             description="Registre um pedido de cliente"
-            color="text-pink-500 hover:border-pink-200"
+            color="text-pink-500 hover:border-pink-200 dark:hover:border-pink-800/40"
           />
           <QuickAction
             href="/app/inventory/new"
             icon={<Archive className="h-5 w-5" />}
             label="Registrar fio"
             description="Adicione estoque ao inventário"
-            color="text-amber-500 hover:border-amber-200"
+            color="text-amber-500 hover:border-amber-200 dark:hover:border-amber-800/40"
           />
         </div>
       </section>
@@ -621,12 +621,12 @@ export default async function OverviewPage() {
       {/* ── Recent Calculations ──────────────────────────────────────────── */}
       <section aria-label="Últimos cálculos de preço">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-heading text-title text-gray-900">
+          <h2 className="font-heading text-title text-gray-900 dark:text-white">
             Últimos cálculos
           </h2>
           <Link
             href="/app/pricing"
-            className="flex items-center gap-1 text-sm font-medium text-rose-600 hover:underline"
+            className="flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:underline"
           >
             Ver todos
             <ChevronRight className="h-4 w-4" />
@@ -634,14 +634,14 @@ export default async function OverviewPage() {
         </div>
 
         {recentCalculations.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-rose-200 bg-rose-50/40 py-12 text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-rose-100">
-              <Calculator className="h-7 w-7 text-rose-500" />
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-rose-200 dark:border-rose-800/40 bg-rose-50/40 dark:bg-rose-950/20 py-12 text-center">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-rose-100 dark:bg-rose-900/40">
+              <Calculator className="h-7 w-7 text-gray-500 dark:text-gray-400" />
             </div>
-            <p className="text-sm font-semibold text-gray-700">
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
               Nenhum cálculo ainda
             </p>
-            <p className="mt-1 max-w-xs text-xs text-gray-400">
+            <p className="mt-1 max-w-xs text-xs text-gray-400 dark:text-gray-500">
               Calcule o preço justo de uma peça levando em conta horas, materiais e margem de lucro.
             </p>
             <Link
@@ -653,23 +653,23 @@ export default async function OverviewPage() {
             </Link>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-2xl border border-gray-100 dark:border-white/8 bg-white dark:bg-[oklch(0.18_0.01_280)] shadow-sm">
             {recentCalculations.map((calc, idx) => {
               const totals = calc.totalsJson as { suggestedPrice?: number };
               return (
                 <Link
                   key={calc.id}
                   href="/app/pricing"
-                  className="flex items-center gap-4 border-b border-gray-50 px-5 py-4 transition-colors last:border-0 hover:bg-rose-50/50"
+                  className="flex items-center gap-4 border-b border-gray-50 dark:border-white/8 px-5 py-4 transition-colors last:border-0 hover:bg-rose-50/50 dark:hover:bg-rose-950/20"
                 >
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-rose-100 to-pink-100 text-sm font-bold text-rose-600">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-900/40 dark:to-pink-900/40 text-sm font-bold text-gray-700 dark:text-gray-200">
                     {idx + 1}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-gray-800">
+                    <p className="truncate text-sm font-semibold text-gray-800 dark:text-gray-100">
                       {calc.name ?? "Sem nome"}
                     </p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-gray-400 dark:text-gray-500">
                       {new Date(calc.createdAt).toLocaleDateString("pt-BR", {
                         day: "2-digit",
                         month: "short",
@@ -678,10 +678,10 @@ export default async function OverviewPage() {
                     </p>
                   </div>
                   <div className="shrink-0 text-right">
-                    <p className="font-heading text-base font-bold text-rose-600">
+                    <p className="font-heading text-base font-bold text-gray-700 dark:text-gray-200">
                       {fmt(totals?.suggestedPrice ?? 0)}
                     </p>
-                    <p className="text-[11px] text-gray-400">preço sugerido</p>
+                    <p className="text-[11px] text-gray-400 dark:text-gray-500">preço sugerido</p>
                   </div>
                 </Link>
               );
@@ -692,28 +692,28 @@ export default async function OverviewPage() {
 
       {/* ── Empty state (no data at all) ─────────────────────────────────── */}
       {!hasData && (
-        <section className="overflow-hidden rounded-3xl border border-rose-100 bg-gradient-to-br from-rose-50 via-pink-50 to-fuchsia-50 p-8 text-center">
-          <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-rose-400 to-pink-500 shadow-lg shadow-rose-200/50">
+        <section className="overflow-hidden rounded-3xl border border-rose-100 dark:border-rose-800/40 bg-gradient-to-br from-rose-50 via-pink-50 to-fuchsia-50 dark:from-rose-950/30 dark:via-gray-900 dark:to-gray-900 p-8 text-center">
+          <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-rose-400 to-pink-500 shadow-lg shadow-rose-200/50 dark:shadow-rose-900/20">
             <Sparkles className="h-9 w-9 text-white" />
           </div>
-          <h2 className="font-heading text-title mb-2 text-rose-900">
+          <h2 className="font-heading text-title mb-2 text-gray-900 dark:text-white">
             Bem-vinda ao Trama Pro!
           </h2>
-          <p className="mx-auto max-w-sm text-sm leading-relaxed text-rose-600/80">
+          <p className="mx-auto max-w-sm text-sm leading-relaxed text-gray-700/80 dark:text-gray-300/80">
             Comece registrando um fio, calculando o preço de uma peça ou
             adicionando uma venda. Tudo fica organizado aqui.
           </p>
           <div className="mt-7 flex flex-wrap justify-center gap-3">
             <Link
               href="/app/pricing/new"
-              className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-rose-200/50 transition hover:-translate-y-0.5 hover:bg-rose-700 hover:shadow-lg"
+              className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-rose-200/50 dark:shadow-rose-900/20 transition hover:-translate-y-0.5 hover:bg-rose-700 hover:shadow-lg"
             >
               <Calculator className="h-4 w-4" />
               Calcular preço de uma peça
             </Link>
             <Link
               href="/app/inventory/new"
-              className="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-white px-5 py-2.5 text-sm font-semibold text-rose-600 transition hover:-translate-y-0.5 hover:bg-rose-50 hover:shadow-md"
+              className="inline-flex items-center gap-2 rounded-xl border border-rose-200 dark:border-rose-800/40 bg-white dark:bg-[oklch(0.18_0.01_280)] px-5 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 transition hover:-translate-y-0.5 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-black/20"
             >
               <Archive className="h-4 w-4" />
               Registrar fio

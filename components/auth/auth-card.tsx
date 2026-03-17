@@ -52,7 +52,6 @@ export function AuthCard() {
         return;
       }
 
-      // Keep spinner visible while browser navigates to the new page
       setRedirecting(true);
       window.location.href = "/app/overview";
     });
@@ -60,13 +59,13 @@ export function AuthCard() {
 
   return (
     <div
-      className="w-full max-w-md rounded-3xl border border-white/40 bg-white/70 p-8 shadow-2xl shadow-rose-200/30 backdrop-blur-xl"
+      className="w-full max-w-md rounded-3xl border border-white/50 bg-white/80 p-8 shadow-2xl shadow-rose-200/20 backdrop-blur-xl dark:border-white/10 dark:bg-[oklch(0.18_0.01_280)]/90 dark:shadow-black/30"
       role="main"
       aria-label="Formulário de autenticação"
     >
-      {/* ── Tabs ── */}
+      {/* Tabs */}
       <div
-        className="mb-8 flex rounded-2xl bg-rose-50/80 p-1"
+        className="mb-8 flex rounded-2xl bg-gray-100 p-1 dark:bg-white/5"
         role="tablist"
         aria-label="Modo de acesso"
       >
@@ -81,8 +80,8 @@ export function AuthCard() {
             onClick={() => handleTabChange(t)}
             className={`flex-1 rounded-xl py-2.5 text-sm font-semibold transition-all duration-200 focus-visible:outline-2 focus-visible:outline-rose-600 focus-visible:outline-offset-2 ${
               tab === t
-                ? "bg-white text-rose-700 shadow-md shadow-rose-100"
-                : "text-rose-400 hover:text-rose-600"
+                ? "bg-white text-gray-900 shadow-md dark:bg-white/10 dark:text-white"
+                : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
             }`}
           >
             {t === "signup" ? "Criar conta" : "Entrar"}
@@ -90,35 +89,32 @@ export function AuthCard() {
         ))}
       </div>
 
-      {/* ── Panel ── */}
+      {/* Panel */}
       <div id={`panel-${tab}`} role="tabpanel" aria-labelledby={`tab-${tab}`}>
-        {/* Heading */}
         <div className="mb-6">
-          <h2 className="text-xl font-bold text-rose-900">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">
             {isSignup ? "Crie sua conta no Trama Pro" : "Bem-vinda de volta!"}
           </h2>
-          <p className="mt-1 text-sm text-rose-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {isSignup
               ? "No cadastro, criamos sua conta no Trama Pro automaticamente ✨"
               : "Entre com seu e-mail e senha para continuar ✨"}
           </p>
         </div>
 
-        {/* Error banner */}
         {error && (
           <div
             role="alert"
-            className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800/50 dark:bg-red-950/30 dark:text-red-300"
           >
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          {/* Name — only on signup */}
           {isSignup && (
             <div>
-              <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-rose-800">
+              <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Nome (opcional)
               </label>
               <input
@@ -128,15 +124,14 @@ export function AuthCard() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Seu nome de artesã"
-                className="w-full rounded-xl border border-rose-200 bg-white/80 px-4 py-3 text-sm text-gray-800 placeholder-rose-300 outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-200 disabled:opacity-50"
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all duration-200 focus:border-rose-400 focus:ring-2 focus:ring-rose-200 disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-gray-500 dark:focus:border-rose-500 dark:focus:ring-rose-500/20"
                 disabled={isLoading}
               />
             </div>
           )}
 
-          {/* Email */}
           <div>
-            <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-rose-800">
+            <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
               E-mail
             </label>
             <input
@@ -147,14 +142,13 @@ export function AuthCard() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="voce@email.com"
-              className="w-full rounded-xl border border-rose-200 bg-white/80 px-4 py-3 text-sm text-gray-800 placeholder-rose-300 outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-200 disabled:opacity-50"
+              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all duration-200 focus:border-rose-400 focus:ring-2 focus:ring-rose-200 disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-gray-500 dark:focus:border-rose-500 dark:focus:ring-rose-500/20"
               disabled={isLoading}
             />
           </div>
 
-          {/* Password */}
           <div>
-            <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-rose-800">
+            <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Senha
             </label>
             <input
@@ -166,16 +160,15 @@ export function AuthCard() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={isSignup ? "Mínimo 6 caracteres" : "Sua senha"}
-              className="w-full rounded-xl border border-rose-200 bg-white/80 px-4 py-3 text-sm text-gray-800 placeholder-rose-300 outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-200 disabled:opacity-50"
+              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all duration-200 focus:border-rose-400 focus:ring-2 focus:ring-rose-200 disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-gray-500 dark:focus:border-rose-500 dark:focus:ring-rose-500/20"
               disabled={isLoading}
             />
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={isLoading}
-            className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-rose-600 to-pink-500 px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-rose-300/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-rose-300/50 focus-visible:outline-2 focus-visible:outline-rose-600 focus-visible:outline-offset-2 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
+            className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-rose-600 to-pink-500 px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-rose-300/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-rose-300/50 focus-visible:outline-2 focus-visible:outline-rose-600 focus-visible:outline-offset-2 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 dark:shadow-rose-900/30 dark:hover:shadow-rose-900/40"
           >
             {isLoading ? (
               <>{SPINNER}<span>{redirecting ? "Entrando no painel..." : isSignup ? "Criando sua conta..." : "Entrando..."}</span></>
@@ -191,32 +184,24 @@ export function AuthCard() {
           </button>
         </form>
 
-        {/* Switch tab link */}
-        <p className="mt-5 text-center text-sm text-rose-400">
+        <p className="mt-5 text-center text-sm text-gray-500 dark:text-gray-400">
           {isSignup ? "Já tem uma conta?" : "Ainda não tem conta?"}{" "}
           <button
             type="button"
             onClick={() => handleTabChange(isSignup ? "signin" : "signup")}
-            className="font-semibold text-rose-600 underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-rose-600 focus-visible:outline-offset-2"
+            className="font-semibold text-rose-600 underline-offset-2 hover:underline dark:text-rose-400"
           >
             {isSignup ? "Entrar" : "Criar conta"}
           </button>
         </p>
 
-        {/* Microcopy */}
-        <p className="mt-4 text-center text-xs leading-relaxed text-gray-400">
+        <p className="mt-4 text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
           Ao continuar, você concorda com nossos{" "}
-          <a
-            href="/termos"
-            className="underline underline-offset-2 transition-colors hover:text-rose-500 focus-visible:outline-2 focus-visible:outline-rose-600 focus-visible:outline-offset-2"
-          >
+          <a href="/termos" className="underline underline-offset-2 transition-colors hover:text-rose-500 dark:hover:text-rose-400">
             Termos de Uso
           </a>{" "}
           e{" "}
-          <a
-            href="/privacidade"
-            className="underline underline-offset-2 transition-colors hover:text-rose-500 focus-visible:outline-2 focus-visible:outline-rose-600 focus-visible:outline-offset-2"
-          >
+          <a href="/privacidade" className="underline underline-offset-2 transition-colors hover:text-rose-500 dark:hover:text-rose-400">
             Política de Privacidade
           </a>
           .

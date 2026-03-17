@@ -7,12 +7,28 @@
 
 export type ProfitMode = "percent" | "fixed";
 
+export interface SelectedMaterialItem {
+  materialId: string;
+  name: string;
+  unit: string;
+  costPerUnit: number;
+  quantity: number;
+  cost: number;
+}
+
 export interface PricingInputs {
   // Materiais
-  material: number;       // custo total de material (R$)
-  embalagem: number;      // opcional
-  etiqueta: number;       // etiqueta / aviamentos
-  mimo: number;           // mimo / brinde
+  material: number;       // custo manual da linha/fio principal (R$)
+  embalagem: number;      // embalagem (legado / compat)
+  mimo: number;           // mimo / brinde (legado / compat)
+  acessorios: number;     // acessórios de acabamento (legado / compat)
+  grafica: number;        // gráfica (legado / compat)
+  /** Soma dos materiais complementares do catálogo */
+  complementares?: number;
+  /** Materiais complementares selecionados do catálogo (detalhe) */
+  selectedMaterials?: SelectedMaterialItem[];
+  /** @deprecated mantido para compatibilidade com cálculos antigos */
+  etiqueta?: number;
 
   // Tempo
   horas: number;          // horas gastas (decimal)
@@ -65,11 +81,17 @@ export interface PricingTotals {
 
 export function computePricingTotals(data: PricingInputs): PricingTotals {
   // --- Material total ---
+  // material = custo manual da linha/fio principal
+  // complementares = soma dos materiais do catálogo (novo fluxo)
+  // embalagem/mimo/acessorios/grafica/etiqueta = compat com cálculos antigos
   const materialTotal = round2(
     (data.material || 0) +
+    (data.complementares || 0) +
     (data.embalagem || 0) +
-    (data.etiqueta || 0) +
-    (data.mimo || 0)
+    (data.mimo || 0) +
+    (data.acessorios || 0) +
+    (data.grafica || 0) +
+    (data.etiqueta || 0)
   );
 
   // --- Mão de obra ---

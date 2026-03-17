@@ -110,14 +110,14 @@ export default async function GoalsPage() {
     <div className="max-w-lg mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Button asChild variant="ghost" size="icon" className="text-rose-500 hover:bg-rose-50">
+        <Button asChild variant="ghost" size="icon" className="text-gray-500 dark:text-gray-400 hover:bg-rose-50 dark:hover:bg-rose-950/30">
           <Link href="/app/finance">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div>
-          <h1 className="text-xl font-semibold text-rose-900">Metas mensais</h1>
-          <p className="text-sm text-rose-400 capitalize">{monthLabel}</p>
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Metas mensais</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{monthLabel}</p>
         </div>
       </div>
 
@@ -125,20 +125,20 @@ export default async function GoalsPage() {
       {currentGoal ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Revenue goal card */}
-          <Card className="border-rose-100">
+          <Card className="card-3d border-0">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-rose-600 flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
                 <TrendingUp className="h-4 w-4" />
                 Meta de Faturamento
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <div className="flex items-end justify-between">
-                <span className="text-xl font-bold text-rose-700">{brl(totalEntradas)}</span>
-                <span className="text-xs text-rose-400">de {brl(currentGoal.revenueGoal)}</span>
+                <span className="text-xl font-bold text-gray-900 dark:text-white">{brl(totalEntradas)}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">de {brl(currentGoal.revenueGoal)}</span>
               </div>
               <div className="space-y-1">
-                <div className="w-full bg-rose-100 rounded-full h-2">
+                <div className="w-full bg-rose-100 dark:bg-rose-900/40 rounded-full h-2">
                   <div
                     className={`h-2 rounded-full transition-all ${progressColor(revenuePct ?? 0)}`}
                     style={{ width: `${revenuePct ?? 0}%` }}
@@ -148,8 +148,8 @@ export default async function GoalsPage() {
                   <Badge
                     className={
                       (revenuePct ?? 0) >= 100
-                        ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 text-xs"
-                        : "bg-rose-100 text-rose-600 hover:bg-rose-100 text-xs"
+                        ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-xs"
+                        : "bg-rose-100 dark:bg-rose-900/40 text-gray-700 dark:text-gray-300 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-xs"
                     }
                   >
                     {revenuePct ?? 0}%
@@ -160,9 +160,9 @@ export default async function GoalsPage() {
           </Card>
 
           {/* Profit goal card */}
-          <Card className="border-rose-100">
+          <Card className="card-3d border-0">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-rose-600 flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
                 <DollarSign className="h-4 w-4" />
                 Meta de Lucro
               </CardTitle>
@@ -170,14 +170,14 @@ export default async function GoalsPage() {
             <CardContent className="space-y-2">
               <div className="flex items-end justify-between">
                 <span
-                  className={`text-xl font-bold ${lucroLiquido >= 0 ? "text-emerald-700" : "text-red-600"}`}
+                  className={`text-xl font-bold ${lucroLiquido >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
                 >
                   {brl(lucroLiquido)}
                 </span>
-                <span className="text-xs text-rose-400">de {brl(currentGoal.profitGoal)}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">de {brl(currentGoal.profitGoal)}</span>
               </div>
               <div className="space-y-1">
-                <div className="w-full bg-rose-100 rounded-full h-2">
+                <div className="w-full bg-rose-100 dark:bg-rose-900/40 rounded-full h-2">
                   <div
                     className={`h-2 rounded-full transition-all ${progressColor(profitPct ?? 0)}`}
                     style={{ width: `${Math.max(0, profitPct ?? 0)}%` }}
@@ -187,8 +187,8 @@ export default async function GoalsPage() {
                   <Badge
                     className={
                       (profitPct ?? 0) >= 100
-                        ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 text-xs"
-                        : "bg-rose-100 text-rose-600 hover:bg-rose-100 text-xs"
+                        ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-xs"
+                        : "bg-rose-100 dark:bg-rose-900/40 text-gray-700 dark:text-gray-300 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-xs"
                     }
                   >
                     {Math.max(0, profitPct ?? 0)}%
@@ -199,26 +199,26 @@ export default async function GoalsPage() {
           </Card>
         </div>
       ) : (
-        <Card className="border-dashed border-rose-200 bg-rose-50/30">
+        <Card className="border-dashed border-rose-200 dark:border-rose-800/40 bg-rose-50/30 dark:bg-rose-950/20">
           <CardContent className="flex flex-col items-center justify-center py-8 text-center">
-            <Target className="h-8 w-8 text-rose-300 mb-2" />
-            <p className="text-sm text-rose-500 font-medium">Nenhuma meta definida para este mês</p>
-            <p className="text-xs text-rose-400 mt-1">Defina suas metas abaixo para acompanhar seu progresso</p>
+            <Target className="h-8 w-8 text-gray-400 dark:text-gray-500 mb-2" />
+            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Nenhuma meta definida para este mês</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Defina suas metas abaixo para acompanhar seu progresso</p>
           </CardContent>
         </Card>
       )}
 
       {/* Goal Form */}
-      <Card className="border-rose-100">
+      <Card className="card-3d border-0">
         <CardHeader>
-          <CardTitle className="text-base text-rose-800">
+          <CardTitle className="text-base text-gray-900 dark:text-white">
             {currentGoal ? "Atualizar metas" : "Definir metas"} — {monthLabel}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <form action={upsertGoal} className="space-y-5">
             <div className="space-y-1.5">
-              <Label htmlFor="revenueGoal" className="text-rose-700">
+              <Label htmlFor="revenueGoal" className="text-gray-900 dark:text-white">
                 Meta de faturamento (R$)
               </Label>
               <Input
@@ -229,15 +229,15 @@ export default async function GoalsPage() {
                 min="0"
                 placeholder="Ex: 3000,00"
                 defaultValue={currentGoal?.revenueGoal ?? ""}
-                className="border-rose-200 focus-visible:ring-rose-300"
+                className="border-rose-200 dark:border-white/10 focus-visible:ring-rose-300 dark:focus-visible:ring-rose-500/20"
               />
-              <p className="text-xs text-rose-400">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 Valor total de entradas que deseja alcançar este mês
               </p>
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="profitGoal" className="text-rose-700">
+              <Label htmlFor="profitGoal" className="text-gray-900 dark:text-white">
                 Meta de lucro líquido (R$)
               </Label>
               <Input
@@ -248,9 +248,9 @@ export default async function GoalsPage() {
                 min="0"
                 placeholder="Ex: 2000,00"
                 defaultValue={currentGoal?.profitGoal ?? ""}
-                className="border-rose-200 focus-visible:ring-rose-300"
+                className="border-rose-200 dark:border-white/10 focus-visible:ring-rose-300 dark:focus-visible:ring-rose-500/20"
               />
-              <p className="text-xs text-rose-400">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 Lucro desejado após descontar todas as saídas
               </p>
             </div>
@@ -259,7 +259,7 @@ export default async function GoalsPage() {
               <Button
                 type="button"
                 variant="outline"
-                className="flex-1 border-rose-200 text-rose-600 hover:bg-rose-50"
+                className="flex-1 border-rose-200 dark:border-rose-800/40 text-gray-700 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-rose-950/30"
                 asChild
               >
                 <Link href="/app/finance">Cancelar</Link>
@@ -276,7 +276,7 @@ export default async function GoalsPage() {
       </Card>
 
       {/* Info */}
-      <p className="text-xs text-center text-rose-300">
+      <p className="text-xs text-center text-gray-400 dark:text-gray-500">
         As metas são definidas por mês e workspace. Você pode atualizá-las a qualquer momento.
       </p>
     </div>

@@ -101,7 +101,7 @@ export default function NewProductPage() {
       <Button
         asChild
         variant="ghost"
-        className="h-auto gap-1.5 px-0 text-rose-700 hover:bg-transparent hover:text-rose-900"
+        className="h-auto gap-1.5 px-0 text-gray-900 dark:text-white hover:bg-transparent hover:text-gray-900 dark:hover:text-white"
       >
         <Link href="/app/products">
           <ArrowLeft className="h-4 w-4" />
@@ -109,9 +109,9 @@ export default function NewProductPage() {
         </Link>
       </Button>
 
-      <Card className="border-rose-100 shadow-sm">
+      <Card className="card-3d border-0 shadow-sm">
         <CardHeader className="pb-4">
-          <CardTitle className="text-xl text-rose-900">Novo produto</CardTitle>
+          <CardTitle className="text-xl text-gray-900 dark:text-white">Novo produto</CardTitle>
           <CardDescription>
             Adicione uma nova peça ao catálogo do seu ateliê.
           </CardDescription>
@@ -130,7 +130,7 @@ export default function NewProductPage() {
                     <FormControl>
                       <Input
                         placeholder="Ex: Sapatinho de bebê, Amigurumi urso"
-                        className="border-rose-200 focus-visible:ring-rose-400"
+                        className="border-rose-200 dark:border-rose-800/40 dark:bg-white/5 dark:text-white dark:placeholder-gray-500 focus-visible:ring-rose-400 dark:focus-visible:ring-rose-500/20"
                         {...field}
                       />
                     </FormControl>
@@ -149,7 +149,7 @@ export default function NewProductPage() {
                     <FormControl>
                       <Textarea
                         placeholder="Detalhes, materiais, tamanhos disponíveis... (opcional)"
-                        className="min-h-24 resize-none border-rose-200 focus-visible:ring-rose-400"
+                        className="min-h-24 resize-none border-rose-200 dark:border-rose-800/40 dark:bg-white/5 dark:text-white dark:placeholder-gray-500 focus-visible:ring-rose-400 dark:focus-visible:ring-rose-500/20"
                         {...field}
                       />
                     </FormControl>
@@ -170,7 +170,7 @@ export default function NewProductPage() {
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger className="border-rose-200 focus:ring-rose-400">
+                        <SelectTrigger className="border-rose-200 dark:border-white/10 dark:bg-white/5 focus:ring-rose-400 dark:focus:ring-rose-500/20">
                           <SelectValue placeholder="Selecione o status" />
                         </SelectTrigger>
                       </FormControl>
@@ -188,25 +188,25 @@ export default function NewProductPage() {
                 )}
               />
 
-              <Separator className="bg-rose-100" />
+              <Separator className="bg-rose-100 dark:bg-rose-800/30" />
 
               {/* Variant toggle */}
               <button
                 type="button"
                 onClick={() => setShowVariant((v) => !v)}
-                className="flex w-full items-center justify-between rounded-xl border border-rose-200 bg-rose-50/50 px-4 py-3 text-sm font-medium text-rose-800 transition hover:bg-rose-50"
+                className="flex w-full items-center justify-between rounded-xl border border-rose-200 dark:border-rose-800/40 bg-rose-50/50 dark:bg-rose-950/20 px-4 py-3 text-sm font-medium text-gray-900 dark:text-white transition hover:bg-rose-50 dark:hover:bg-rose-950/30"
               >
                 <span>Adicionar variação (cor, tamanho, preço)</span>
                 {showVariant ? (
-                  <ChevronUp className="h-4 w-4 text-rose-500" />
+                  <ChevronUp className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                 ) : (
-                  <ChevronDown className="h-4 w-4 text-rose-500" />
+                  <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                 )}
               </button>
 
               {/* Variant fields */}
               {showVariant && (
-                <div className="space-y-4 rounded-xl border border-rose-100 bg-rose-50/30 p-4">
+                <div className="space-y-4 rounded-xl border border-rose-100 dark:border-rose-800/30 bg-rose-50/30 dark:bg-rose-950/20 p-4">
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -217,7 +217,7 @@ export default function NewProductPage() {
                           <FormControl>
                             <Input
                               placeholder="Ex: Rosa, Azul"
-                              className="border-rose-200 focus-visible:ring-rose-400 bg-white"
+                              className="border-rose-200 dark:border-rose-800/40 focus-visible:ring-rose-400 dark:focus-visible:ring-rose-500/20 bg-white dark:bg-white/5 dark:text-white dark:placeholder-gray-500"
                               {...field}
                             />
                           </FormControl>
@@ -235,7 +235,7 @@ export default function NewProductPage() {
                           <FormControl>
                             <Input
                               placeholder="Ex: P, M, G, RN"
-                              className="border-rose-200 focus-visible:ring-rose-400 bg-white"
+                              className="border-rose-200 dark:border-rose-800/40 focus-visible:ring-rose-400 dark:focus-visible:ring-rose-500/20 bg-white dark:bg-white/5 dark:text-white dark:placeholder-gray-500"
                               {...field}
                             />
                           </FormControl>
@@ -255,7 +255,7 @@ export default function NewProductPage() {
                           <FormControl>
                             <Input
                               placeholder="Ex: SAP-001-P"
-                              className="border-rose-200 focus-visible:ring-rose-400 bg-white"
+                              className="border-rose-200 dark:border-rose-800/40 focus-visible:ring-rose-400 dark:focus-visible:ring-rose-500/20 bg-white dark:bg-white/5 dark:text-white dark:placeholder-gray-500"
                               {...field}
                             />
                           </FormControl>
@@ -276,7 +276,7 @@ export default function NewProductPage() {
                               min={0}
                               step="0.01"
                               placeholder="0,00"
-                              className="border-rose-200 focus-visible:ring-rose-400 bg-white"
+                              className="border-rose-200 dark:border-rose-800/40 focus-visible:ring-rose-400 dark:focus-visible:ring-rose-500/20 bg-white dark:bg-white/5 dark:text-white dark:placeholder-gray-500"
                               value={field.value ?? ""}
                               onChange={(e) =>
                                 field.onChange(
@@ -300,7 +300,7 @@ export default function NewProductPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="border-rose-200 text-rose-700 hover:bg-rose-50"
+                  className="border-rose-200 dark:border-rose-800/40 text-gray-900 dark:text-white hover:bg-rose-50 dark:hover:bg-rose-950/30"
                   onClick={() => router.push("/app/products")}
                   disabled={isSubmitting}
                 >

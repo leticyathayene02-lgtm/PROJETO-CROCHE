@@ -16,9 +16,9 @@ type FormProps = {
 };
 
 const inputCls =
-  "w-full rounded-xl border border-rose-200 bg-white/80 px-4 py-2.5 text-sm text-gray-800 outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-200 disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-gray-100 dark:placeholder-gray-500";
+  "w-full rounded-xl border border-rose-200 bg-white/80 px-4 py-2.5 text-sm text-gray-800 outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-200 disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-gray-500 dark:focus:border-rose-500 dark:focus:ring-rose-500/20";
 
-const labelCls = "mb-1.5 block text-sm font-medium text-rose-800 dark:text-rose-300";
+const labelCls = "mb-1.5 block text-sm font-medium text-rose-800 dark:text-rose-200";
 
 export function CustomerForm({ action, defaultValues = {}, submitLabel = "Salvar" }: FormProps) {
   const [isPending, startTransition] = useTransition();
@@ -33,7 +33,7 @@ export function CustomerForm({ action, defaultValues = {}, submitLabel = "Salvar
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
         <label htmlFor="name" className={labelCls}>
-          Nome <span className="text-rose-500">*</span>
+          Nome <span className="text-rose-500 dark:text-rose-400">*</span>
         </label>
         <input
           id="name" name="name" type="text" required

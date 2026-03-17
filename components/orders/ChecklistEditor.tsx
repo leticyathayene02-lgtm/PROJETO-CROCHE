@@ -52,7 +52,7 @@ export function ChecklistEditor({
       {/* Progress */}
       {items.length > 0 && (
         <div className="flex items-center gap-3">
-          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100">
+          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-white/8">
             <div
               className="h-full rounded-full bg-rose-500 transition-all"
               style={{ width: `${Math.round((done / items.length) * 100)}%` }}
@@ -105,7 +105,7 @@ export function ChecklistEditor({
           onChange={(e) => setNewText(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addItem(newText))}
           placeholder="Novo item..."
-          className="flex-1 rounded-lg border border-rose-200 bg-white/80 px-3 py-1.5 text-sm outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-200 dark:border-white/10 dark:bg-white/5 dark:text-gray-100 dark:placeholder-gray-500"
+          className="flex-1 rounded-lg border border-rose-200 bg-white/80 px-3 py-1.5 text-sm outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-200 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-gray-500 dark:focus:border-rose-500 dark:focus:ring-rose-500/20"
           disabled={isPending}
         />
         <button

@@ -25,9 +25,9 @@ type FormProps = {
 };
 
 const inputCls =
-  "w-full rounded-xl border border-rose-200 bg-white/80 px-4 py-2.5 text-sm text-gray-800 outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-200 disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-gray-100 dark:placeholder-gray-500";
+  "w-full rounded-xl border border-rose-200 bg-white/80 px-4 py-2.5 text-sm text-gray-800 outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-200 disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-gray-500 dark:focus:border-rose-500 dark:focus:ring-rose-500/20";
 
-const labelCls = "mb-1.5 block text-sm font-medium text-rose-800 dark:text-rose-300";
+const labelCls = "mb-1.5 block text-sm font-medium text-rose-800 dark:text-rose-200";
 
 function todayISO() {
   return new Date().toISOString().split("T")[0];
@@ -55,7 +55,7 @@ export function OrderForm({ action, customers = [], defaultValues = {}, submitLa
         </div>
         <div>
           <label htmlFor="dueDate" className={labelCls}>
-            Data prevista de entrega <span className="text-rose-500">*</span>
+            Data prevista de entrega <span className="text-rose-500 dark:text-rose-400">*</span>
           </label>
           <input
             id="dueDate" name="dueDate" type="date" required
@@ -83,7 +83,7 @@ export function OrderForm({ action, customers = [], defaultValues = {}, submitLa
 
       <div>
         <label htmlFor="customerName" className={labelCls}>
-          Nome da cliente <span className="text-rose-500">*</span>
+          Nome da cliente <span className="text-rose-500 dark:text-rose-400">*</span>
         </label>
         <input
           id="customerName" name="customerName" type="text" required
@@ -95,7 +95,7 @@ export function OrderForm({ action, customers = [], defaultValues = {}, submitLa
 
       <div>
         <label htmlFor="itemDescription" className={labelCls}>
-          Descrição da peça <span className="text-rose-500">*</span>
+          Descrição da peça <span className="text-rose-500 dark:text-rose-400">*</span>
         </label>
         <textarea
           id="itemDescription" name="itemDescription" required rows={3}
@@ -108,7 +108,7 @@ export function OrderForm({ action, customers = [], defaultValues = {}, submitLa
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
           <label htmlFor="amount" className={labelCls}>
-            Valor (R$) <span className="text-rose-500">*</span>
+            Valor (R$) <span className="text-rose-500 dark:text-rose-400">*</span>
           </label>
           <input
             id="amount" name="amount" type="number" step="0.01" min="0.01" required
@@ -119,7 +119,7 @@ export function OrderForm({ action, customers = [], defaultValues = {}, submitLa
         </div>
         <div>
           <label htmlFor="paymentStatus" className={labelCls}>
-            Pagamento <span className="text-rose-500">*</span>
+            Pagamento <span className="text-rose-500 dark:text-rose-400">*</span>
           </label>
           <select
             id="paymentStatus" name="paymentStatus" required

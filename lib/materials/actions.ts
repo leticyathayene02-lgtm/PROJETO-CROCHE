@@ -19,6 +19,10 @@ const materialSchema = z.object({
   lowStockMin: z.number().min(0).optional(),
   supplier: z.string().optional(),
   notes: z.string().optional(),
+  // Campos específicos para fio/lã
+  weightPerRoll: z.number().min(0).optional(),
+  pricePerRoll: z.number().min(0).optional(),
+  rolls: z.number().int().min(0).optional(),
 });
 
 export type MaterialFormValues = z.infer<typeof materialSchema>;
@@ -35,6 +39,7 @@ export async function createMaterial(raw: MaterialFormValues): Promise<ActionRes
 
   const { workspace } = await requireWorkspace();
   const data = parsed.data;
+  const isYarn = data.category === "YARN";
 
   const record = await prisma.material.create({
     data: {
@@ -49,6 +54,9 @@ export async function createMaterial(raw: MaterialFormValues): Promise<ActionRes
       lowStockMin: data.lowStockMin ?? 0,
       supplier: data.supplier?.trim() || null,
       notes: data.notes?.trim() || null,
+      weightPerRoll: isYarn ? (data.weightPerRoll ?? null) : null,
+      pricePerRoll: isYarn ? (data.pricePerRoll ?? null) : null,
+      rolls: isYarn ? (data.rolls ?? null) : null,
     },
     select: { id: true },
   });
@@ -65,6 +73,7 @@ export async function updateMaterial(id: string, raw: MaterialFormValues): Promi
 
   const { workspace } = await requireWorkspace();
   const data = parsed.data;
+  const isYarn = data.category === "YARN";
 
   const existing = await prisma.material.findFirst({
     where: { id, workspaceId: workspace.id },
@@ -86,6 +95,9 @@ export async function updateMaterial(id: string, raw: MaterialFormValues): Promi
       lowStockMin: data.lowStockMin ?? 0,
       supplier: data.supplier?.trim() || null,
       notes: data.notes?.trim() || null,
+      weightPerRoll: isYarn ? (data.weightPerRoll ?? null) : null,
+      pricePerRoll: isYarn ? (data.pricePerRoll ?? null) : null,
+      rolls: isYarn ? (data.rolls ?? null) : null,
     },
   });
 

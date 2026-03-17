@@ -23,15 +23,15 @@ function StatusBadge({ status }: { status: ProductStatus }) {
   > = {
     ACTIVE: {
       label: "Ativo",
-      className: "bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-100",
+      className: "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/40",
     },
     DRAFT: {
       label: "Rascunho",
-      className: "bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-100",
+      className: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 border-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/40",
     },
     ARCHIVED: {
       label: "Arquivado",
-      className: "bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-100",
+      className: "bg-gray-100 dark:bg-white/8 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/10",
     },
   };
 
@@ -66,7 +66,7 @@ export default async function ProductsPage() {
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-rose-900">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
             Produtos
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -84,11 +84,11 @@ export default async function ProductsPage() {
       {/* Summary strip */}
       {products.length > 0 && (
         <div className="flex flex-wrap gap-3 text-sm">
-          <span className="rounded-full bg-rose-50 px-3 py-1 text-rose-700 font-medium">
+          <span className="rounded-full bg-rose-50 dark:bg-rose-950/20 px-3 py-1 text-gray-900 dark:text-white font-medium">
             {products.length} {products.length === 1 ? "produto" : "produtos"}
           </span>
           {archivedCount > 0 && (
-            <span className="rounded-full bg-gray-100 px-3 py-1 text-gray-500 font-medium">
+            <span className="rounded-full bg-gray-100 dark:bg-white/8 px-3 py-1 text-gray-500 dark:text-gray-400 font-medium">
               {archivedCount} arquivado{archivedCount !== 1 && "s"}
             </span>
           )}
@@ -97,11 +97,11 @@ export default async function ProductsPage() {
 
       {/* Empty state */}
       {products.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-rose-200 bg-rose-50/40 px-6 py-16 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-rose-100">
-            <ShoppingBag className="h-7 w-7 text-rose-500" />
+        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-rose-200 dark:border-rose-800/40 bg-rose-50/40 dark:bg-rose-950/20 px-6 py-16 text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-900/40">
+            <ShoppingBag className="h-7 w-7 text-gray-500 dark:text-gray-400" />
           </div>
-          <h3 className="mt-4 text-base font-semibold text-rose-900">
+          <h3 className="mt-4 text-base font-semibold text-gray-900 dark:text-white">
             Nenhum produto cadastrado
           </h3>
           <p className="mt-1.5 max-w-xs text-sm text-muted-foreground">
@@ -125,11 +125,11 @@ export default async function ProductsPage() {
           {products.map((product) => (
             <Card
               key={product.id}
-              className="group border border-rose-100 shadow-sm transition-shadow hover:shadow-md"
+              className="group card-3d border-0 shadow-sm transition-shadow hover:shadow-md"
             >
               <CardHeader className="pb-2 pt-4">
                 <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="text-base font-semibold text-gray-900 leading-tight">
+                  <CardTitle className="text-base font-semibold text-gray-900 dark:text-white leading-tight">
                     {product.name}
                   </CardTitle>
                   <StatusBadge status={product.status} />
@@ -145,14 +145,14 @@ export default async function ProductsPage() {
                 )}
 
                 {/* Variants count + preview */}
-                <div className="rounded-xl bg-rose-50/60 px-3 py-2.5">
+                <div className="rounded-xl bg-rose-50/60 dark:bg-rose-950/20 px-3 py-2.5">
                   {product.variants.length === 0 ? (
                     <p className="text-xs text-muted-foreground">
                       Sem variações cadastradas
                     </p>
                   ) : (
                     <div className="space-y-1">
-                      <p className="text-xs font-medium text-rose-700">
+                      <p className="text-xs font-medium text-gray-900 dark:text-white">
                         {product.variants.length}{" "}
                         {product.variants.length === 1 ? "variação" : "variações"}
                       </p>
@@ -160,13 +160,13 @@ export default async function ProductsPage() {
                         {product.variants.slice(0, 3).map((v) => (
                           <span
                             key={v.id}
-                            className="rounded-full bg-white border border-rose-200 px-2 py-0.5 text-xs text-gray-600"
+                            className="rounded-full bg-white dark:bg-[oklch(0.18_0.01_280)] border border-rose-200 dark:border-rose-800/40 px-2 py-0.5 text-xs text-gray-600 dark:text-gray-300"
                           >
                             {[v.color, v.size].filter(Boolean).join(" / ") || v.sku || "—"}
                           </span>
                         ))}
                         {product.variants.length > 3 && (
-                          <span className="rounded-full bg-white border border-rose-200 px-2 py-0.5 text-xs text-gray-400">
+                          <span className="rounded-full bg-white dark:bg-[oklch(0.18_0.01_280)] border border-rose-200 dark:border-rose-800/40 px-2 py-0.5 text-xs text-gray-400">
                             +{product.variants.length - 3}
                           </span>
                         )}
@@ -185,7 +185,7 @@ export default async function ProductsPage() {
                   return (
                     <p className="text-xs text-muted-foreground">
                       Preço:{" "}
-                      <span className="font-medium text-gray-700">
+                      <span className="font-medium text-gray-700 dark:text-gray-300">
                         {min === max
                           ? min.toLocaleString("pt-BR", {
                               style: "currency",

@@ -65,7 +65,7 @@ export default function LoginPage() {
 
         {/* Hero copy */}
         <div className="max-w-md">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-rose-200 bg-white/60 px-4 py-1.5 text-xs font-semibold text-rose-600 backdrop-blur-sm dark:border-rose-800/50 dark:bg-white/5 dark:text-rose-400">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-rose-200 bg-white/60 px-4 py-1.5 text-xs font-semibold text-rose-600 backdrop-blur-sm dark:border-rose-800/40 dark:bg-white/5 dark:text-rose-400">
             <span
               className="h-1.5 w-1.5 animate-pulse rounded-full bg-rose-500 dark:bg-rose-400"
               aria-hidden="true"
@@ -89,7 +89,7 @@ export default function LoginPage() {
             {BENEFITS.map((b) => (
               <li key={b.title} className="flex items-start gap-3">
                 <span
-                  className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/70 text-lg shadow-sm backdrop-blur-sm dark:bg-white/10"
+                  className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/70 text-lg shadow-sm backdrop-blur-sm dark:bg-[oklch(0.18_0.01_280)]/80"
                   aria-hidden="true"
                 >
                   {b.icon}

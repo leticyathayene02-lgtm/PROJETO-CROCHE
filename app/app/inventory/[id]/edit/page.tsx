@@ -1,14 +1,15 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import Link from "next/link";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { stockItemSchema, type StockItemFormData } from "@/app/app/inventory/schema";
-import { createStockItem } from "@/app/app/inventory/actions";
+import { updateStockItem, getStockItemById } from "@/app/app/inventory/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -29,8 +30,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-export default function NewStockItemPage() {
+export default function EditStockItemPage() {
   const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
+  const [loading, setLoading] = useState(true);
 
   const form = useForm<StockItemFormData>({
     resolver: zodResolver(stockItemSchema),
@@ -45,18 +49,48 @@ export default function NewStockItemPage() {
     },
   });
 
+  useEffect(() => {
+    async function load() {
+      const item = await getStockItemById(id);
+      if (!item) {
+        toast.error("Item não encontrado");
+        router.push("/app/inventory");
+        return;
+      }
+      form.reset({
+        name: item.name,
+        color: item.color ?? "",
+        size: item.size ?? "",
+        quantity: item.quantity,
+        price: item.price ?? undefined,
+        cost: item.cost ?? undefined,
+        notes: item.notes ?? "",
+      });
+      setLoading(false);
+    }
+    load();
+  }, [id, form, router]);
+
   const { isSubmitting } = form.formState;
 
   async function onSubmit(data: StockItemFormData) {
-    const result = await createStockItem(data);
+    const result = await updateStockItem(id, data);
 
     if (!result.success) {
       toast.error(result.error);
       return;
     }
 
-    toast.success("Peça adicionada ao estoque!");
+    toast.success("Item atualizado!");
     router.push("/app/inventory");
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-rose-500" />
+      </div>
+    );
   }
 
   return (
@@ -75,9 +109,9 @@ export default function NewStockItemPage() {
 
       <Card className="card-3d border-0 shadow-sm">
         <CardHeader className="pb-4">
-          <CardTitle className="text-xl text-gray-900 dark:text-white">Adicionar peça ao estoque</CardTitle>
+          <CardTitle className="text-xl text-gray-900 dark:text-white">Editar peça</CardTitle>
           <CardDescription>
-            Cadastre uma peça pronta disponível para venda.
+            Atualize as informações desta peça do estoque.
           </CardDescription>
         </CardHeader>
 
@@ -264,7 +298,7 @@ export default function NewStockItemPage() {
                   disabled={isSubmitting}
                 >
                   {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {isSubmitting ? "Salvando..." : "Adicionar peça"}
+                  {isSubmitting ? "Salvando..." : "Salvar alterações"}
                 </Button>
               </div>
             </form>

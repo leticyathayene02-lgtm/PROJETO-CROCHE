@@ -6,11 +6,11 @@ import { PaymentStatusBadge } from "@/components/orders/PaymentStatusBadge";
 import { Plus, ChevronLeft } from "lucide-react";
 
 const COLUMNS = [
-  { key: "TODO", label: "A fazer", color: "border-gray-200 bg-gray-50 dark:border-white/8 dark:bg-white/2" },
-  { key: "IN_PROGRESS", label: "Em produção", color: "border-blue-200 bg-blue-50/50 dark:border-blue-900/40 dark:bg-blue-950/20" },
-  { key: "FINISHING", label: "Acabamento", color: "border-violet-200 bg-violet-50/50 dark:border-violet-900/40 dark:bg-violet-950/20" },
-  { key: "READY", label: "Pronto", color: "border-emerald-200 bg-emerald-50/50 dark:border-emerald-900/40 dark:bg-emerald-950/20" },
-  { key: "DELIVERED", label: "Entregue", color: "border-teal-200 bg-teal-50/50 dark:border-teal-900/40 dark:bg-teal-950/20" },
+  { key: "TODO", label: "A fazer", color: "border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[oklch(0.15_0.008_280)]" },
+  { key: "IN_PROGRESS", label: "Em produção", color: "border-blue-200 dark:border-blue-900/40 bg-blue-50/50 dark:bg-blue-950/20" },
+  { key: "FINISHING", label: "Acabamento", color: "border-violet-200 dark:border-violet-900/40 bg-violet-50/50 dark:bg-violet-950/20" },
+  { key: "READY", label: "Pronto", color: "border-emerald-200 dark:border-emerald-900/40 bg-emerald-50/50 dark:bg-emerald-950/20" },
+  { key: "DELIVERED", label: "Entregue", color: "border-teal-200 dark:border-teal-900/40 bg-teal-50/50 dark:bg-teal-950/20" },
 ] as const;
 
 type ProductionStatus = (typeof COLUMNS)[number]["key"];
@@ -57,7 +57,7 @@ export default async function OrderBoardPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/app/orders" className="text-sm text-rose-600 hover:underline dark:text-rose-400">
+          <Link href="/app/orders" className="text-sm text-gray-700 dark:text-gray-300 hover:underline">
             <ChevronLeft className="inline h-4 w-4" /> Lista
           </Link>
           <div>
@@ -87,7 +87,7 @@ export default async function OrderBoardPage() {
             >
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">{col.label}</h2>
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/70 text-xs font-bold text-gray-500 dark:bg-white/10 dark:text-gray-400">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/70 dark:bg-white/10 text-xs font-bold text-gray-500 dark:text-gray-400">
                   {colOrders.length}
                 </span>
               </div>
@@ -101,7 +101,7 @@ export default async function OrderBoardPage() {
                   return (
                     <div
                       key={order.id}
-                      className="rounded-xl border border-gray-100 bg-white p-3 shadow-sm dark:border-white/8 dark:bg-gray-800/60"
+                      className="rounded-xl border border-gray-100 dark:border-white/8 bg-white dark:bg-[oklch(0.18_0.01_280)] p-3 shadow-sm dark:shadow-black/10"
                     >
                       <div className="mb-1 flex items-start justify-between gap-1">
                         <p className="text-sm font-semibold text-gray-800 dark:text-white leading-tight">
@@ -113,13 +113,13 @@ export default async function OrderBoardPage() {
                         {order.itemDescription}
                       </p>
                       <div className="flex items-center justify-between">
-                        <div className="text-xs text-gray-400">
+                        <div className="text-xs text-gray-400 dark:text-gray-500">
                           <span className={isLate ? "font-semibold text-red-500" : ""}>
                             {formatDate(order.dueDate)}
                           </span>
                           {isLate && <span className="ml-1 text-red-400">· atrasado</span>}
                         </div>
-                        <span className="text-xs font-semibold text-rose-700 dark:text-rose-400">
+                        <span className="text-xs font-semibold text-gray-900 dark:text-white">
                           {formatCurrency(order.amount)}
                         </span>
                       </div>
@@ -127,7 +127,7 @@ export default async function OrderBoardPage() {
                       <div className="mt-2 flex gap-1.5">
                         <Link
                           href={`/app/orders/${order.id}`}
-                          className="flex-1 rounded-lg border border-gray-200 bg-gray-50 py-1 text-center text-xs font-medium text-gray-600 transition hover:bg-gray-100 dark:border-white/10 dark:bg-white/5 dark:text-gray-300"
+                          className="flex-1 rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[oklch(0.15_0.008_280)] py-1 text-center text-xs font-medium text-gray-600 dark:text-gray-300 transition hover:bg-gray-100 dark:hover:bg-white/10"
                         >
                           Ver
                         </Link>
@@ -141,7 +141,7 @@ export default async function OrderBoardPage() {
                           >
                             <button
                               type="submit"
-                              className="w-full rounded-lg border border-rose-200 bg-rose-50 py-1 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 dark:border-rose-800/50 dark:bg-rose-950/30 dark:text-rose-400"
+                              className="w-full rounded-lg border border-rose-200 dark:border-rose-800/40 bg-rose-50 dark:bg-rose-950/20 py-1 text-xs font-semibold text-gray-900 dark:text-gray-300 transition hover:bg-rose-100 dark:hover:bg-rose-950/40"
                             >
                               → Avançar
                             </button>
@@ -153,8 +153,8 @@ export default async function OrderBoardPage() {
                 })}
 
                 {colOrders.length === 0 && (
-                  <div className="rounded-xl border border-dashed border-gray-200 py-6 text-center dark:border-white/10">
-                    <p className="text-xs text-gray-400">Nenhum pedido</p>
+                  <div className="rounded-xl border border-dashed border-gray-200 dark:border-white/10 py-6 text-center">
+                    <p className="text-xs text-gray-400 dark:text-gray-500">Nenhum pedido</p>
                   </div>
                 )}
               </div>

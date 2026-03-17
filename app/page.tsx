@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LandingHeader } from "./_components/landing-header";
 import { LandingFaq } from "./_components/landing-faq";
+import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import {
   Calculator,
   TrendingUp,
@@ -177,71 +178,81 @@ export default function HomePage() {
           <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
             {/* Left: copy */}
             <div>
-              <div className="mb-6">
-                <SectionTag>Plataforma #1 para artesãs brasileiras</SectionTag>
-              </div>
+              <ScrollReveal direction="left" delay={0} duration={600}>
+                <div className="mb-6">
+                  <SectionTag>Plataforma #1 para artesãs brasileiras</SectionTag>
+                </div>
+              </ScrollReveal>
 
-              <h1 className="font-heading text-display-xl mb-6 text-gray-900 dark:text-white">
-                Seu ateliê,{" "}
-                <em className="text-rose-600 not-italic dark:text-rose-400">organizado</em>
-                {" "}e{" "}
-                <span className="bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent dark:from-rose-400 dark:to-pink-400">
-                  lucrativo.
-                </span>
-              </h1>
+              <ScrollReveal direction="left" delay={150} duration={600}>
+                <h1 className="font-heading text-display-xl mb-6 text-gray-900 dark:text-white">
+                  Seu ateliê,{" "}
+                  <em className="text-rose-600 not-italic dark:text-rose-400">organizado</em>
+                  {" "}e{" "}
+                  <span className="bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent dark:from-rose-400 dark:to-pink-400">
+                    lucrativo.
+                  </span>
+                </h1>
+              </ScrollReveal>
 
-              <p className="mb-8 max-w-lg text-lg leading-relaxed text-gray-600 dark:text-gray-300">
-                A calculadora de preços, controle financeiro e estoque de fios que toda
-                artesã precisava. Simples, bonito e feito para você lucrar de verdade.
-              </p>
+              <ScrollReveal direction="left" delay={300} duration={600}>
+                <p className="mb-8 max-w-lg text-lg leading-relaxed text-gray-600 dark:text-gray-300">
+                  A calculadora de preços, controle financeiro e estoque de fios que toda
+                  artesã precisava. Simples, bonito e feito para você lucrar de verdade.
+                </p>
+              </ScrollReveal>
 
-              {/* Benefit bullets */}
-              <ul className="mb-10 space-y-3" aria-label="Benefícios principais">
-                {[
-                  "Calcule o preço justo de cada peça em segundos",
-                  "Nunca mais venda no prejuízo sem saber",
-                  "Controle seus fios, finanças e metas em um só lugar",
-                ].map((benefit) => (
-                  <li key={benefit} className="flex items-center gap-3">
-                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40">
-                      <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
-                    </div>
-                    <span className="text-sm text-gray-700 dark:text-gray-300">{benefit}</span>
-                  </li>
-                ))}
-              </ul>
+              <ScrollReveal direction="left" delay={350} duration={600}>
+                {/* Benefit bullets */}
+                <ul className="mb-10 space-y-3" aria-label="Benefícios principais">
+                  {[
+                    "Calcule o preço justo de cada peça em segundos",
+                    "Nunca mais venda no prejuízo sem saber",
+                    "Controle seus fios, finanças e metas em um só lugar",
+                  ].map((benefit) => (
+                    <li key={benefit} className="flex items-center gap-3">
+                      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40">
+                        <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+                      </div>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+              </ScrollReveal>
 
-              {/* CTAs */}
-              <div className="flex flex-wrap items-center gap-3">
-                <Link
-                  href="/login"
-                  className="group relative inline-flex items-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-rose-600 to-pink-500 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-rose-300/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-rose-300/50 active:translate-y-0 dark:shadow-rose-900/30"
-                >
-                  <Sparkles className="h-4 w-4" />
-                  Criar conta grátis — 7 dias grátis
-                  <span
-                    className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full"
-                    aria-hidden="true"
-                  />
-                </Link>
-                <a
-                  href="#como-funciona"
-                  className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 bg-white/70 px-6 py-3.5 text-sm font-semibold text-rose-700 backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:shadow-md dark:border-rose-800/50 dark:bg-white/5 dark:text-rose-300 dark:hover:bg-white/10"
-                >
-                  Ver como funciona
-                  <ArrowRight className="h-4 w-4" />
-                </a>
-              </div>
+              <ScrollReveal direction="left" delay={450} duration={600}>
+                {/* CTAs */}
+                <div className="flex flex-wrap items-center gap-3">
+                  <Link
+                    href="/login"
+                    className="group relative inline-flex items-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-rose-600 to-pink-500 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-rose-300/40 transition-all duration-200 hover:shadow-xl hover:shadow-rose-300/50 dark:shadow-rose-900/30"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    Criar conta grátis — 7 dias grátis
+                    <span
+                      className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full"
+                      aria-hidden="true"
+                    />
+                  </Link>
+                  <a
+                    href="#como-funciona"
+                    className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 bg-white/70 px-6 py-3.5 text-sm font-semibold text-rose-700 backdrop-blur-sm transition-all duration-200 hover:bg-white hover:shadow-md dark:border-rose-800/50 dark:bg-white/5 dark:text-rose-300 dark:hover:bg-white/10"
+                  >
+                    Ver como funciona
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
+                </div>
 
-              {/* Trust signal */}
-              <p className="mt-6 flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
-                Grátis para sempre no plano básico · Sem cartão de crédito
-              </p>
+                {/* Trust signal */}
+                <p className="mt-6 flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
+                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
+                  Grátis para sempre no plano básico · Sem cartão de crédito
+                </p>
+              </ScrollReveal>
             </div>
 
             {/* Right: floating app mock */}
-            <div className="flex items-center justify-center lg:justify-end">
+            <ScrollReveal direction="right" delay={300} duration={800} className="flex items-center justify-center lg:justify-end">
               <div className="relative">
                 {/* Glow behind card */}
                 <div
@@ -250,7 +261,7 @@ export default function HomePage() {
                 />
                 <AppMockCard />
               </div>
-            </div>
+            </ScrollReveal>
           </div>
         </div>
       </section>
@@ -267,13 +278,13 @@ export default function HomePage() {
               { value: "R$ 1.2M+", label: "Em vendas precificadas" },
               { value: "98%", label: "Satisfação dos usuários" },
               { value: "4.9 ★", label: "Avaliação média" },
-            ].map((stat) => (
-              <div key={stat.label}>
+            ].map((stat, i) => (
+              <ScrollReveal key={stat.label} direction="up" delay={i * 100} duration={500}>
                 <p className="font-heading text-2xl font-bold text-rose-700 dark:text-rose-400">
                   {stat.value}
                 </p>
                 <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{stat.label}</p>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -282,7 +293,7 @@ export default function HomePage() {
       {/* ── FEATURES ─────────────────────────────────────────────────────── */}
       <section id="features" aria-label="Funcionalidades" className="py-20 dark:bg-gray-950">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="mb-14 text-center">
+          <ScrollReveal direction="up" className="mb-14 text-center">
             <SectionTag>Tudo que você precisa</SectionTag>
             <h2 className="font-heading text-title mt-4 text-gray-900 dark:text-white">
               Quatro ferramentas. Um só lugar.
@@ -291,7 +302,7 @@ export default function HomePage() {
               Chega de planilha bagunçada. O Trama Pro reúne tudo que uma
               artesã precisa para crescer.
             </p>
-          </div>
+          </ScrollReveal>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
@@ -355,34 +366,35 @@ export default function HomePage() {
                   "Data prevista de entrega",
                 ],
               },
-            ].map((feature) => (
-              <div
-                key={feature.title}
-                className={`group flex flex-col rounded-3xl border p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${feature.bg} ${feature.border}`}
-              >
+            ].map((feature, i) => (
+              <ScrollReveal key={feature.title} direction="up" delay={i * 150} duration={600}>
                 <div
-                  className={`mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl ${feature.iconBg}`}
+                  className={`landing-card group flex h-full flex-col rounded-3xl border p-7 shadow-sm ${feature.bg} ${feature.border}`}
                 >
-                  {feature.icon}
+                  <div
+                    className={`mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl ${feature.iconBg}`}
+                  >
+                    {feature.icon}
+                  </div>
+                  <h3 className="font-heading mb-2 text-lg font-bold text-gray-900 dark:text-white">
+                    {feature.title}
+                  </h3>
+                  <p className="mb-5 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+                    {feature.desc}
+                  </p>
+                  <ul className="mt-auto space-y-2">
+                    {feature.features.map((f) => (
+                      <li
+                        key={f}
+                        className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400"
+                      >
+                        <Check className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <h3 className="font-heading mb-2 text-lg font-bold text-gray-900 dark:text-white">
-                  {feature.title}
-                </h3>
-                <p className="mb-5 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
-                  {feature.desc}
-                </p>
-                <ul className="mt-auto space-y-2">
-                  {feature.features.map((f) => (
-                    <li
-                      key={f}
-                      className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400"
-                    >
-                      <Check className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -395,7 +407,7 @@ export default function HomePage() {
         className="bg-gradient-to-br from-rose-50/60 via-pink-50/30 to-white py-20 dark:from-gray-900 dark:via-rose-950/10 dark:to-gray-950"
       >
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <div className="mb-14 text-center">
+          <ScrollReveal direction="up" className="mb-14 text-center">
             <SectionTag>Simples de usar</SectionTag>
             <h2 className="font-heading text-title mt-4 text-gray-900 dark:text-white">
               Comece em menos de 5 minutos
@@ -403,7 +415,7 @@ export default function HomePage() {
             <p className="mx-auto mt-3 max-w-xl text-base text-gray-500 dark:text-gray-400">
               Sem tutorial complicado. Em três passos simples seu ateliê está organizado.
             </p>
-          </div>
+          </ScrollReveal>
 
           <div className="grid gap-10 sm:grid-cols-3">
             {[
@@ -426,27 +438,29 @@ export default function HomePage() {
                 desc: "Use a calculadora para cada nova peça. Registre as vendas e acompanhe seu lucro crescer mês a mês.",
               },
             ].map((item, i) => (
-              <div key={item.step} className="relative text-center">
-                {/* Connector line (desktop) */}
-                {i < 2 && (
-                  <div
-                    aria-hidden="true"
-                    className="absolute left-[calc(50%+64px)] top-10 hidden h-px w-[calc(100%-128px)] border-t-2 border-dashed border-rose-200 dark:border-rose-900/50 sm:block"
-                  />
-                )}
-                <div className="relative mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-300/40 dark:shadow-rose-900/30">
-                  {item.icon}
-                  <span className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-black text-rose-600 shadow-sm dark:bg-gray-900 dark:text-rose-400">
-                    {item.step}
-                  </span>
+              <ScrollReveal key={item.step} direction="up" delay={i * 150} duration={600}>
+                <div className="relative text-center">
+                  {/* Connector line (desktop) */}
+                  {i < 2 && (
+                    <div
+                      aria-hidden="true"
+                      className="absolute left-[calc(50%+64px)] top-10 hidden h-px w-[calc(100%-128px)] border-t-2 border-dashed border-rose-200 dark:border-rose-900/50 sm:block"
+                    />
+                  )}
+                  <div className="relative mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-300/40 dark:shadow-rose-900/30">
+                    {item.icon}
+                    <span className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-black text-rose-600 shadow-sm dark:bg-gray-900 dark:text-rose-400">
+                      {item.step}
+                    </span>
+                  </div>
+                  <h3 className="font-heading mb-2 font-bold text-gray-900 dark:text-white">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm leading-relaxed text-gray-500 dark:text-gray-400">
+                    {item.desc}
+                  </p>
                 </div>
-                <h3 className="font-heading mb-2 font-bold text-gray-900 dark:text-white">
-                  {item.title}
-                </h3>
-                <p className="text-sm leading-relaxed text-gray-500 dark:text-gray-400">
-                  {item.desc}
-                </p>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
 
@@ -469,7 +483,7 @@ export default function HomePage() {
         className="bg-gradient-to-br from-rose-700 via-rose-600 to-pink-500 py-20"
       >
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <div className="mb-14 text-center">
+          <ScrollReveal direction="up" className="mb-14 text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-4 py-1.5 text-xs font-semibold text-white backdrop-blur-sm">
               <span className="h-1.5 w-1.5 rounded-full bg-white" aria-hidden="true" />
               Resultados reais
@@ -477,7 +491,7 @@ export default function HomePage() {
             <h2 className="font-heading text-title mt-4 text-white">
               O que nossas usuárias alcançaram
             </h2>
-          </div>
+          </ScrollReveal>
 
           <div className="grid gap-6 sm:grid-cols-3">
             {[
@@ -499,20 +513,21 @@ export default function HomePage() {
                 label: "Peças no prejuízo",
                 desc: "Com a calculadora, você sempre sabe antes de vender quanto vai lucrar",
               },
-            ].map((metric) => (
-              <div
-                key={metric.label}
-                className="rounded-3xl border border-white/15 bg-white/10 p-7 backdrop-blur-sm transition-all duration-200 hover:-translate-y-1 hover:bg-white/15"
-              >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 text-white">
-                  {metric.icon}
+            ].map((metric, i) => (
+              <ScrollReveal key={metric.label} direction="up" delay={i * 150} duration={600}>
+                <div
+                  className="landing-card rounded-3xl border border-white/15 bg-white/10 p-7 backdrop-blur-sm"
+                >
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 text-white">
+                    {metric.icon}
+                  </div>
+                  <p className="font-heading mb-1 text-4xl font-black text-white">
+                    {metric.value}
+                  </p>
+                  <p className="mb-2 text-sm font-semibold text-rose-200">{metric.label}</p>
+                  <p className="text-xs leading-relaxed text-rose-100/80">{metric.desc}</p>
                 </div>
-                <p className="font-heading mb-1 text-4xl font-black text-white">
-                  {metric.value}
-                </p>
-                <p className="mb-2 text-sm font-semibold text-rose-200">{metric.label}</p>
-                <p className="text-xs leading-relaxed text-rose-100/80">{metric.desc}</p>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -525,12 +540,12 @@ export default function HomePage() {
         className="py-20 dark:bg-gray-950"
       >
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="mb-14 text-center">
+          <ScrollReveal direction="up" className="mb-14 text-center">
             <SectionTag>Depoimentos</SectionTag>
             <h2 className="font-heading text-title mt-4 text-gray-900 dark:text-white">
               Quem usa, recomenda
             </h2>
-          </div>
+          </ScrollReveal>
 
           <div className="grid gap-6 sm:grid-cols-3">
             {[
@@ -558,10 +573,10 @@ export default function HomePage() {
                 quote:
                   "Recomendo para todas as minhas seguidoras. Simples de usar, funciona lindo no celular e me ajudou a profissionalizar meu ateliê.",
               },
-            ].map((t) => (
+            ].map((t, i) => (
+              <ScrollReveal key={t.name} direction="up" delay={i * 150} duration={600}>
               <figure
-                key={t.name}
-                className="flex flex-col rounded-3xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md dark:border-white/8 dark:bg-white/3"
+                className="landing-card flex h-full flex-col rounded-3xl border border-gray-100 bg-white p-6 shadow-sm dark:border-white/8 dark:bg-white/3"
               >
                 <StarRating />
                 <blockquote className="my-4 flex-1">
@@ -584,6 +599,7 @@ export default function HomePage() {
                   </div>
                 </figcaption>
               </figure>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -592,16 +608,17 @@ export default function HomePage() {
       {/* ── PRICING PREVIEW ──────────────────────────────────────────────── */}
       <section aria-label="Planos" className="bg-gray-50/80 py-20 dark:bg-gray-900/50">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
-          <div className="mb-14 text-center">
+          <ScrollReveal direction="up" className="mb-14 text-center">
             <SectionTag>Planos</SectionTag>
             <h2 className="font-heading text-title mt-4 text-gray-900 dark:text-white">
               Comece grátis, cresça sem limites
             </h2>
-          </div>
+          </ScrollReveal>
 
           <div className="grid gap-6 sm:grid-cols-2">
             {/* Free */}
-            <div className="rounded-3xl border border-gray-200 bg-white p-7 dark:border-white/10 dark:bg-white/4">
+            <ScrollReveal direction="up" delay={0} duration={600}>
+            <div className="landing-card h-full rounded-3xl border border-gray-200 bg-white p-7 dark:border-white/10 dark:bg-white/4">
               <p className="font-heading text-lg font-bold text-gray-900 dark:text-white">
                 Gratuito
               </p>
@@ -637,9 +654,11 @@ export default function HomePage() {
                 Criar conta grátis
               </Link>
             </div>
+            </ScrollReveal>
 
             {/* Premium */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose-600 to-pink-500 p-7 text-white shadow-xl shadow-rose-300/30 dark:shadow-rose-900/30">
+            <ScrollReveal direction="up" delay={150} duration={600}>
+            <div className="landing-card relative h-full overflow-hidden rounded-3xl bg-gradient-to-br from-rose-600 to-pink-500 p-7 text-white shadow-xl shadow-rose-300/30 dark:shadow-rose-900/30">
               <div
                 aria-hidden="true"
                 className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10"
@@ -681,6 +700,7 @@ export default function HomePage() {
                 </Link>
               </div>
             </div>
+            </ScrollReveal>
           </div>
         </div>
       </section>
@@ -688,13 +708,15 @@ export default function HomePage() {
       {/* ── FAQ ──────────────────────────────────────────────────────────── */}
       <section id="faq" aria-label="Perguntas frequentes" className="py-20 dark:bg-gray-950">
         <div className="mx-auto max-w-2xl px-4 sm:px-6">
-          <div className="mb-14 text-center">
+          <ScrollReveal direction="up" className="mb-14 text-center">
             <SectionTag>Dúvidas frequentes</SectionTag>
             <h2 className="font-heading text-title mt-4 text-gray-900 dark:text-white">
               Ficou alguma dúvida?
             </h2>
-          </div>
-          <LandingFaq />
+          </ScrollReveal>
+          <ScrollReveal direction="up" delay={150}>
+            <LandingFaq />
+          </ScrollReveal>
         </div>
       </section>
 
@@ -713,16 +735,18 @@ export default function HomePage() {
           style={{ animationDelay: "4s" }}
         />
         <div className="relative mx-auto max-w-2xl px-4 text-center sm:px-6">
-          <span className="mb-5 inline-block text-5xl" aria-hidden="true">
-            🧶
-          </span>
-          <h2 className="font-heading text-display mb-4 text-white">
-            Sua arte merece um ateliê organizado.
-          </h2>
-          <p className="mb-8 text-base text-rose-100/90">
-            Junte-se a mais de 2.400 artesãs que já precificam com consciência,
-            controlam suas finanças e lucram mais.
-          </p>
+          <ScrollReveal direction="up" duration={600}>
+            <span className="mb-5 inline-block text-5xl" aria-hidden="true">
+              🧶
+            </span>
+            <h2 className="font-heading text-display mb-4 text-white">
+              Sua arte merece um ateliê organizado.
+            </h2>
+            <p className="mb-8 text-base text-rose-100/90">
+              Junte-se a mais de 2.400 artesãs que já precificam com consciência,
+              controlam suas finanças e lucram mais.
+            </p>
+          </ScrollReveal>
           <Link
             href="/login"
             className="group relative inline-flex items-center gap-2 overflow-hidden rounded-2xl bg-white px-8 py-4 font-bold text-rose-600 shadow-lg shadow-rose-900/30 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0"

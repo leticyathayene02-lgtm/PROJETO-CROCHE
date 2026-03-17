@@ -45,23 +45,23 @@ export default async function BillingPage({
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Assinatura</h1>
-        <p className="text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Assinatura</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Gerencie seu plano e faturamento
         </p>
       </div>
 
       {/* Success / Cancel messages */}
       {params.success && (
-        <Card className="border-green-200 bg-green-50">
-          <CardContent className="py-3 text-sm font-medium text-green-800">
+        <Card className="border-green-200 dark:border-green-800/40 bg-green-50 dark:bg-green-950/20">
+          <CardContent className="py-3 text-sm font-medium text-green-800 dark:text-green-400">
             ✅ Assinatura ativada com sucesso! Bem-vinda ao Premium ✨
           </CardContent>
         </Card>
       )}
       {params.canceled && (
-        <Card className="border-amber-200 bg-amber-50">
-          <CardContent className="py-3 text-sm text-amber-800">
+        <Card className="border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-900/40">
+          <CardContent className="py-3 text-sm text-amber-800 dark:text-amber-400">
             Checkout cancelado. Você continua no plano gratuito.
           </CardContent>
         </Card>
@@ -76,7 +76,7 @@ export default async function BillingPage({
               className={
                 plan === "PREMIUM"
                   ? "bg-rose-600 text-white"
-                  : "bg-gray-100 text-gray-600"
+                  : "bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-400"
               }
             >
               {plan === "PREMIUM" ? "Premium ✨" : "Gratuito"}
@@ -163,10 +163,10 @@ export default async function BillingPage({
         <CardContent>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="mb-2 font-semibold text-gray-700">
+              <p className="mb-2 font-semibold text-gray-700 dark:text-gray-300">
                 Gratuito
               </p>
-              <ul className="space-y-1 text-gray-500">
+              <ul className="space-y-1 text-gray-500 dark:text-gray-400">
                 <li>✓ 3 cálculos/mês</li>
                 <li>✓ 5 transações/mês</li>
                 <li>✓ 3 produtos</li>
@@ -174,10 +174,10 @@ export default async function BillingPage({
               </ul>
             </div>
             <div>
-              <p className="mb-2 font-semibold text-rose-700">
+              <p className="mb-2 font-semibold text-gray-900 dark:text-white">
                 Premium ✨
               </p>
-              <ul className="space-y-1 text-rose-600">
+              <ul className="space-y-1 text-gray-700 dark:text-gray-300">
                 <li>✓ Cálculos ilimitados</li>
                 <li>✓ Transações ilimitadas</li>
                 <li>✓ Produtos ilimitados</li>
@@ -208,16 +208,16 @@ function UsageMeter({
 
   return (
     <div className="space-y-1">
-      <div className="flex items-center justify-between text-xs text-gray-600">
+      <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
         <span>{label}</span>
-        <span className={isNearLimit ? "text-rose-600 font-medium" : ""}>
+        <span className={isNearLimit ? "text-gray-700 dark:text-gray-300 font-medium" : ""}>
           {current} / {isUnlimited ? "∞" : limit}
         </span>
       </div>
       {!isUnlimited && (
         <Progress
           value={percent}
-          className={`h-1.5 ${isNearLimit ? "[&>div]:bg-rose-500" : "[&>div]:bg-gray-300"}`}
+          className={`h-1.5 ${isNearLimit ? "[&>div]:bg-rose-500" : "[&>div]:bg-gray-300 dark:[&>div]:bg-gray-600"}`}
         />
       )}
     </div>
