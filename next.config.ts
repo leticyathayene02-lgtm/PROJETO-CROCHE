@@ -5,6 +5,11 @@ const nextConfig: NextConfig = {
     serverActions: {
       allowedOrigins: [
         "localhost:3000",
+        "tramapro.site",
+        "www.tramapro.site",
+        ...(process.env.NEXT_PUBLIC_APP_URL
+          ? [process.env.NEXT_PUBLIC_APP_URL.replace(/^https?:\/\//, "")]
+          : []),
         ...(process.env.VERCEL_URL ? [process.env.VERCEL_URL] : []),
         ...(process.env.VERCEL_PROJECT_PRODUCTION_URL
           ? [process.env.VERCEL_PROJECT_PRODUCTION_URL]

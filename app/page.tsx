@@ -674,7 +674,7 @@ export default function HomePage() {
                 </div>
                 <p className="mt-3 font-heading text-lg font-bold">Premium</p>
                 <p className="mt-1 text-3xl font-black">
-                  R$ 29,90
+                  R$ 19,90
                   <span className="text-sm font-normal text-rose-200">/mês</span>
                 </p>
                 <p className="mt-1 mb-6 text-xs text-rose-200">Para quem vive do crochê</p>

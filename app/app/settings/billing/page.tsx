@@ -130,7 +130,7 @@ export default async function BillingPage({
                   type="submit"
                   className="w-full bg-rose-600 hover:bg-rose-700"
                 >
-                  Assinar Premium — R$ 29,90/mês ✨
+                  Assinar Premium — R$ 19,90/mês ✨
                 </Button>
               </form>
             ) : (
