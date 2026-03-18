@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "next dev --turbopack --port 3000",
     "dev:clean": "rimraf .next && next dev --turbopack --port 3000",
-    "build": "prisma generate && next build",
-    "start": "npx prisma migrate deploy && next start -p ${PORT:-3000}",
+    "build": "npx prisma migrate deploy && prisma generate && next build",
+    "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",
     "db:start": "node scripts/start-db.mjs",
@@ -15,8 +15,7 @@
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "db:seed": "prisma db seed",
-    "start:local": "next start"
+    "db:seed": "prisma db seed"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
