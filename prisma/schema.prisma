@@ -98,6 +98,10 @@ model Subscription {
   stripeCustomerId     String?
   stripeSubscriptionId String?
   currentPeriodEnd     DateTime?
+  asaasCustomerId      String?
+  asaasSubscriptionId  String?
+  lastPaymentAt        DateTime?
+  lastAsaasPaymentId   String?
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
 

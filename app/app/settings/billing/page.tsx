@@ -11,7 +11,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { createCheckoutSession, createBillingPortalSession } from "@/lib/stripe";
 import { redirect } from "next/navigation";
 
 function formatDate(date: Date | null | undefined) {
@@ -109,21 +108,20 @@ export default async function BillingPage({
           </div>
 
           {/* Actions */}
-          <div className="pt-2">
+          <div className="pt-2 space-y-2">
             {plan === "FREE" ? (
               <form
                 action={async () => {
                   "use server";
-                  const { user } = await import("@/lib/workspace").then((m) =>
+                  const { workspace: ws, user } = await import("@/lib/workspace").then((m) =>
                     m.requireWorkspace()
                   );
-                  const session = await createCheckoutSession({
-                    workspaceId,
-                    userId: user.id,
-                    email: user.email!,
-                    customerId: subscription?.stripeCustomerId,
+                  const { startSubscription } = await import("@/lib/subscription-service");
+                  const result = await startSubscription(ws.id, {
+                    name: user.name,
+                    email: user.email,
                   });
-                  redirect(session.url!);
+                  redirect(result.paymentUrl);
                 }}
               >
                 <Button
@@ -137,17 +135,16 @@ export default async function BillingPage({
               <form
                 action={async () => {
                   "use server";
-                  if (!subscription?.stripeCustomerId) {
-                    throw new Error("No customer ID");
-                  }
-                  const session = await createBillingPortalSession(
-                    subscription.stripeCustomerId
+                  const { cancelSubscription } = await import("@/lib/subscription-service");
+                  const { workspace: ws } = await import("@/lib/workspace").then((m) =>
+                    m.requireWorkspace()
                   );
-                  redirect(session.url);
+                  await cancelSubscription(ws.id);
+                  redirect("/app/settings/billing?canceled=1");
                 }}
               >
-                <Button type="submit" variant="outline" className="w-full">
-                  Gerenciar assinatura no Stripe
+                <Button type="submit" variant="outline" className="w-full text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950/20">
+                  Cancelar assinatura
                 </Button>
               </form>
             )}
