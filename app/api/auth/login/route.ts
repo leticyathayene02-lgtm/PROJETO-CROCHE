@@ -35,7 +35,11 @@ export async function POST(req: NextRequest) {
     response.cookies.set(sessionCookieOptions(sessionToken, expires));
     return response;
   } catch (err) {
-    console.error("[login]", err);
-    return NextResponse.json({ error: "Erro interno do servidor." }, { status: 500 });
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[login] ERROR:", msg, err);
+    return NextResponse.json(
+      { error: "Erro interno do servidor.", _debug: process.env.NODE_ENV !== "production" ? msg : undefined },
+      { status: 500 }
+    );
   }
 }
