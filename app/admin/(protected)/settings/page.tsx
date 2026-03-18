@@ -63,32 +63,28 @@ export default async function AdminSettingsPage() {
         </div>
       </div>
 
-      {/* Links de configuração */}
-      <div className="rounded-xl border border-white/[0.06] bg-[#111118]">
-        <div className="flex items-center gap-3 border-b border-white/[0.06] px-6 py-4">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600/20">
-            <Settings className="h-4 w-4 text-indigo-400" />
-          </div>
-          <h2 className="text-sm font-semibold text-white">Módulos de configuração</h2>
-        </div>
-        <div className="divide-y divide-white/[0.04]">
-          <Link
-            href="/admin/settings/payment"
-            className="flex items-center justify-between px-6 py-4 transition hover:bg-white/[0.03] group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600/20">
-                <CreditCard className="h-4 w-4 text-emerald-400" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-200">Configurações de Pagamento</p>
-                <p className="text-xs text-gray-500">Integração com a API Asaas (Sandbox / Produção)</p>
-              </div>
+      {/* Pagamentos — card de destaque */}
+      <Link
+        href="/admin/settings/payment"
+        className="group block rounded-xl border border-emerald-500/20 bg-[#111118] p-6 transition hover:border-emerald-500/40 hover:bg-[#141a14]"
+      >
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10">
+              <CreditCard className="h-5 w-5 text-emerald-400" />
             </div>
-            <ChevronRight className="h-4 w-4 text-gray-600 group-hover:text-gray-400 transition-colors" />
-          </Link>
+            <div>
+              <p className="text-sm font-semibold text-white">Pagamentos</p>
+              <p className="mt-0.5 text-xs text-gray-500">
+                Configurar integração com gateway (Asaas) — sandbox ou produção
+              </p>
+            </div>
+          </div>
+          <span className="mt-0.5 flex items-center gap-1 text-xs font-medium text-emerald-500 opacity-0 transition group-hover:opacity-100">
+            Configurar <ChevronRight className="h-3.5 w-3.5" />
+          </span>
         </div>
-      </div>
+      </Link>
     </div>
   );
 }

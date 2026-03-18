@@ -10,6 +10,7 @@ import {
   LogOut,
   Shield,
   ChevronRight,
+  Wallet,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -17,7 +18,8 @@ const NAV_ITEMS = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/users", label: "Usuários", icon: Users, exact: false },
   { href: "/admin/subscriptions", label: "Assinaturas", icon: CreditCard, exact: false },
-  { href: "/admin/settings", label: "Configurações", icon: Settings, exact: false },
+  { href: "/admin/settings/payment", label: "Pagamentos", icon: Wallet, exact: true },
+  { href: "/admin/settings", label: "Configurações", icon: Settings, exact: true },
 ];
 
 interface AdminSidebarProps {
