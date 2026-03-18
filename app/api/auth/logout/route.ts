@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { deleteSession, SESSION_COOKIE_NAME } from "@/lib/session";
 
 function clearSessionResponse() {
-  const response = NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_APP_URL || "https://projeto-croche-production.up.railway.app"));
+  const response = NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_APP_URL || "https://tramapro.site"));
   response.cookies.set({
     name: SESSION_COOKIE_NAME,
     value: "",
