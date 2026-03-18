@@ -16,7 +16,11 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // /login and /register are ALWAYS accessible — never redirect away
+  // Protect /admin/* (except /admin/login) — redirect to admin login
+  if (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login") && !sessionToken) {
+    return NextResponse.redirect(new URL("/admin/login", req.url));
+  }
+
   return NextResponse.next();
 }
 
