@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/admin";
 import { PageHeader } from "@/components/admin/page-header";
-import { Settings, Shield, Database } from "lucide-react";
+import { Settings, Shield, Database, CreditCard, ChevronRight } from "lucide-react";
+import Link from "next/link";
 
 export const metadata = { title: "Configurações — Admin Trama Pro" };
 
@@ -59,6 +60,33 @@ export default async function AdminSettingsPage() {
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Links de configuração */}
+      <div className="rounded-xl border border-white/[0.06] bg-[#111118]">
+        <div className="flex items-center gap-3 border-b border-white/[0.06] px-6 py-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600/20">
+            <Settings className="h-4 w-4 text-indigo-400" />
+          </div>
+          <h2 className="text-sm font-semibold text-white">Módulos de configuração</h2>
+        </div>
+        <div className="divide-y divide-white/[0.04]">
+          <Link
+            href="/admin/settings/payment"
+            className="flex items-center justify-between px-6 py-4 transition hover:bg-white/[0.03] group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600/20">
+                <CreditCard className="h-4 w-4 text-emerald-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-200">Configurações de Pagamento</p>
+                <p className="text-xs text-gray-500">Integração com a API Asaas (Sandbox / Produção)</p>
+              </div>
+            </div>
+            <ChevronRight className="h-4 w-4 text-gray-600 group-hover:text-gray-400 transition-colors" />
+          </Link>
         </div>
       </div>
     </div>

@@ -413,3 +413,25 @@ model OverheadCost {
 
   @@index([workspaceId])
 }
+
+// ─────────────────────────────────────────
+// PAYMENT CONFIG (Configurações de Pagamento)
+// ─────────────────────────────────────────
+
+enum PaymentEnv {
+  SANDBOX
+  PRODUCTION
+}
+
+model PaymentConfig {
+  id           String     @id @default(cuid())
+  provider     String     @default("ASAAS")
+  apiKeyEnc    String
+  environment  PaymentEnv @default(SANDBOX)
+  isActive     Boolean    @default(true)
+  lastTestedAt DateTime?
+  lastTestOk   Boolean?
+  lastTestMsg  String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
