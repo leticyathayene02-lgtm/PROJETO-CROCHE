@@ -95,6 +95,9 @@ model Subscription {
   workspaceId          String             @unique
   plan                 Plan               @default(FREE)
   status               SubscriptionStatus @default(ACTIVE)
+  accessStatus         AccessStatus       @default(TRIAL)
+  trialStartAt         DateTime?
+  trialEndAt           DateTime?
   stripeCustomerId     String?
   stripeSubscriptionId String?
   currentPeriodEnd     DateTime?
@@ -106,6 +109,12 @@ model Subscription {
   updatedAt            DateTime           @updatedAt
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+enum AccessStatus {
+  TRIAL
+  ACTIVE
+  BLOCKED
 }
 
 enum Plan {

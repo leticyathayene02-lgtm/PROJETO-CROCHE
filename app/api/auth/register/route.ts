@@ -40,7 +40,15 @@ export async function POST(req: NextRequest) {
         slug: `atelier-${user.id.slice(-8)}`,
         ownerId: user.id,
         members: { create: { userId: user.id, role: "OWNER" } },
-        subscription: { create: { plan: "FREE", status: "ACTIVE" } },
+        subscription: {
+          create: {
+            plan: "FREE",
+            status: "TRIALING",
+            accessStatus: "TRIAL",
+            trialStartAt: new Date(),
+            trialEndAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 dias
+          },
+        },
       },
     });
 

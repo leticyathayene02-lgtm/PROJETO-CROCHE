@@ -207,6 +207,7 @@ export async function processWebhookEvent(event: AsaasWebhookEvent): Promise<voi
         data: {
           plan: "PREMIUM",
           status: "ACTIVE",
+          accessStatus: "ACTIVE",
           lastPaymentAt: now,
           lastAsaasPaymentId: payment.id,
           currentPeriodEnd: periodEnd,
@@ -224,6 +225,7 @@ export async function processWebhookEvent(event: AsaasWebhookEvent): Promise<voi
         where: { workspaceId: record.workspaceId },
         data: {
           status: "PAST_DUE",
+          accessStatus: "BLOCKED",
           lastAsaasPaymentId: payment.id,
         },
       });
@@ -239,6 +241,7 @@ export async function processWebhookEvent(event: AsaasWebhookEvent): Promise<voi
         data: {
           plan: "FREE",
           status: "CANCELED",
+          accessStatus: "BLOCKED",
           lastAsaasPaymentId: payment.id,
         },
       });
