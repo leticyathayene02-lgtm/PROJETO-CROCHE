@@ -29,9 +29,13 @@ export default async function BillingPage({
   const errorMsg = params.error ? decodeURIComponent(params.error) : null;
   const workspaceId = workspace.id;
 
+  const isTrial =
+    subscription?.accessStatus === "TRIAL" &&
+    subscription?.trialEndAt &&
+    new Date() < new Date(subscription.trialEndAt);
+
   const plan =
-    subscription?.plan === "PREMIUM" &&
-    (subscription.status === "ACTIVE" || subscription.status === "TRIALING")
+    subscription?.plan === "PREMIUM" && subscription.status === "ACTIVE"
       ? "PREMIUM"
       : "FREE";
 
@@ -84,16 +88,20 @@ export default async function BillingPage({
               className={
                 plan === "PREMIUM"
                   ? "bg-rose-600 text-white"
-                  : "bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-400"
+                  : isTrial
+                    ? "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400"
+                    : "bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-400"
               }
             >
-              {plan === "PREMIUM" ? "Premium ✨" : "Gratuito"}
+              {plan === "PREMIUM" ? "Premium ✨" : isTrial ? "Trial ativo" : "Gratuito"}
             </Badge>
           </div>
           <CardDescription>
             {plan === "PREMIUM"
               ? `Renovação em ${formatDate(subscription?.currentPeriodEnd)}`
-              : "Acesso limitado. Faça upgrade para recursos ilimitados."}
+              : isTrial
+                ? `Período de teste gratuito — expira em ${formatDate(subscription?.trialEndAt)}`
+                : "Acesso limitado. Faça upgrade para recursos ilimitados."}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

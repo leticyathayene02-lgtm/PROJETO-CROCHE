@@ -5,17 +5,28 @@ import type { AsaasWebhookEvent } from "@/lib/asaas";
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
-  // 1. Validate webhook token
-  const webhookToken = req.headers.get("asaas-webhook-token");
+  // 1. Validate webhook token (REQUIRED in production)
   const expectedToken = process.env.ASAAS_WEBHOOK_TOKEN;
+  const receivedToken =
+    req.headers.get("asaas-access-token") ??
+    req.headers.get("asaas-webhook-token");
 
-  if (expectedToken && webhookToken !== expectedToken) {
+  if (!expectedToken) {
+    console.error("[Asaas Webhook] ASAAS_WEBHOOK_TOKEN not configured!");
+    return NextResponse.json({ ok: false, error: "Webhook not configured" }, { status: 500 });
+  }
+
+  if (receivedToken !== expectedToken) {
     console.warn("[Asaas Webhook] Invalid token received. Ignoring.");
-    // Return 200 anyway so Asaas stops retrying — but log the issue
     return NextResponse.json({ ok: false, error: "Invalid token" }, { status: 200 });
   }
 
-  // 2. Parse event body
+  // 2. Parse event body (limit size to prevent abuse)
+  const contentLength = parseInt(req.headers.get("content-length") ?? "0", 10);
+  if (contentLength > 1_000_000) {
+    return NextResponse.json({ ok: false, error: "Payload too large" }, { status: 413 });
+  }
+
   let event: AsaasWebhookEvent;
   try {
     event = await req.json();
@@ -24,7 +35,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Invalid JSON" }, { status: 200 });
   }
 
-  console.log(`[Asaas Webhook] Received event: ${event?.event}, paymentId: ${event?.payment?.id}`);
+  console.log(`[Asaas Webhook] Received event: ${event?.event}, paymentId: ${event?.payment?.id ?? "n/a"}`);
 
   // 3. Process event — always return 200 to avoid Asaas retries
   try {
@@ -32,7 +43,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[Asaas Webhook] Handler error:", err);
-    // Still return 200 — log the error for debugging but don't trigger retries
     return NextResponse.json({ ok: false, error: "Handler error" }, { status: 200 });
   }
 }

@@ -55,7 +55,7 @@ export async function startSubscription(
 
   if (
     existing?.asaasSubscriptionId &&
-    (existing.status === "ACTIVE" || existing.status === "TRIALING")
+    existing.status === "ACTIVE"
   ) {
     throw new Error("Este workspace já possui uma assinatura ativa.");
   }

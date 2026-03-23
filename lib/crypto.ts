@@ -3,7 +3,10 @@ import { createCipheriv, createDecipheriv, randomBytes, createHash } from 'crypt
 const ALGORITHM = 'aes-256-gcm';
 
 function getKey(): Buffer {
-  const secret = process.env.ENCRYPTION_KEY ?? process.env.DATABASE_URL ?? 'trama-pro-default-key-change-in-prod';
+  const secret = process.env.ENCRYPTION_KEY ?? process.env.DATABASE_URL;
+  if (!secret) {
+    throw new Error("ENCRYPTION_KEY ou DATABASE_URL deve estar configurado");
+  }
   return createHash('sha256').update(secret).digest();
 }
 
