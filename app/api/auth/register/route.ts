@@ -9,28 +9,33 @@ export async function POST(req: NextRequest) {
   try {
     const { name, email, phone, password, otpCode } = await req.json();
 
-    if (!email || !password || !phone || !otpCode) {
-      return NextResponse.json({ error: "Todos os campos são obrigatórios." }, { status: 400 });
+    if (!email || !password) {
+      return NextResponse.json({ error: "E-mail e senha são obrigatórios." }, { status: 400 });
     }
     if (password.length < 6) {
       return NextResponse.json({ error: "A senha deve ter pelo menos 6 caracteres." }, { status: 400 });
     }
 
-    const phoneDigits = phone.replace(/\D/g, "");
+    const phoneDigits = phone ? phone.replace(/\D/g, "") : null;
 
-    // Verify OTP
-    const otp = await prisma.whatsappOtp.findFirst({
-      where: {
-        phone: phoneDigits,
-        code: otpCode,
-        usedAt: null,
-        expiresAt: { gt: new Date() },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    // Verify OTP only if phone was provided
+    if (phoneDigits && otpCode) {
+      const otp = await prisma.whatsappOtp.findFirst({
+        where: {
+          phone: phoneDigits,
+          code: otpCode,
+          usedAt: null,
+          expiresAt: { gt: new Date() },
+        },
+        orderBy: { createdAt: "desc" },
+      });
 
-    if (!otp) {
-      return NextResponse.json({ error: "Código inválido ou expirado." }, { status: 400 });
+      if (!otp) {
+        return NextResponse.json({ error: "Código inválido ou expirado." }, { status: 400 });
+      }
+
+      // Mark OTP as used
+      await prisma.whatsappOtp.update({ where: { id: otp.id }, data: { usedAt: new Date() } });
     }
 
     const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase().trim() } });
@@ -40,14 +45,11 @@ export async function POST(req: NextRequest) {
 
     const passwordHash = await bcrypt.hash(password, 12);
 
-    // Mark OTP as used
-    await prisma.whatsappOtp.update({ where: { id: otp.id }, data: { usedAt: new Date() } });
-
     const user = await prisma.user.create({
       data: {
         name: name?.trim() || null,
         email: email.toLowerCase().trim(),
-        phone: phoneDigits,
+        phone: phoneDigits || null,
         passwordHash,
       },
     });

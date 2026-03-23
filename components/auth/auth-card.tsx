@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 type Tab = "signup" | "signin";
 type SignupStep = "form" | "verify";
@@ -28,9 +29,11 @@ export function AuthCard() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [otpCode, setOtpCode] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const isSignup = tab === "signup";
   const isLoading = isPending || redirecting;
+  const hasPhone = phone.replace(/\D/g, "").length >= 10;
 
   function handleTabChange(t: Tab) {
     setTab(t);
@@ -39,24 +42,47 @@ export function AuthCard() {
     setOtpCode("");
   }
 
-  // ── Step 1: send OTP ──────────────────────────────────
-  function handleSendOtp(e: React.FormEvent) {
+  // ── Step 1: send OTP (if phone) or register directly ──
+  function handleSignupSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
 
-    startTransition(async () => {
-      const res = await fetch("/api/auth/send-register-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, email }),
+    if (hasPhone) {
+      // Has phone → send OTP first
+      startTransition(async () => {
+        const res = await fetch("/api/auth/send-register-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone, email }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error ?? "Ocorreu um erro. Tente novamente.");
+          return;
+        }
+        setSignupStep("verify");
       });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? "Ocorreu um erro. Tente novamente.");
-        return;
-      }
-      setSignupStep("verify");
-    });
+    } else {
+      // No phone → register directly without OTP
+      startTransition(async () => {
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: name.trim() || undefined,
+            email,
+            password,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error ?? "Ocorreu um erro. Tente novamente.");
+          return;
+        }
+        setRedirecting(true);
+        window.location.href = "/app/overview";
+      });
+    }
   }
 
   // ── Step 2: verify OTP + create account ──────────────
@@ -146,7 +172,7 @@ export function AuthCard() {
           {isSignup
             ? signupStep === "form"
               ? "Preencha os dados abaixo para começar ✨"
-              : `Enviamos um código de 6 dígitos para ${phone}`
+              : `Enviamos um código de 6 dígitos para o WhatsApp ${phone}`
             : "Entre com seu e-mail e senha para continuar ✨"}
         </p>
       </div>
@@ -160,7 +186,7 @@ export function AuthCard() {
 
       {/* ── SIGNUP STEP 1: form ── */}
       {isSignup && signupStep === "form" && (
-        <form onSubmit={handleSendOtp} className="space-y-4" noValidate>
+        <form onSubmit={handleSignupSubmit} className="space-y-4" noValidate>
           <div>
             <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Nome <span className="font-normal text-gray-400">(opcional)</span>
@@ -171,19 +197,6 @@ export function AuthCard() {
               placeholder="Seu nome de artesã"
               className={INPUT_CLASS} disabled={isLoading}
             />
-          </div>
-
-          <div>
-            <label htmlFor="phone" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              WhatsApp <span className="text-rose-500">*</span>
-            </label>
-            <input
-              id="phone" type="tel" autoComplete="tel" required
-              value={phone} onChange={(e) => setPhone(e.target.value)}
-              placeholder="(11) 99999-9999"
-              className={INPUT_CLASS} disabled={isLoading}
-            />
-            <p className="mt-1 text-xs text-gray-400">Usado para verificar sua conta e recuperar senha.</p>
           </div>
 
           <div>
@@ -202,12 +215,34 @@ export function AuthCard() {
             <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Senha <span className="text-rose-500">*</span>
             </label>
+            <div className="relative">
+              <input
+                id="password" type={showPassword ? "text" : "password"} autoComplete="new-password" required minLength={6}
+                value={password} onChange={(e) => setPassword(e.target.value)}
+                placeholder="Mínimo 6 caracteres"
+                className={`${INPUT_CLASS} pr-11`} disabled={isLoading}
+              />
+              <button
+                type="button" tabIndex={-1}
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+              >
+                {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="phone" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              WhatsApp <span className="font-normal text-gray-400">(opcional)</span>
+            </label>
             <input
-              id="password" type="password" autoComplete="new-password" required minLength={6}
-              value={password} onChange={(e) => setPassword(e.target.value)}
-              placeholder="Mínimo 6 caracteres"
+              id="phone" type="tel" autoComplete="tel"
+              value={phone} onChange={(e) => setPhone(e.target.value)}
+              placeholder="(11) 99999-9999"
               className={INPUT_CLASS} disabled={isLoading}
             />
+            <p className="mt-1 text-xs text-gray-400">Usado para recuperar senha. Pode adicionar depois.</p>
           </div>
 
           <button
@@ -215,8 +250,8 @@ export function AuthCard() {
             className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-rose-600 to-pink-500 px-4 py-3.5 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isLoading
-              ? <>{SPINNER}<span>Enviando código...</span></>
-              : <><span>Enviar código de verificação 📱</span></>
+              ? <>{SPINNER}<span>{hasPhone ? "Enviando código..." : "Criando conta..."}</span></>
+              : <span>{hasPhone ? "Enviar código de verificação 📱" : "Criar minha conta ✨"}</span>
             }
           </button>
         </form>
@@ -279,12 +314,21 @@ export function AuthCard() {
             <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
               Senha
             </label>
-            <input
-              id="password" type="password" autoComplete="current-password" required
-              value={password} onChange={(e) => setPassword(e.target.value)}
-              placeholder="Sua senha"
-              className={INPUT_CLASS} disabled={isLoading}
-            />
+            <div className="relative">
+              <input
+                id="password" type={showPassword ? "text" : "password"} autoComplete="current-password" required
+                value={password} onChange={(e) => setPassword(e.target.value)}
+                placeholder="Sua senha"
+                className={`${INPUT_CLASS} pr-11`} disabled={isLoading}
+              />
+              <button
+                type="button" tabIndex={-1}
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+              >
+                {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
+              </button>
+            </div>
           </div>
 
           <div className="flex justify-end">
