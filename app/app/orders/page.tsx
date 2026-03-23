@@ -49,7 +49,10 @@ export default async function OrdersPage({
       : filter !== "all"
       ? { paymentStatus: filter as "UNPAID" | "HALF_PAID" | "PAID" }
       : {}),
-    ...(q ? { customerName: { contains: q, mode: "insensitive" } } : {}),
+    ...(q ? { OR: [
+      { customerName: { contains: q, mode: "insensitive" } },
+      { itemDescription: { contains: q, mode: "insensitive" } },
+    ] } : {}),
   };
 
   const orders = await prisma.order.findMany({
@@ -104,7 +107,7 @@ export default async function OrdersPage({
           <input type="hidden" name="filter" value={filter} />
           <input
             name="q" type="search" defaultValue={q}
-            placeholder="Buscar cliente..."
+            placeholder="Buscar cliente ou peça..."
             className="w-full rounded-xl border border-rose-200 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-2 text-sm text-gray-800 dark:text-white outline-none transition placeholder-rose-300 dark:placeholder-gray-500 focus:border-rose-400 dark:focus:border-rose-500 focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-500/20"
           />
         </form>

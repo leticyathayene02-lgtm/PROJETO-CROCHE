@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FinanceChart } from "./finance-chart";
 import { TransactionActions } from "./transaction-actions";
-import { TrendingUp, TrendingDown, DollarSign, Plus, Target, ChevronLeft, ChevronRight } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, Plus, Target, ChevronLeft, ChevronRight, Search } from "lucide-react";
 
 const brl = (value: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
@@ -41,10 +41,10 @@ function monthParamFromDate(d: Date) {
 export default async function FinancePage({
   searchParams,
 }: {
-  searchParams: Promise<{ month?: string }>;
+  searchParams: Promise<{ month?: string; q?: string; cat?: string }>;
 }) {
   const { workspace } = await requireWorkspace();
-  const { month: monthParam } = await searchParams;
+  const { month: monthParam, q, cat } = await searchParams;
 
   const now = new Date();
   const selectedDate = parsedMonthDate(monthParam);
@@ -105,6 +105,29 @@ export default async function FinancePage({
     monthlyGoal?.revenueGoal && monthlyGoal.revenueGoal > 0
       ? Math.min(100, Math.round((totalEntradas / monthlyGoal.revenueGoal) * 100))
       : null;
+
+  // Extract unique categories for filter pills
+  const uniqueCategories = [...new Set(transactions.map((t) => t.category || "Sem categoria"))].sort();
+
+  // Filter transactions for the list only (summary/DRE/chart use full data)
+  const searchLower = q?.toLowerCase();
+  const filteredTransactions = transactions.filter((t) => {
+    if (cat && (t.category || "Sem categoria") !== cat) return false;
+    if (searchLower) {
+      const inCategory = (t.category || "").toLowerCase().includes(searchLower);
+      const inNotes = (t.notes || "").toLowerCase().includes(searchLower);
+      if (!inCategory && !inNotes) return false;
+    }
+    return true;
+  });
+
+  // Helper to build filter URL preserving month param
+  const filterUrl = (params: { q?: string; cat?: string }) => {
+    const parts = [`/app/finance?month=${monthParamFromDate(selectedDate)}`];
+    if (params.q) parts.push(`q=${encodeURIComponent(params.q)}`);
+    if (params.cat) parts.push(`cat=${encodeURIComponent(params.cat)}`);
+    return parts.join("&");
+  };
 
   return (
     <div className="space-y-6">
@@ -246,13 +269,63 @@ export default async function FinancePage({
 
       {/* Transactions List */}
       <Card className="card-3d border-0">
-        <CardHeader>
+        <CardHeader className="space-y-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-base font-semibold text-gray-900 dark:text-white">
               Transações do mês
             </CardTitle>
-            <span className="text-xs text-gray-500 dark:text-gray-400">{transactions.length} registros</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              {filteredTransactions.length === transactions.length
+                ? `${transactions.length} registros`
+                : `${filteredTransactions.length} de ${transactions.length} registros`}
+            </span>
           </div>
+
+          {/* Search + Category Filters */}
+          {transactions.length > 0 && (
+            <div className="space-y-3">
+              <form method="get" action="/app/finance">
+                <input type="hidden" name="month" value={monthParamFromDate(selectedDate)} />
+                {cat && <input type="hidden" name="cat" value={cat} />}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-rose-300 dark:text-gray-500" />
+                  <input
+                    name="q" type="search" defaultValue={q}
+                    placeholder="Buscar por categoria ou notas..."
+                    className="w-full rounded-xl border border-rose-200 dark:border-white/10 bg-white dark:bg-white/5 pl-9 pr-3 py-2 text-sm text-gray-800 dark:text-white outline-none transition placeholder-rose-300 dark:placeholder-gray-500 focus:border-rose-400 dark:focus:border-rose-500 focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-500/20"
+                  />
+                </div>
+              </form>
+
+              {uniqueCategories.length > 1 && (
+                <div className="flex flex-wrap gap-1.5">
+                  <Link
+                    href={filterUrl({ q: q || undefined })}
+                    className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                      !cat
+                        ? "bg-rose-600 text-white"
+                        : "bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                    }`}
+                  >
+                    Todas
+                  </Link>
+                  {uniqueCategories.map((category) => (
+                    <Link
+                      key={category}
+                      href={filterUrl({ q: q || undefined, cat: category })}
+                      className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                        cat === category
+                          ? "bg-rose-600 text-white"
+                          : "bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                      }`}
+                    >
+                      {category}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </CardHeader>
         <CardContent className="p-0">
           {transactions.length === 0 ? (
@@ -262,9 +335,16 @@ export default async function FinancePage({
                 <Link href="/app/finance/new">Adicionar transação</Link>
               </Button>
             </div>
+          ) : filteredTransactions.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center px-6">
+              <p className="text-gray-400 dark:text-gray-500 text-sm">Nenhuma transação encontrada com esses filtros.</p>
+              <Button asChild variant="link" className="mt-2 text-rose-500 dark:text-rose-400">
+                <Link href={`/app/finance?month=${monthParamFromDate(selectedDate)}`}>Limpar filtros</Link>
+              </Button>
+            </div>
           ) : (
             <ul className="divide-y divide-rose-50 dark:divide-white/8">
-              {transactions.map((tx) => (
+              {filteredTransactions.map((tx) => (
                 <li
                   key={tx.id}
                   className="flex items-center justify-between px-6 py-3 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition-colors"

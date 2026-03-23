@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useRef, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { CHANNELS, paymentStatusLabels, productionStatusLabels } from "@/lib/orders/validators";
 
@@ -35,6 +35,16 @@ function todayISO() {
 
 export function OrderForm({ action, customers = [], defaultValues = {}, submitLabel = "Salvar pedido" }: FormProps) {
   const [isPending, startTransition] = useTransition();
+  const customerNameRef = useRef<HTMLInputElement>(null);
+
+  function handleCustomerSelect(e: React.ChangeEvent<HTMLSelectElement>) {
+    const selectedId = e.target.value;
+    if (!selectedId) return; // don't clear — user may be typing a new customer
+    const found = customers.find((c) => c.id === selectedId);
+    if (found && customerNameRef.current) {
+      customerNameRef.current.value = found.name;
+    }
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -72,6 +82,7 @@ export function OrderForm({ action, customers = [], defaultValues = {}, submitLa
             id="customerId" name="customerId"
             defaultValue={defaultValues.customerId ?? ""}
             className={inputCls} disabled={isPending}
+            onChange={handleCustomerSelect}
           >
             <option value="">Selecionar cliente...</option>
             {customers.map((c) => (
@@ -86,6 +97,7 @@ export function OrderForm({ action, customers = [], defaultValues = {}, submitLa
           Nome da cliente <span className="text-rose-500 dark:text-rose-400">*</span>
         </label>
         <input
+          ref={customerNameRef}
           id="customerName" name="customerName" type="text" required
           defaultValue={defaultValues.customerName ?? ""}
           placeholder="Ex: Maria Silva"
