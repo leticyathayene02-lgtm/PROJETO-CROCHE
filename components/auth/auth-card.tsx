@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
 type Tab = "signup" | "signin";
-type SignupStep = "form" | "verify";
 
 const INPUT_CLASS =
   "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all duration-200 focus:border-rose-400 focus:ring-2 focus:ring-rose-200 disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-gray-500 dark:focus:border-rose-500 dark:focus:ring-rose-500/20";
@@ -18,7 +17,6 @@ const SPINNER = (
 
 export function AuthCard() {
   const [tab, setTab] = useState<Tab>("signup");
-  const [signupStep, setSignupStep] = useState<SignupStep>("form");
   const [isPending, startTransition] = useTransition();
   const [redirecting, setRedirecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,65 +26,18 @@ export function AuthCard() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [otpCode, setOtpCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const isSignup = tab === "signup";
   const isLoading = isPending || redirecting;
-  const hasPhone = phone.replace(/\D/g, "").length >= 10;
 
   function handleTabChange(t: Tab) {
     setTab(t);
-    setSignupStep("form");
     setError(null);
-    setOtpCode("");
   }
 
-  // ── Step 1: send OTP (if phone) or register directly ──
+  // ── Signup: register directly ──────────────────────────
   function handleSignupSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-
-    if (hasPhone) {
-      // Has phone → send OTP first
-      startTransition(async () => {
-        const res = await fetch("/api/auth/send-register-otp", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone, email }),
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          setError(data.error ?? "Ocorreu um erro. Tente novamente.");
-          return;
-        }
-        setSignupStep("verify");
-      });
-    } else {
-      // No phone → register directly without OTP
-      startTransition(async () => {
-        const res = await fetch("/api/auth/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: name.trim() || undefined,
-            email,
-            password,
-          }),
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          setError(data.error ?? "Ocorreu um erro. Tente novamente.");
-          return;
-        }
-        setRedirecting(true);
-        window.location.href = "/app/overview";
-      });
-    }
-  }
-
-  // ── Step 2: verify OTP + create account ──────────────
-  function handleRegister(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
 
@@ -97,9 +48,8 @@ export function AuthCard() {
         body: JSON.stringify({
           name: name.trim() || undefined,
           email,
-          phone,
+          phone: phone.trim() || undefined,
           password,
-          otpCode,
         }),
       });
       const data = await res.json();
@@ -162,17 +112,11 @@ export function AuthCard() {
       {/* Header */}
       <div className="mb-6">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-          {isSignup
-            ? signupStep === "form"
-              ? "Crie sua conta no Trama Pro"
-              : "Verifique seu WhatsApp 📱"
-            : "Bem-vinda de volta!"}
+          {isSignup ? "Crie sua conta no Trama Pro" : "Bem-vinda de volta!"}
         </h2>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           {isSignup
-            ? signupStep === "form"
-              ? "Preencha os dados abaixo para começar ✨"
-              : `Enviamos um código de 6 dígitos para o WhatsApp ${phone}`
+            ? "Preencha os dados abaixo para começar ✨"
             : "Entre com seu e-mail e senha para continuar ✨"}
         </p>
       </div>
@@ -184,8 +128,8 @@ export function AuthCard() {
         </div>
       )}
 
-      {/* ── SIGNUP STEP 1: form ── */}
-      {isSignup && signupStep === "form" && (
+      {/* ── SIGNUP ── */}
+      {isSignup && (
         <form onSubmit={handleSignupSubmit} className="space-y-4" noValidate>
           <div>
             <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -250,47 +194,9 @@ export function AuthCard() {
             className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-rose-600 to-pink-500 px-4 py-3.5 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isLoading
-              ? <>{SPINNER}<span>{hasPhone ? "Enviando código..." : "Criando conta..."}</span></>
-              : <span>{hasPhone ? "Enviar código de verificação 📱" : "Criar minha conta ✨"}</span>
-            }
-          </button>
-        </form>
-      )}
-
-      {/* ── SIGNUP STEP 2: verify OTP ── */}
-      {isSignup && signupStep === "verify" && (
-        <form onSubmit={handleRegister} className="space-y-4" noValidate>
-          <div>
-            <label htmlFor="otp" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Código de verificação
-            </label>
-            <input
-              id="otp" type="text" inputMode="numeric" pattern="[0-9]{6}" maxLength={6}
-              required autoFocus
-              value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
-              placeholder="000000"
-              className={`${INPUT_CLASS} text-center text-2xl tracking-[0.5em] font-bold`}
-              disabled={isLoading}
-            />
-          </div>
-
-          <button
-            type="submit" disabled={isLoading || otpCode.length !== 6}
-            className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-rose-600 to-pink-500 px-4 py-3.5 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isLoading
-              ? <>{SPINNER}<span>{redirecting ? "Entrando no painel..." : "Criando sua conta..."}</span></>
+              ? <>{SPINNER}<span>{redirecting ? "Entrando no painel..." : "Criando conta..."}</span></>
               : <span>Criar minha conta ✨</span>
             }
-          </button>
-
-          <button
-            type="button"
-            onClick={() => { setSignupStep("form"); setOtpCode(""); setError(null); }}
-            className="w-full text-center text-sm text-gray-500 hover:text-rose-600 dark:text-gray-400"
-          >
-            ← Voltar e reenviar código
           </button>
         </form>
       )}
