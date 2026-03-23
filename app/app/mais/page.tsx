@@ -8,6 +8,7 @@ import {
   Wrench,
   Settings,
   UserCircle,
+  LifeBuoy,
   ChevronRight,
 } from "lucide-react";
 
@@ -60,6 +61,13 @@ const ITEMS = [
     label: "Perfil",
     desc: "Nome, senha e valor da hora",
     color: "bg-gray-50 dark:bg-white/8 text-gray-600 dark:text-gray-400",
+  },
+  {
+    href: "/app/suporte",
+    icon: LifeBuoy,
+    label: "Suporte",
+    desc: "Dúvidas, problemas ou sugestões",
+    color: "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400",
   },
 ];
 

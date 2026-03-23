@@ -8,6 +8,7 @@ import {
   getSubscriptionPayments,
   type AsaasWebhookEvent,
 } from "@/lib/asaas";
+import { sendPaymentConfirmedEmail } from "@/lib/email";
 
 // ─────────────────────────────────────────
 // Constants
@@ -253,6 +254,20 @@ export async function processWebhookEvent(event: AsaasWebhookEvent): Promise<voi
       console.log(
         `[SubscriptionService] Payment confirmed — workspace ${record.workspaceId} upgraded to PREMIUM. Period ends: ${periodEnd.toISOString()}`
       );
+
+      // Send payment confirmation email (non-blocking)
+      prisma.workspace
+        .findUnique({ where: { id: record.workspaceId }, include: { owner: true } })
+        .then((ws) => {
+          if (ws?.owner?.email) {
+            sendPaymentConfirmedEmail(ws.owner.email, ws.owner.name, {
+              value: payment!.value,
+              periodEnd,
+            }).catch((err) => console.error("[SubscriptionService] Failed to send payment email:", err));
+          }
+        })
+        .catch((err) => console.error("[SubscriptionService] Failed to fetch workspace for email:", err));
+
       break;
     }
 

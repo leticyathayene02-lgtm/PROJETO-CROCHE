@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { createSession, sessionCookieOptions, SESSION_TTL_MS } from "@/lib/session";
+import { sendWelcomeEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -82,6 +83,11 @@ export async function POST(req: NextRequest) {
     // Create session
     const sessionToken = await createSession(user.id);
     const expires = new Date(Date.now() + SESSION_TTL_MS);
+
+    // Send welcome email (non-blocking — don't fail registration if email fails)
+    sendWelcomeEmail(user.email, user.name).catch((err) =>
+      console.error("[register] Failed to send welcome email:", err)
+    );
 
     const response = NextResponse.json({ ok: true }, { status: 201 });
     response.cookies.set(sessionCookieOptions(sessionToken, expires));

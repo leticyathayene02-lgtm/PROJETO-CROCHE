@@ -17,6 +17,7 @@ import {
   Palette,
   Wrench,
   UserCircle,
+  LifeBuoy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +35,7 @@ const navItems = [
   { href: "/app/overhead", label: "Custos Fixos", icon: Wrench },
   { href: "/app/settings/billing", label: "Assinatura", icon: Settings },
   { href: "/app/settings/profile", label: "Perfil", icon: UserCircle },
+  { href: "/app/suporte", label: "Suporte", icon: LifeBuoy },
 ];
 
 interface SidebarProps {

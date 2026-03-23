@@ -50,3 +50,5 @@ next-env.d.ts
 
 # Embedded PostgreSQL data directory
 data/
+
+.vercel
