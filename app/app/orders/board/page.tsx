@@ -55,13 +55,13 @@ export default async function OrderBoardPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/app/orders" className="text-sm text-gray-700 dark:text-gray-300 hover:underline">
+          <Link href="/app/orders" className="text-sm text-gray-700 dark:text-gray-300 hover:underline shrink-0">
             <ChevronLeft className="inline h-4 w-4" /> Lista
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Quadro de Produção</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">Quadro de Produção</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {orders.length} pedido{orders.length !== 1 ? "s" : ""} no total
             </p>
@@ -69,21 +69,21 @@ export default async function OrderBoardPage() {
         </div>
         <Link
           href="/app/orders/new"
-          className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-rose-700"
+          className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-rose-700 self-start sm:self-auto"
         >
           <Plus className="h-4 w-4" />
           Nova encomenda
         </Link>
       </div>
 
-      {/* Board */}
-      <div className="flex gap-4 overflow-x-auto pb-4">
+      {/* Board — horizontal scroll com snap no mobile, flex normal no desktop */}
+      <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory sm:snap-none -mx-4 px-4 sm:mx-0 sm:px-0">
         {COLUMNS.map((col) => {
           const colOrders = byStatus[col.key];
           return (
             <div
               key={col.key}
-              className={`flex w-72 shrink-0 flex-col rounded-2xl border p-3 ${col.color}`}
+              className={`flex w-[85vw] max-w-xs shrink-0 snap-center flex-col rounded-2xl border p-3 sm:w-72 sm:max-w-none ${col.color}`}
             >
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">{col.label}</h2>

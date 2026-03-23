@@ -64,7 +64,7 @@ export default async function ProductsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
             Produtos
@@ -73,7 +73,7 @@ export default async function ProductsPage() {
             Catálogo de peças e coleções do seu ateliê
           </p>
         </div>
-        <Button asChild className="bg-rose-600 hover:bg-rose-700 text-white shrink-0">
+        <Button asChild className="bg-rose-600 hover:bg-rose-700 text-white self-start sm:self-auto">
           <Link href="/app/products/new">
             <Plus className="mr-2 h-4 w-4" />
             Novo produto

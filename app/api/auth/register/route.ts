@@ -7,26 +7,47 @@ import { createSession, sessionCookieOptions, SESSION_TTL_MS } from "@/lib/sessi
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password } = await req.json();
+    const { name, email, phone, password, otpCode } = await req.json();
 
-    if (!email || !password) {
-      return NextResponse.json({ error: "E-mail e senha são obrigatórios." }, { status: 400 });
+    if (!email || !password || !phone || !otpCode) {
+      return NextResponse.json({ error: "Todos os campos são obrigatórios." }, { status: 400 });
     }
     if (password.length < 6) {
       return NextResponse.json({ error: "A senha deve ter pelo menos 6 caracteres." }, { status: 400 });
     }
 
-    const existing = await prisma.user.findUnique({ where: { email } });
+    const phoneDigits = phone.replace(/\D/g, "");
+
+    // Verify OTP
+    const otp = await prisma.whatsappOtp.findFirst({
+      where: {
+        phone: phoneDigits,
+        code: otpCode,
+        usedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (!otp) {
+      return NextResponse.json({ error: "Código inválido ou expirado." }, { status: 400 });
+    }
+
+    const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase().trim() } });
     if (existing) {
       return NextResponse.json({ error: "Este e-mail já está cadastrado." }, { status: 409 });
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
 
+    // Mark OTP as used
+    await prisma.whatsappOtp.update({ where: { id: otp.id }, data: { usedAt: new Date() } });
+
     const user = await prisma.user.create({
       data: {
         name: name?.trim() || null,
         email: email.toLowerCase().trim(),
+        phone: phoneDigits,
         passwordHash,
       },
     });

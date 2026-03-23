@@ -15,6 +15,8 @@ import {
   ClipboardList,
   Users,
   Palette,
+  Wrench,
+  UserCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,7 +31,9 @@ const navItems = [
   { href: "/app/orders", label: "Pedidos", icon: ClipboardList },
   { href: "/app/finance", label: "Financeiro", icon: TrendingUp },
   { href: "/app/inventory", label: "Estoque", icon: Archive },
+  { href: "/app/overhead", label: "Custos Fixos", icon: Wrench },
   { href: "/app/settings/billing", label: "Assinatura", icon: Settings },
+  { href: "/app/settings/profile", label: "Perfil", icon: UserCircle },
 ];
 
 interface SidebarProps {

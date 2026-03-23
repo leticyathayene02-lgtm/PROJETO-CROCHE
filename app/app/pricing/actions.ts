@@ -41,6 +41,17 @@ export async function getWorkspaceMaterials(): Promise<CatalogMaterial[]> {
   return materials;
 }
 
+// ─── Buscar valor da hora padrão do workspace ───────────────────────
+
+export async function getDefaultHourlyRate(): Promise<number> {
+  try {
+    const { workspace } = await requireWorkspace();
+    return workspace.defaultHourlyRate ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
 // ─── Criar cálculo de precificação ──────────────────────────────────
 
 export async function createPricingCalculation(

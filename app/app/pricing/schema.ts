@@ -33,6 +33,9 @@ export const pricingSchema = z.object({
   profitMode: z.enum(["percent", "fixed"]),
   margemPercent: z.number().min(0).max(500),
   lucroFixo: z.number().min(0),
+
+  // Frete
+  frete: z.number().min(0).optional(),
 });
 
 export type PricingFormValues = z.infer<typeof pricingSchema>;

@@ -38,7 +38,8 @@ export interface AsaasPayment {
 
 export interface AsaasWebhookEvent {
   event: string;
-  payment: AsaasPayment;
+  payment?: AsaasPayment;
+  subscription?: { id: string; status: string };
 }
 
 // ─────────────────────────────────────────
@@ -65,7 +66,7 @@ async function getConfig(): Promise<{ apiKey: string; baseUrl: string }> {
 
   const baseUrl =
     config.environment === "PRODUCTION"
-      ? "https://api.asaas.com/api/v3"
+      ? "https://api.asaas.com/v3"
       : "https://sandbox.asaas.com/api/v3";
 
   return { apiKey, baseUrl };

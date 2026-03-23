@@ -4,7 +4,7 @@ import { requireWorkspace } from "@/lib/workspace";
 import { prisma } from "@/lib/prisma";
 import { CustomerForm } from "@/components/customers/CustomerForm";
 import { updateCustomer, deleteCustomer } from "@/lib/customers/actions";
-import { ChevronLeft, Instagram, Phone, MapPin, ShoppingBag } from "lucide-react";
+import { ChevronLeft, Instagram, Phone, MapPin, ShoppingBag, MessageCircle } from "lucide-react";
 
 function formatCurrency(n: number) {
   return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -74,11 +74,24 @@ export default async function CustomerDetailPage({
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{customer.name}</h1>
-            <div className="flex flex-wrap gap-x-3 text-xs text-gray-400">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-400">
               {customer.instagram && <span className="flex items-center gap-1"><Instagram className="h-3 w-3" /> {customer.instagram}</span>}
-              {customer.whatsapp && <span className="flex items-center gap-1"><Phone className="h-3 w-3" /> {customer.whatsapp}</span>}
+              {customer.whatsapp && (
+                <span className="flex items-center gap-1"><Phone className="h-3 w-3" /> {customer.whatsapp}</span>
+              )}
               {customer.city && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> {customer.city}</span>}
             </div>
+            {customer.whatsapp && (
+              <a
+                href={`https://wa.me/55${customer.whatsapp.replace(/\D/g, "")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-green-500 hover:bg-green-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors"
+              >
+                <MessageCircle className="h-3.5 w-3.5" />
+                Abrir no WhatsApp
+              </a>
+            )}
           </div>
         </div>
       </div>

@@ -15,7 +15,7 @@ export default async function MaterialsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-heading text-2xl font-bold text-gray-900 dark:text-white">
             Catálogo de Materiais
@@ -24,7 +24,7 @@ export default async function MaterialsPage() {
             Cadastre insumos uma vez e use na precificação
           </p>
         </div>
-        <Button asChild className="bg-rose-600 hover:bg-rose-700">
+        <Button asChild className="bg-rose-600 hover:bg-rose-700 self-start sm:self-auto">
           <Link href="/app/materials/new">
             <Plus className="mr-2 h-4 w-4" />
             Novo material

@@ -25,7 +25,7 @@ export default async function InventoryPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
             Estoque
@@ -34,7 +34,7 @@ export default async function InventoryPage() {
             Peças prontas disponíveis para venda
           </p>
         </div>
-        <Button asChild className="bg-rose-600 hover:bg-rose-700 text-white shrink-0">
+        <Button asChild className="bg-rose-600 hover:bg-rose-700 text-white self-start sm:self-auto">
           <Link href="/app/inventory/new">
             <Plus className="mr-2 h-4 w-4" />
             Adicionar peça

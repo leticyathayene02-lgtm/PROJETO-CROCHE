@@ -30,6 +30,7 @@ import {
 import {
   createPricingCalculation,
   getWorkspaceMaterials,
+  getDefaultHourlyRate,
   type CatalogMaterial,
 } from "../actions";
 import {
@@ -196,7 +197,14 @@ export default function NewPricingPage() {
       .then(setCatalogMaterials)
       .catch(() => toast.error("Erro ao carregar materiais"))
       .finally(() => setLoadingMaterials(false));
-  }, []);
+
+    // Pre-fill hourly rate from workspace profile (only if not already set via prefill)
+    if (!prefill?.valorHora) {
+      getDefaultHourlyRate().then((rate) => {
+        if (rate > 0) setValorHora(rate);
+      });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Prefill from query params (used by "Usar novamente")
   const prefill = useMemo(() => {
@@ -225,6 +233,10 @@ export default function NewPricingPage() {
   const [profitMode, setProfitMode] = useState<ProfitMode>(prefill?.profitMode ?? "percent");
   const [margemPercent, setMargemPercent] = useState<number>(prefill?.margemPercent ?? 30);
   const [lucroFixo, setLucroFixo] = useState<number>(prefill?.lucroFixo ?? 0);
+
+  // Frete / Envio
+  const [includeFrete, setIncludeFrete] = useState<boolean>(!!(prefill?.frete > 0));
+  const [frete, setFrete] = useState<number>(prefill?.frete ?? 0);
 
   // Material selector state
   const [showSelector, setShowSelector] = useState(false);
@@ -285,10 +297,11 @@ export default function NewPricingPage() {
       profitMode,
       margemPercent,
       lucroFixo,
+      frete: includeFrete ? frete : 0,
       name,
       selectedMaterials,
     }),
-    [material, complementaresTotal, horas, valorHora, taxaCartao, impostoMarketplace, profitMode, margemPercent, lucroFixo, name, selectedMaterials]
+    [material, complementaresTotal, horas, valorHora, taxaCartao, impostoMarketplace, profitMode, margemPercent, lucroFixo, frete, includeFrete, name, selectedMaterials]
   );
 
   const totals = useMemo(() => computePricingTotals(inputs), [inputs]);
@@ -308,6 +321,7 @@ export default function NewPricingPage() {
       profitMode,
       margemPercent,
       lucroFixo,
+      frete: includeFrete ? frete : 0,
     });
     setSaving(false);
 
@@ -317,6 +331,43 @@ export default function NewPricingPage() {
     }
     toast.success("Cálculo salvo com sucesso!");
     router.push("/app/pricing");
+  }
+
+  // Gate: no materials registered yet
+  if (!loadingMaterials && catalogMaterials.length === 0) {
+    return (
+      <div className="mx-auto max-w-xl space-y-5 pb-24">
+        <div>
+          <Link
+            href="/app/pricing"
+            className="mb-3 inline-flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Voltar ao histórico
+          </Link>
+        </div>
+        <div className="rounded-3xl border border-rose-100 dark:border-rose-800/30 bg-white dark:bg-[oklch(0.18_0.01_280)] p-8 text-center shadow-sm">
+          <div className="mb-4 flex justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-900/40">
+              <Package className="h-8 w-8 text-rose-500 dark:text-rose-400" />
+            </div>
+          </div>
+          <h2 className="mb-2 text-lg font-bold text-gray-900 dark:text-white">
+            Cadastre pelo menos 1 material primeiro
+          </h2>
+          <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
+            Para usar a calculadora, você precisa ter pelo menos um material cadastrado no seu catálogo (fios, olhos, enchimento, etc.).
+          </p>
+          <Link
+            href="/app/materials/new"
+            className="inline-flex items-center gap-2 rounded-xl bg-rose-600 hover:bg-rose-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            Cadastrar primeiro material
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -640,6 +691,49 @@ export default function NewPricingPage() {
         </CardContent>
       </Card>
 
+      {/* ── Card: Frete / Envio ───────────────────────────────────────── */}
+      <Card className="border-rose-100 dark:border-rose-800/30">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base text-gray-900 dark:text-white">
+              📦 Frete / Envio
+            </CardTitle>
+            <button
+              type="button"
+              onClick={() => setIncludeFrete((v) => !v)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                includeFrete ? "bg-rose-500" : "bg-gray-200 dark:bg-gray-700"
+              }`}
+              aria-label="Incluir frete"
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                  includeFrete ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
+          </div>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Custo de entrega cobrado do cliente. É adicionado ao preço final sem alterar o markup.
+          </p>
+        </CardHeader>
+        {includeFrete && (
+          <CardContent>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-900 dark:text-white">
+                Valor do frete (R$)
+              </label>
+              <NumInput value={frete} onChange={setFrete} placeholder="15,00" />
+              {frete > 0 && (
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Será somado direto ao preço final (PIX e Cartão)
+                </p>
+              )}
+            </div>
+          </CardContent>
+        )}
+      </Card>
+
       {/* ── Alerts ────────────────────────────────────────────────────── */}
       {alerts.length > 0 && (
         <div className="space-y-2">
@@ -671,8 +765,13 @@ export default function NewPricingPage() {
               <div>
                 <p className="text-xs text-emerald-200">Preço sugerido</p>
                 <p className="font-heading text-3xl font-extrabold tracking-tight">
-                  {brl(totals.precoPix)}
+                  {brl(totals.frete > 0 ? totals.precoPixComFrete : totals.precoPix)}
                 </p>
+                {totals.frete > 0 && (
+                  <p className="text-xs text-emerald-300 mt-0.5">
+                    sem frete: {brl(totals.precoPix)} + frete {brl(totals.frete)}
+                  </p>
+                )}
               </div>
               <div className="text-right">
                 <p className="text-xs text-emerald-200">Lucro líquido</p>
@@ -703,8 +802,13 @@ export default function NewPricingPage() {
                 <div>
                   <p className="text-xs text-blue-200">Preço sugerido</p>
                   <p className="font-heading text-3xl font-extrabold tracking-tight">
-                    {brl(totals.precoCartao)}
+                    {brl(totals.frete > 0 ? totals.precoCartaoComFrete : totals.precoCartao)}
                   </p>
+                  {totals.frete > 0 && (
+                    <p className="text-xs text-blue-300 mt-0.5">
+                      sem frete: {brl(totals.precoCartao)} + frete {brl(totals.frete)}
+                    </p>
+                  )}
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-blue-200">Lucro líquido</p>
@@ -761,9 +865,21 @@ export default function NewPricingPage() {
             <Row label="Custo base" value={totals.custoBase} bold />
             <Row label="Lucro alvo" value={totals.lucroAlvo} />
             <div className="my-1.5 border-t border-rose-100 dark:border-rose-800/30" />
-            <Row label="Preço PIX" value={totals.precoPix} bold accent />
+            {totals.frete > 0 && <Row label="Frete / Envio" value={totals.frete} />}
+            <div className="my-1.5 border-t border-rose-100 dark:border-rose-800/30" />
+            <Row
+              label={totals.frete > 0 ? "Preço PIX (com frete)" : "Preço PIX"}
+              value={totals.frete > 0 ? totals.precoPixComFrete : totals.precoPix}
+              bold
+              accent
+            />
             {!totals.taxaError && (
-              <Row label="Preço Cartão" value={totals.precoCartao} bold accent />
+              <Row
+                label={totals.frete > 0 ? "Preço Cartão (com frete)" : "Preço Cartão"}
+                value={totals.frete > 0 ? totals.precoCartaoComFrete : totals.precoCartao}
+                bold
+                accent
+              />
             )}
           </div>
         </CardContent>

@@ -17,6 +17,7 @@ model User {
   id           String   @id @default(cuid())
   name         String?
   email        String   @unique
+  phone        String?  @unique
   passwordHash String
   image        String?
   createdAt    DateTime @default(now())
@@ -37,17 +38,40 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  email     String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
+
+model WhatsappOtp {
+  id        String    @id @default(cuid())
+  phone     String
+  code      String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([phone])
+}
+
 // ─────────────────────────────────────────
 // WORKSPACE (ATELIER) — MULTI-TENANT
 // ─────────────────────────────────────────
 
 model Workspace {
-  id        String   @id @default(cuid())
-  name      String
-  slug      String   @unique
-  ownerId   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               String   @id @default(cuid())
+  name             String
+  slug             String   @unique
+  ownerId          String
+  defaultHourlyRate Float   @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   owner   User              @relation("WorkspaceOwner", fields: [ownerId], references: [id])
   members WorkspaceMember[]
@@ -98,8 +122,6 @@ model Subscription {
   accessStatus         AccessStatus       @default(TRIAL)
   trialStartAt         DateTime?
   trialEndAt           DateTime?
-  stripeCustomerId     String?
-  stripeSubscriptionId String?
   currentPeriodEnd     DateTime?
   asaasCustomerId      String?
   asaasSubscriptionId  String?

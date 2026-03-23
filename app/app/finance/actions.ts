@@ -72,6 +72,48 @@ export async function createTransaction(
 }
 
 // ─────────────────────────────────────────
+// Update Transaction
+// ─────────────────────────────────────────
+
+export async function updateTransaction(
+  id: string,
+  values: TransactionFormValues
+): Promise<{ success: boolean; error?: string }> {
+  const parsed = transactionSchema.safeParse(values);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos" };
+  }
+
+  let workspace: Awaited<ReturnType<typeof requireWorkspace>>["workspace"];
+  try {
+    const session = await requireWorkspace();
+    workspace = session.workspace;
+  } catch {
+    return { success: false, error: "Não autenticado" };
+  }
+
+  const { type, category, amount, date, notes } = parsed.data;
+
+  try {
+    await prisma.transaction.updateMany({
+      where: { id, workspaceId: workspace.id },
+      data: {
+        type,
+        category: category.trim(),
+        amount,
+        date: new Date(date),
+        notes: notes?.trim() || null,
+      },
+    });
+
+    revalidatePath("/app/finance");
+    return { success: true };
+  } catch {
+    return { success: false, error: "Erro ao atualizar transação." };
+  }
+}
+
+// ─────────────────────────────────────────
 // Delete Transaction
 // ─────────────────────────────────────────
 

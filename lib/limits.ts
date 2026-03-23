@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { Plan } from "@prisma/client";
+import { isSuperAdmin } from "@/lib/admin";
 
 // ─────────────────────────────────────────
 // Plan limits definition
@@ -40,6 +41,13 @@ async function getOrCreateUsageCounter(workspaceId: string, monthYYYYMM: string)
 // Get workspace plan
 // ─────────────────────────────────────────
 async function getWorkspacePlan(workspaceId: string): Promise<Plan> {
+  // Check if workspace belongs to a super admin
+  const member = await prisma.workspaceMember.findFirst({
+    where: { workspaceId },
+    include: { user: { select: { email: true } } },
+  });
+  if (member && isSuperAdmin(member.user.email)) return "PREMIUM";
+
   const subscription = await prisma.subscription.findUnique({
     where: { workspaceId },
     select: { plan: true, status: true },

@@ -1,6 +1,7 @@
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { isSuperAdmin } from "@/lib/admin";
 
 /**
  * Get the current user's active workspace.
@@ -30,10 +31,22 @@ export async function requireWorkspace() {
     redirect("/login");
   }
 
+  // Super admins always get PREMIUM regardless of subscription status
+  const rawSubscription = member.workspace.subscription;
+  const subscription = isSuperAdmin(session.user.email)
+    ? {
+        ...(rawSubscription ?? {}),
+        workspaceId: member.workspace.id,
+        plan: "PREMIUM" as const,
+        status: "ACTIVE" as const,
+        accessStatus: "ACTIVE" as const,
+      }
+    : rawSubscription;
+
   return {
     user: session.user,
     workspace: member.workspace,
-    subscription: member.workspace.subscription,
+    subscription,
     role: member.role,
   };
 }

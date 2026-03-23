@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FinanceChart } from "./finance-chart";
-import { TrendingUp, TrendingDown, DollarSign, Plus, Target } from "lucide-react";
+import { TransactionActions } from "./transaction-actions";
+import { TrendingUp, TrendingDown, DollarSign, Plus, Target, ChevronLeft, ChevronRight } from "lucide-react";
 
 const brl = (value: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
@@ -24,14 +25,40 @@ function getMonthLabel(date: Date) {
   return date.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" });
 }
 
-export default async function FinancePage() {
+function parsedMonthDate(monthParam: string | undefined): Date {
+  if (monthParam && /^\d{6}$/.test(monthParam)) {
+    const y = parseInt(monthParam.slice(0, 4));
+    const m = parseInt(monthParam.slice(4, 6)) - 1;
+    if (!isNaN(y) && m >= 0 && m <= 11) return new Date(y, m, 1);
+  }
+  return new Date();
+}
+
+function monthParamFromDate(d: Date) {
+  return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+export default async function FinancePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>;
+}) {
   const { workspace } = await requireWorkspace();
+  const { month: monthParam } = await searchParams;
 
   const now = new Date();
-  const { start: monthStart, end: monthEnd } = getMonthRange(now);
-  const monthKey = getMonthKey(now);
+  const selectedDate = parsedMonthDate(monthParam);
+  const { start: monthStart, end: monthEnd } = getMonthRange(selectedDate);
+  const monthKey = getMonthKey(selectedDate);
 
-  // Current month transactions
+  // Prev / next month links
+  const prevMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1, 1);
+  const nextMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 1);
+  const isCurrentMonth = getMonthKey(selectedDate) === getMonthKey(now);
+  const prevParam = monthParamFromDate(prevMonth);
+  const nextParam = monthParamFromDate(nextMonth);
+
+  // Selected month transactions
   const transactions = await prisma.transaction.findMany({
     where: {
       workspaceId: workspace.id,
@@ -43,13 +70,6 @@ export default async function FinancePage() {
   // Current month goal
   const monthlyGoal = await prisma.monthlyGoal.findUnique({
     where: { workspaceId_monthYYYYMM: { workspaceId: workspace.id, monthYYYYMM: monthKey } },
-  });
-
-  // Recent 10 transactions (all time) for the list
-  const recentTransactions = await prisma.transaction.findMany({
-    where: { workspaceId: workspace.id },
-    orderBy: { date: "desc" },
-    take: 10,
   });
 
   // Past 6 months summary for chart
@@ -89,14 +109,31 @@ export default async function FinancePage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Financeiro</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-            {now.toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}
-          </p>
+          <div className="flex items-center gap-1 mt-0.5">
+            <Link href={`/app/finance?month=${prevParam}`} className="rounded-lg p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+              <ChevronLeft className="h-4 w-4" />
+            </Link>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 capitalize min-w-[120px] text-center">
+              {selectedDate.toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}
+            </span>
+            {!isCurrentMonth ? (
+              <Link href={`/app/finance?month=${nextParam}`} className="rounded-lg p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            ) : (
+              <span className="w-7" />
+            )}
+            {!isCurrentMonth && (
+              <Link href="/app/finance" className="text-xs text-rose-500 hover:text-rose-600 dark:text-rose-400 ml-0.5">
+                hoje
+              </Link>
+            )}
+          </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button asChild variant="outline" size="sm" className="border-rose-200 dark:border-rose-800/40 text-gray-900 dark:text-gray-300 hover:bg-rose-50 dark:hover:bg-rose-950/30">
             <Link href="/app/finance/goals">
               <Target className="h-4 w-4 mr-1.5" />
@@ -186,7 +223,7 @@ export default async function FinancePage() {
         <Card className="card-3d border-0">
           <CardHeader>
             <CardTitle className="text-base font-semibold text-gray-900 dark:text-white">
-              DRE Simplificado — {now.toLocaleDateString("pt-BR", { month: "long" })}
+              DRE Simplificado — {selectedDate.toLocaleDateString("pt-BR", { month: "long" })}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -207,32 +244,32 @@ export default async function FinancePage() {
         </CardContent>
       </Card>
 
-      {/* Recent Transactions */}
+      {/* Transactions List */}
       <Card className="card-3d border-0">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-base font-semibold text-gray-900 dark:text-white">
-              Transações recentes
+              Transações do mês
             </CardTitle>
-            <span className="text-xs text-gray-500 dark:text-gray-400">{recentTransactions.length} registros</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">{transactions.length} registros</span>
           </div>
         </CardHeader>
         <CardContent className="p-0">
-          {recentTransactions.length === 0 ? (
+          {transactions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center px-6">
-              <p className="text-gray-400 dark:text-gray-500 text-sm">Nenhuma transação registrada ainda.</p>
+              <p className="text-gray-400 dark:text-gray-500 text-sm">Nenhuma transação neste mês.</p>
               <Button asChild variant="link" className="mt-2 text-gray-500 dark:text-gray-400">
-                <Link href="/app/finance/new">Adicionar primeira transação</Link>
+                <Link href="/app/finance/new">Adicionar transação</Link>
               </Button>
             </div>
           ) : (
             <ul className="divide-y divide-rose-50 dark:divide-white/8">
-              {recentTransactions.map((tx) => (
+              {transactions.map((tx) => (
                 <li
                   key={tx.id}
                   className="flex items-center justify-between px-6 py-3 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 transition-colors"
                 >
-                  <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     <Badge
                       className={
                         tx.type === "IN"
@@ -242,19 +279,23 @@ export default async function FinancePage() {
                     >
                       {tx.type === "IN" ? "Entrada" : "Saída"}
                     </Badge>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-slate-700 dark:text-gray-300 truncate">{tx.category}</p>
+                      {tx.notes && <p className="text-xs text-slate-400 dark:text-gray-500 truncate">{tx.notes}</p>}
                       <p className="text-xs text-slate-400 dark:text-gray-500">
                         {new Date(tx.date).toLocaleDateString("pt-BR")}
                       </p>
                     </div>
                   </div>
-                  <span
-                    className={`text-sm font-semibold shrink-0 ml-4 ${tx.type === "IN" ? "text-emerald-600 dark:text-emerald-400" : "text-gray-700 dark:text-gray-300"}`}
-                  >
-                    {tx.type === "IN" ? "+" : "-"}
-                    {brl(tx.amount)}
-                  </span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span
+                      className={`text-sm font-semibold ${tx.type === "IN" ? "text-emerald-600 dark:text-emerald-400" : "text-gray-700 dark:text-gray-300"}`}
+                    >
+                      {tx.type === "IN" ? "+" : "-"}
+                      {brl(tx.amount)}
+                    </span>
+                    <TransactionActions id={tx.id} />
+                  </div>
                 </li>
               ))}
             </ul>

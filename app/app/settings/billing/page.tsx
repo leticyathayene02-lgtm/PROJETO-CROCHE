@@ -11,7 +11,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { redirect } from "next/navigation";
+import { subscribeAction, cancelSubscriptionAction } from "./billing-actions";
+
 
 function formatDate(date: Date | null | undefined) {
   if (!date) return "—";
@@ -21,10 +22,11 @@ function formatDate(date: Date | null | undefined) {
 export default async function BillingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ success?: string; canceled?: string }>;
+  searchParams: Promise<{ success?: string; canceled?: string; error?: string }>;
 }) {
   const { workspace, subscription } = await requireWorkspace();
   const params = await searchParams;
+  const errorMsg = params.error ? decodeURIComponent(params.error) : null;
   const workspaceId = workspace.id;
 
   const plan =
@@ -61,7 +63,14 @@ export default async function BillingPage({
       {params.canceled && (
         <Card className="border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-900/40">
           <CardContent className="py-3 text-sm text-amber-800 dark:text-amber-400">
-            Checkout cancelado. Você continua no plano gratuito.
+            Assinatura cancelada. Você continua no plano gratuito.
+          </CardContent>
+        </Card>
+      )}
+      {errorMsg && (
+        <Card className="border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-950/20">
+          <CardContent className="py-3 text-sm text-red-700 dark:text-red-400">
+            ⚠️ {errorMsg}
           </CardContent>
         </Card>
       )}
@@ -110,20 +119,7 @@ export default async function BillingPage({
           {/* Actions */}
           <div className="pt-2 space-y-2">
             {plan === "FREE" ? (
-              <form
-                action={async () => {
-                  "use server";
-                  const { workspace: ws, user } = await import("@/lib/workspace").then((m) =>
-                    m.requireWorkspace()
-                  );
-                  const { startSubscription } = await import("@/lib/subscription-service");
-                  const result = await startSubscription(ws.id, {
-                    name: user.name,
-                    email: user.email,
-                  });
-                  redirect(result.paymentUrl);
-                }}
-              >
+              <form action={subscribeAction}>
                 <Button
                   type="submit"
                   className="w-full bg-rose-600 hover:bg-rose-700"
@@ -132,17 +128,7 @@ export default async function BillingPage({
                 </Button>
               </form>
             ) : (
-              <form
-                action={async () => {
-                  "use server";
-                  const { cancelSubscription } = await import("@/lib/subscription-service");
-                  const { workspace: ws } = await import("@/lib/workspace").then((m) =>
-                    m.requireWorkspace()
-                  );
-                  await cancelSubscription(ws.id);
-                  redirect("/app/settings/billing?canceled=1");
-                }}
-              >
+              <form action={cancelSubscriptionAction}>
                 <Button type="submit" variant="outline" className="w-full text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950/20">
                   Cancelar assinatura
                 </Button>

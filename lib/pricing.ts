@@ -43,6 +43,9 @@ export interface PricingInputs {
   margemPercent: number;  // usado quando profitMode = "percent"
   lucroFixo: number;      // usado quando profitMode = "fixed"
 
+  // Frete / Envio (passa direto, não entra no markup)
+  frete?: number;
+
   // Meta (nome opcional)
   name?: string;
 }
@@ -68,6 +71,11 @@ export interface PricingTotals {
   lucroLiquidoCartao: number;
   lucroPercentCartao: number;
   breakevenCartao: number;
+
+  // Frete / Envio (adicionado ao preço final, não ao markup)
+  frete: number;
+  precoPixComFrete: number;
+  precoCartaoComFrete: number;
 
   // Erro de taxa alta
   taxaError: string | null;
@@ -151,6 +159,11 @@ export function computePricingTotals(data: PricingInputs): PricingTotals {
     ? 0
     : round2(custoBase / (1 - taxaTotal));
 
+  // --- Frete (passa direto, adicionado ao preço final sem markup) ---
+  const frete = round2(data.frete ?? 0);
+  const precoPixComFrete = round2(precoPix + frete);
+  const precoCartaoComFrete = taxaTotal >= 0.99 ? 0 : round2(precoCartao + frete);
+
   return {
     materialTotal,
     maoObra,
@@ -165,6 +178,9 @@ export function computePricingTotals(data: PricingInputs): PricingTotals {
     lucroLiquidoCartao,
     lucroPercentCartao,
     breakevenCartao,
+    frete,
+    precoPixComFrete,
+    precoCartaoComFrete,
     taxaError,
     // Legacy compat
     suggestedPrice: precoPix,

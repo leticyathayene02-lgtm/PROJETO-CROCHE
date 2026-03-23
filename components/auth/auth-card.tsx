@@ -3,6 +3,10 @@
 import { useState, useTransition } from "react";
 
 type Tab = "signup" | "signin";
+type SignupStep = "form" | "verify";
+
+const INPUT_CLASS =
+  "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all duration-200 focus:border-rose-400 focus:ring-2 focus:ring-rose-200 disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-gray-500 dark:focus:border-rose-500 dark:focus:ring-rose-500/20";
 
 const SPINNER = (
   <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -13,45 +17,91 @@ const SPINNER = (
 
 export function AuthCard() {
   const [tab, setTab] = useState<Tab>("signup");
+  const [signupStep, setSignupStep] = useState<SignupStep>("form");
   const [isPending, startTransition] = useTransition();
   const [redirecting, setRedirecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Form fields
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [otpCode, setOtpCode] = useState("");
 
   const isSignup = tab === "signup";
   const isLoading = isPending || redirecting;
 
   function handleTabChange(t: Tab) {
     setTab(t);
+    setSignupStep("form");
     setError(null);
+    setOtpCode("");
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  // ── Step 1: send OTP ──────────────────────────────────
+  function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
 
     startTransition(async () => {
-      const endpoint = isSignup ? "/api/auth/register" : "/api/auth/login";
-      const body = isSignup
-        ? { name: name.trim() || undefined, email, password }
-        : { email, password };
-
-      const res = await fetch(endpoint, {
+      const res = await fetch("/api/auth/send-register-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ phone, email }),
       });
-
       const data = await res.json();
-
       if (!res.ok) {
         setError(data.error ?? "Ocorreu um erro. Tente novamente.");
         return;
       }
+      setSignupStep("verify");
+    });
+  }
 
+  // ── Step 2: verify OTP + create account ──────────────
+  function handleRegister(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+
+    startTransition(async () => {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim() || undefined,
+          email,
+          phone,
+          password,
+          otpCode,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Ocorreu um erro. Tente novamente.");
+        return;
+      }
+      setRedirecting(true);
+      window.location.href = "/app/overview";
+    });
+  }
+
+  // ── Login ─────────────────────────────────────────────
+  function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+
+    startTransition(async () => {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Ocorreu um erro. Tente novamente.");
+        return;
+      }
       setRedirecting(true);
       window.location.href = "/app/overview";
     });
@@ -64,19 +114,13 @@ export function AuthCard() {
       aria-label="Formulário de autenticação"
     >
       {/* Tabs */}
-      <div
-        className="mb-8 flex rounded-2xl bg-gray-100 p-1 dark:bg-white/5"
-        role="tablist"
-        aria-label="Modo de acesso"
-      >
+      <div className="mb-8 flex rounded-2xl bg-gray-100 p-1 dark:bg-white/5" role="tablist">
         {(["signup", "signin"] as const).map((t) => (
           <button
             key={t}
             type="button"
             role="tab"
             aria-selected={tab === t}
-            aria-controls={`panel-${t}`}
-            id={`tab-${t}`}
             onClick={() => handleTabChange(t)}
             className={`flex-1 rounded-xl py-2.5 text-sm font-semibold transition-all duration-200 focus-visible:outline-2 focus-visible:outline-rose-600 focus-visible:outline-offset-2 ${
               tab === t
@@ -89,61 +133,145 @@ export function AuthCard() {
         ))}
       </div>
 
-      {/* Panel */}
-      <div id={`panel-${tab}`} role="tabpanel" aria-labelledby={`tab-${tab}`}>
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-            {isSignup ? "Crie sua conta no Trama Pro" : "Bem-vinda de volta!"}
-          </h2>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {isSignup
-              ? "No cadastro, criamos sua conta no Trama Pro automaticamente ✨"
-              : "Entre com seu e-mail e senha para continuar ✨"}
-          </p>
+      {/* Header */}
+      <div className="mb-6">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+          {isSignup
+            ? signupStep === "form"
+              ? "Crie sua conta no Trama Pro"
+              : "Verifique seu WhatsApp 📱"
+            : "Bem-vinda de volta!"}
+        </h2>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          {isSignup
+            ? signupStep === "form"
+              ? "Preencha os dados abaixo para começar ✨"
+              : `Enviamos um código de 6 dígitos para ${phone}`
+            : "Entre com seu e-mail e senha para continuar ✨"}
+        </p>
+      </div>
+
+      {/* Error */}
+      {error && (
+        <div role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800/50 dark:bg-red-950/30 dark:text-red-300">
+          {error}
         </div>
+      )}
 
-        {error && (
-          <div
-            role="alert"
-            className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800/50 dark:bg-red-950/30 dark:text-red-300"
-          >
-            {error}
+      {/* ── SIGNUP STEP 1: form ── */}
+      {isSignup && signupStep === "form" && (
+        <form onSubmit={handleSendOtp} className="space-y-4" noValidate>
+          <div>
+            <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Nome <span className="font-normal text-gray-400">(opcional)</span>
+            </label>
+            <input
+              id="name" type="text" autoComplete="name"
+              value={name} onChange={(e) => setName(e.target.value)}
+              placeholder="Seu nome de artesã"
+              className={INPUT_CLASS} disabled={isLoading}
+            />
           </div>
-        )}
 
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          {isSignup && (
-            <div>
-              <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Nome (opcional)
-              </label>
-              <input
-                id="name"
-                type="text"
-                autoComplete="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Seu nome de artesã"
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all duration-200 focus:border-rose-400 focus:ring-2 focus:ring-rose-200 disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-gray-500 dark:focus:border-rose-500 dark:focus:ring-rose-500/20"
-                disabled={isLoading}
-              />
-            </div>
-          )}
+          <div>
+            <label htmlFor="phone" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              WhatsApp <span className="text-rose-500">*</span>
+            </label>
+            <input
+              id="phone" type="tel" autoComplete="tel" required
+              value={phone} onChange={(e) => setPhone(e.target.value)}
+              placeholder="(11) 99999-9999"
+              className={INPUT_CLASS} disabled={isLoading}
+            />
+            <p className="mt-1 text-xs text-gray-400">Usado para verificar sua conta e recuperar senha.</p>
+          </div>
 
+          <div>
+            <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              E-mail <span className="text-rose-500">*</span>
+            </label>
+            <input
+              id="email" type="email" autoComplete="email" required
+              value={email} onChange={(e) => setEmail(e.target.value)}
+              placeholder="voce@email.com"
+              className={INPUT_CLASS} disabled={isLoading}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Senha <span className="text-rose-500">*</span>
+            </label>
+            <input
+              id="password" type="password" autoComplete="new-password" required minLength={6}
+              value={password} onChange={(e) => setPassword(e.target.value)}
+              placeholder="Mínimo 6 caracteres"
+              className={INPUT_CLASS} disabled={isLoading}
+            />
+          </div>
+
+          <button
+            type="submit" disabled={isLoading}
+            className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-rose-600 to-pink-500 px-4 py-3.5 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isLoading
+              ? <>{SPINNER}<span>Enviando código...</span></>
+              : <><span>Enviar código de verificação 📱</span></>
+            }
+          </button>
+        </form>
+      )}
+
+      {/* ── SIGNUP STEP 2: verify OTP ── */}
+      {isSignup && signupStep === "verify" && (
+        <form onSubmit={handleRegister} className="space-y-4" noValidate>
+          <div>
+            <label htmlFor="otp" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Código de verificação
+            </label>
+            <input
+              id="otp" type="text" inputMode="numeric" pattern="[0-9]{6}" maxLength={6}
+              required autoFocus
+              value={otpCode}
+              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+              placeholder="000000"
+              className={`${INPUT_CLASS} text-center text-2xl tracking-[0.5em] font-bold`}
+              disabled={isLoading}
+            />
+          </div>
+
+          <button
+            type="submit" disabled={isLoading || otpCode.length !== 6}
+            className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-rose-600 to-pink-500 px-4 py-3.5 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isLoading
+              ? <>{SPINNER}<span>{redirecting ? "Entrando no painel..." : "Criando sua conta..."}</span></>
+              : <span>Criar minha conta ✨</span>
+            }
+          </button>
+
+          <button
+            type="button"
+            onClick={() => { setSignupStep("form"); setOtpCode(""); setError(null); }}
+            className="w-full text-center text-sm text-gray-500 hover:text-rose-600 dark:text-gray-400"
+          >
+            ← Voltar e reenviar código
+          </button>
+        </form>
+      )}
+
+      {/* ── LOGIN ── */}
+      {!isSignup && (
+        <form onSubmit={handleLogin} className="space-y-4" noValidate>
           <div>
             <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
               E-mail
             </label>
             <input
-              id="email"
-              type="email"
-              autoComplete={isSignup ? "email" : "username"}
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="email" type="email" autoComplete="username" required
+              value={email} onChange={(e) => setEmail(e.target.value)}
               placeholder="voce@email.com"
-              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all duration-200 focus:border-rose-400 focus:ring-2 focus:ring-rose-200 disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-gray-500 dark:focus:border-rose-500 dark:focus:ring-rose-500/20"
-              disabled={isLoading}
+              className={INPUT_CLASS} disabled={isLoading}
             />
           </div>
 
@@ -152,61 +280,52 @@ export function AuthCard() {
               Senha
             </label>
             <input
-              id="password"
-              type="password"
-              autoComplete={isSignup ? "new-password" : "current-password"}
-              required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={isSignup ? "Mínimo 6 caracteres" : "Sua senha"}
-              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all duration-200 focus:border-rose-400 focus:ring-2 focus:ring-rose-200 disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-gray-500 dark:focus:border-rose-500 dark:focus:ring-rose-500/20"
-              disabled={isLoading}
+              id="password" type="password" autoComplete="current-password" required
+              value={password} onChange={(e) => setPassword(e.target.value)}
+              placeholder="Sua senha"
+              className={INPUT_CLASS} disabled={isLoading}
             />
           </div>
 
+          <div className="flex justify-end">
+            <a href="/forgot-password" className="text-xs text-rose-600 hover:underline dark:text-rose-400">
+              Esqueci minha senha
+            </a>
+          </div>
+
           <button
-            type="submit"
-            disabled={isLoading}
-            className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-rose-600 to-pink-500 px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-rose-300/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-rose-300/50 focus-visible:outline-2 focus-visible:outline-rose-600 focus-visible:outline-offset-2 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 dark:shadow-rose-900/30 dark:hover:shadow-rose-900/40"
+            type="submit" disabled={isLoading}
+            className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-rose-600 to-pink-500 px-4 py-3.5 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isLoading ? (
-              <>{SPINNER}<span>{redirecting ? "Entrando no painel..." : isSignup ? "Criando sua conta..." : "Entrando..."}</span></>
-            ) : (
-              <>
-                <span>{isSignup ? "Criar minha conta" : "Entrar"}</span>
-                <span
-                  className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full"
-                  aria-hidden="true"
-                />
-              </>
-            )}
+            {isLoading
+              ? <>{SPINNER}<span>{redirecting ? "Entrando no painel..." : "Entrando..."}</span></>
+              : <>
+                  <span>Entrar</span>
+                  <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" aria-hidden="true" />
+                </>
+            }
           </button>
         </form>
+      )}
 
-        <p className="mt-5 text-center text-sm text-gray-500 dark:text-gray-400">
-          {isSignup ? "Já tem uma conta?" : "Ainda não tem conta?"}{" "}
-          <button
-            type="button"
-            onClick={() => handleTabChange(isSignup ? "signin" : "signup")}
-            className="font-semibold text-rose-600 underline-offset-2 hover:underline dark:text-rose-400"
-          >
-            {isSignup ? "Entrar" : "Criar conta"}
-          </button>
-        </p>
+      {/* Switch tab */}
+      <p className="mt-5 text-center text-sm text-gray-500 dark:text-gray-400">
+        {isSignup ? "Já tem uma conta?" : "Ainda não tem conta?"}{" "}
+        <button
+          type="button"
+          onClick={() => handleTabChange(isSignup ? "signin" : "signup")}
+          className="font-semibold text-rose-600 underline-offset-2 hover:underline dark:text-rose-400"
+        >
+          {isSignup ? "Entrar" : "Criar conta"}
+        </button>
+      </p>
 
-        <p className="mt-4 text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
-          Ao continuar, você concorda com nossos{" "}
-          <a href="/termos" className="underline underline-offset-2 transition-colors hover:text-rose-500 dark:hover:text-rose-400">
-            Termos de Uso
-          </a>{" "}
-          e{" "}
-          <a href="/privacidade" className="underline underline-offset-2 transition-colors hover:text-rose-500 dark:hover:text-rose-400">
-            Política de Privacidade
-          </a>
-          .
-        </p>
-      </div>
+      <p className="mt-4 text-center text-xs leading-relaxed text-gray-400 dark:text-gray-500">
+        Ao continuar, você concorda com nossos{" "}
+        <a href="/termos" className="underline underline-offset-2 hover:text-rose-500 dark:hover:text-rose-400">Termos de Uso</a>{" "}
+        e{" "}
+        <a href="/privacidade" className="underline underline-offset-2 hover:text-rose-500 dark:hover:text-rose-400">Política de Privacidade</a>.
+      </p>
     </div>
   );
 }

@@ -113,13 +113,15 @@ export async function startSubscription(
     firstPayment?.invoiceUrl ?? firstPayment?.bankSlipUrl ?? null;
 
   if (!paymentUrl) {
-    // If no payment link yet, return the Asaas subscription ID so client can poll
     console.warn(`[SubscriptionService] No payment URL found for subscription ${asaasSub.id}`);
-    // Fallback: return a URL to the Asaas sandbox/production customer area
-    return {
-      paymentUrl: `https://sandbox.asaas.com/i/${asaasSub.id}`,
-      subscriptionId: asaasSub.id,
-    };
+    const config = await prisma.paymentConfig.findFirst({
+      where: { provider: "ASAAS", isActive: true },
+    });
+    const isProduction = config?.environment === "PRODUCTION";
+    const asaasCustomerArea = isProduction
+      ? `https://www.asaas.com/i/${asaasSub.id}`
+      : `https://sandbox.asaas.com/i/${asaasSub.id}`;
+    return { paymentUrl: asaasCustomerArea, subscriptionId: asaasSub.id };
   }
 
   return { paymentUrl, subscriptionId: asaasSub.id };
@@ -165,12 +167,12 @@ export async function cancelSubscription(workspaceId: string): Promise<void> {
 // ─────────────────────────────────────────
 
 export async function processWebhookEvent(event: AsaasWebhookEvent): Promise<void> {
-  const { event: eventType, payment } = event;
+  const { event: eventType, payment, subscription: eventSubscription } = event;
 
-  console.log(`[SubscriptionService] Processing event: ${eventType}, payment: ${payment.id}`);
+  console.log(`[SubscriptionService] Processing event: ${eventType}, paymentId: ${payment?.id ?? "n/a"}`);
 
   // Idempotency check — skip if we already processed this payment ID
-  if (payment.id) {
+  if (payment?.id) {
     const already = await prisma.subscription.findFirst({
       where: { lastAsaasPaymentId: payment.id },
     });
@@ -180,19 +182,21 @@ export async function processWebhookEvent(event: AsaasWebhookEvent): Promise<voi
     }
   }
 
-  // Find subscription by asaasSubscriptionId
-  const subscriptionId = payment.subscription;
-  if (!subscriptionId) {
+  // Resolve asaasSubscriptionId — payment events carry it in payment.subscription,
+  // SUBSCRIPTION_DELETED carries it directly in event.subscription.id
+  const asaasSubscriptionId = payment?.subscription ?? eventSubscription?.id ?? null;
+
+  if (!asaasSubscriptionId) {
     console.warn(`[SubscriptionService] Event ${eventType} has no subscription reference. Ignoring.`);
     return;
   }
 
   const record = await prisma.subscription.findFirst({
-    where: { asaasSubscriptionId: subscriptionId },
+    where: { asaasSubscriptionId },
   });
 
   if (!record) {
-    console.warn(`[SubscriptionService] No subscription found for asaasSubscriptionId: ${subscriptionId}`);
+    console.warn(`[SubscriptionService] No subscription found for asaasSubscriptionId: ${asaasSubscriptionId}`);
     return;
   }
 
@@ -209,7 +213,7 @@ export async function processWebhookEvent(event: AsaasWebhookEvent): Promise<voi
           status: "ACTIVE",
           accessStatus: "ACTIVE",
           lastPaymentAt: now,
-          lastAsaasPaymentId: payment.id,
+          lastAsaasPaymentId: payment!.id,
           currentPeriodEnd: periodEnd,
         },
       });
@@ -226,7 +230,7 @@ export async function processWebhookEvent(event: AsaasWebhookEvent): Promise<voi
         data: {
           status: "PAST_DUE",
           accessStatus: "BLOCKED",
-          lastAsaasPaymentId: payment.id,
+          lastAsaasPaymentId: payment?.id ?? null,
         },
       });
 
@@ -242,7 +246,7 @@ export async function processWebhookEvent(event: AsaasWebhookEvent): Promise<voi
           plan: "FREE",
           status: "CANCELED",
           accessStatus: "BLOCKED",
-          lastAsaasPaymentId: payment.id,
+          lastAsaasPaymentId: payment?.id ?? null,
         },
       });
 
