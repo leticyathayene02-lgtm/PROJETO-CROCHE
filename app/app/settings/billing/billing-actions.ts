@@ -1,22 +1,24 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { requireWorkspace } from "@/lib/workspace";
-import { startSubscription } from "@/lib/subscription-service";
+import { startSubscription, cancelSubscription } from "@/lib/subscription-service";
 
 export async function subscribeAction() {
-  let paymentUrl: string;
+  // Auth outside try/catch so redirect() from requireWorkspace isn't swallowed
+  const { workspace: ws, user } = await requireWorkspace();
 
+  let paymentUrl: string;
   try {
-    const { workspace: ws, user } = await requireWorkspace();
     const result = await startSubscription(ws.id, {
       name: user.name,
       email: user.email,
     });
     paymentUrl = result.paymentUrl;
   } catch (err) {
+    if (isRedirectError(err)) throw err;
     const msg = err instanceof Error ? err.message : "Erro ao criar assinatura.";
-    // Encode the error message and redirect back with it
     redirect(`/app/settings/billing?error=${encodeURIComponent(msg)}`);
   }
 
@@ -25,12 +27,13 @@ export async function subscribeAction() {
 }
 
 export async function cancelSubscriptionAction() {
+  const { workspace: ws } = await requireWorkspace();
+
   try {
-    const { workspace: ws } = await requireWorkspace();
-    const { cancelSubscription } = await import("@/lib/subscription-service");
     await cancelSubscription(ws.id);
-  } catch {
-    // ignore — still redirect
+  } catch (err) {
+    if (isRedirectError(err)) throw err;
+    // ignore other errors — still redirect
   }
   redirect("/app/settings/billing?canceled=1");
 }

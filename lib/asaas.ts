@@ -90,6 +90,7 @@ async function asaasRequest<T>(
       "User-Agent": "TramaPro/1.0",
     },
     body: body ? JSON.stringify(body) : undefined,
+    signal: AbortSignal.timeout(15000),
   });
 
   if (!res.ok) {

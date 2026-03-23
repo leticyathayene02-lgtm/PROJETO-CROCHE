@@ -53,11 +53,20 @@ export async function startSubscription(
     where: { workspaceId },
   });
 
-  if (
-    existing?.asaasSubscriptionId &&
-    existing.status === "ACTIVE"
-  ) {
+  if (existing?.asaasSubscriptionId && existing.status === "ACTIVE") {
     throw new Error("Este workspace já possui uma assinatura ativa.");
+  }
+
+  // If TRIALING with an existing Asaas subscription, reuse it (user retrying checkout)
+  if (existing?.asaasSubscriptionId && existing.status === "TRIALING") {
+    console.log(`[SubscriptionService] Reusing existing TRIALING subscription: ${existing.asaasSubscriptionId}`);
+    const payments = await getSubscriptionPayments(existing.asaasSubscriptionId);
+    const firstPayment = payments[0];
+    const paymentUrl = firstPayment?.invoiceUrl ?? firstPayment?.bankSlipUrl ?? null;
+    if (paymentUrl) {
+      return { paymentUrl, subscriptionId: existing.asaasSubscriptionId };
+    }
+    // If no payment URL, fall through to create a new subscription
   }
 
   // 2. Find or create Asaas customer
@@ -106,22 +115,44 @@ export async function startSubscription(
 
   console.log(`[SubscriptionService] Subscription created: ${asaasSub.id}, fetching payment link`);
 
-  // 5. Get the first payment link (boleto/pix invoice)
-  const payments = await getSubscriptionPayments(asaasSub.id);
-  const firstPayment = payments[0];
-  const paymentUrl =
-    firstPayment?.invoiceUrl ?? firstPayment?.bankSlipUrl ?? null;
+  // 5. Get the first payment link with retry (Asaas may take a moment to generate)
+  let paymentUrl: string | null = null;
+  let paymentId: string | null = null;
+
+  for (let attempt = 1; attempt <= 4; attempt++) {
+    if (attempt > 1) {
+      await new Promise((r) => setTimeout(r, 2000)); // wait 2s between retries
+    }
+    console.log(`[SubscriptionService] Fetching payment URL, attempt ${attempt}/4`);
+
+    const payments = await getSubscriptionPayments(asaasSub.id);
+    const firstPayment = payments[0];
+
+    if (firstPayment) {
+      paymentId = firstPayment.id;
+      paymentUrl = firstPayment.invoiceUrl ?? firstPayment.bankSlipUrl ?? null;
+      if (paymentUrl) break;
+    }
+  }
 
   if (!paymentUrl) {
-    console.warn(`[SubscriptionService] No payment URL found for subscription ${asaasSub.id}`);
+    // Fallback: use the payment ID (not subscription ID) to build invoice URL
     const config = await prisma.paymentConfig.findFirst({
       where: { provider: "ASAAS", isActive: true },
     });
     const isProduction = config?.environment === "PRODUCTION";
-    const asaasCustomerArea = isProduction
-      ? `https://www.asaas.com/i/${asaasSub.id}`
-      : `https://sandbox.asaas.com/i/${asaasSub.id}`;
-    return { paymentUrl: asaasCustomerArea, subscriptionId: asaasSub.id };
+
+    if (paymentId) {
+      paymentUrl = isProduction
+        ? `https://www.asaas.com/i/${paymentId}`
+        : `https://sandbox.asaas.com/i/${paymentId}`;
+    } else {
+      // Last resort: Asaas customer area
+      paymentUrl = isProduction
+        ? `https://www.asaas.com/customerArea/${asaasCustomerId}`
+        : `https://sandbox.asaas.com/customerArea/${asaasCustomerId}`;
+    }
+    console.warn(`[SubscriptionService] Using fallback URL: ${paymentUrl}`);
   }
 
   return { paymentUrl, subscriptionId: asaasSub.id };
