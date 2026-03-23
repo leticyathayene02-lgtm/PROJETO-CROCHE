@@ -38,8 +38,7 @@ export async function subscribeAction(formData: FormData) {
     redirect(`/app/settings/billing?error=${encodeURIComponent(msg)}`);
   }
 
-  const encodedUrl = encodeURIComponent(paymentUrl);
-  redirect(`/app/settings/billing/aguardando?url=${encodedUrl}`);
+  redirect(`/app/settings/billing/aguardando?url=${encodeURIComponent(paymentUrl)}`);
 }
 
 export async function cancelSubscriptionAction() {

@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { subscribeAction, cancelSubscriptionAction } from "./billing-actions";
+import { SubscribeButton } from "./subscribe-button";
 
 
 function formatDate(date: Date | null | undefined) {
@@ -156,12 +157,7 @@ export default async function BillingPage({
                   </div>
                 )}
                 {userCpf && <input type="hidden" name="cpfCnpj" value={userCpf} />}
-                <Button
-                  type="submit"
-                  className="w-full bg-rose-600 hover:bg-rose-700"
-                >
-                  Assinar Premium — R$ 19,90/mês ✨
-                </Button>
+                <SubscribeButton />
               </form>
             ) : (
               <form action={cancelSubscriptionAction}>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useTransition, Suspense } from "react";
+import { useState, useTransition, useEffect, Suspense } from "react";
 import Link from "next/link";
 
 function AguardandoContent() {
@@ -11,6 +11,15 @@ function AguardandoContent() {
 
   const [checking, startChecking] = useTransition();
   const [notYet, setNotYet] = useState(false);
+  const [opened, setOpened] = useState(false);
+
+  // Auto-open payment URL when page loads
+  useEffect(() => {
+    if (paymentUrl && !opened) {
+      setOpened(true);
+      window.open(paymentUrl, "_blank");
+    }
+  }, [paymentUrl, opened]);
 
   function handleVerify() {
     setNotYet(false);
@@ -38,9 +47,9 @@ function AguardandoContent() {
           Pagamento aguardando confirmação
         </h1>
         <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
-          Seu boleto/PIX foi gerado. Após realizar o pagamento, clique em
-          <strong> &ldquo;Já paguei&rdquo;</strong> para verificar. A confirmação pode
-          levar alguns minutos.
+          A página de pagamento foi aberta em uma nova aba.
+          Escolha entre <strong>PIX, cartão ou boleto</strong>.
+          Após pagar, clique em <strong>&ldquo;Já paguei&rdquo;</strong> abaixo.
         </p>
 
         {paymentUrl && (
@@ -50,7 +59,7 @@ function AguardandoContent() {
             rel="noopener noreferrer"
             className="mb-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-600 to-pink-500 px-4 py-3.5 text-sm font-semibold text-white shadow-lg transition-all hover:-translate-y-0.5"
           >
-            Abrir boleto / PIX
+            Abrir pagamento novamente
           </a>
         )}
 
