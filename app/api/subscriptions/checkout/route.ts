@@ -56,9 +56,15 @@ export async function POST(req: NextRequest) {
     // 5. Start subscription via Asaas
     console.log(`[POST /api/subscriptions/checkout] Starting for workspace: ${ws.id}, user: ${session.user.email}`);
 
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { name: true, email: true, cpfCnpj: true },
+    });
+
     const result = await startSubscription(ws.id, {
-      name: session.user.name,
-      email: session.user.email,
+      name: user?.name ?? session.user.name,
+      email: user?.email ?? session.user.email,
+      cpfCnpj: user?.cpfCnpj,
     });
 
     console.log(`[POST /api/subscriptions/checkout] Payment URL: ${result.paymentUrl}`);

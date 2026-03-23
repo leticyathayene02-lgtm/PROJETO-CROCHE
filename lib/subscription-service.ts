@@ -14,7 +14,7 @@ import {
 // ─────────────────────────────────────────
 
 const SUBSCRIPTION_VALUE = 19.9; // R$ 19,90/mês
-const BILLING_TYPE = "BOLETO"; // Aceita PIX, BOLETO, CREDIT_CARD — BOLETO também aceita PIX no Asaas
+const BILLING_TYPE = "UNDEFINED"; // Cliente escolhe: PIX, boleto, cartão de crédito ou débito
 const CYCLE = "MONTHLY";
 const DESCRIPTION = "Trama Pro — Plano Premium";
 
@@ -44,7 +44,7 @@ function addDays(days: number): Date {
  */
 export async function startSubscription(
   workspaceId: string,
-  user: { name: string | null; email: string }
+  user: { name: string | null; email: string; cpfCnpj?: string | null }
 ): Promise<{ paymentUrl: string; subscriptionId: string }> {
   console.log(`[SubscriptionService] Starting subscription for workspace: ${workspaceId}`);
 
@@ -80,6 +80,7 @@ export async function startSubscription(
       const newCustomer = await createCustomer({
         name: user.name ?? user.email,
         email: user.email,
+        cpfCnpj: user.cpfCnpj ?? undefined,
       });
       asaasCustomerId = newCustomer.id;
     }

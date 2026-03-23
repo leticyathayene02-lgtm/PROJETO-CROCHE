@@ -1,6 +1,8 @@
 import { requireWorkspace } from "@/lib/workspace";
 import { prisma } from "@/lib/prisma";
 import { getCurrentMonthKey, PLAN_LIMITS } from "@/lib/limits";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -24,10 +26,16 @@ export default async function BillingPage({
 }: {
   searchParams: Promise<{ success?: string; canceled?: string; error?: string }>;
 }) {
-  const { workspace, subscription } = await requireWorkspace();
+  const { workspace, subscription, user } = await requireWorkspace();
   const params = await searchParams;
   const errorMsg = params.error ? decodeURIComponent(params.error) : null;
   const workspaceId = workspace.id;
+
+  const fullUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { cpfCnpj: true },
+  });
+  const userCpf = fullUser?.cpfCnpj ?? "";
 
   const isTrial =
     subscription?.accessStatus === "TRIAL" &&
@@ -125,9 +133,29 @@ export default async function BillingPage({
           </div>
 
           {/* Actions */}
-          <div className="pt-2 space-y-2">
+          <div className="pt-2 space-y-3">
             {plan === "FREE" ? (
-              <form action={subscribeAction}>
+              <form action={subscribeAction} className="space-y-3">
+                {!userCpf && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="cpfCnpj" className="text-sm text-gray-700 dark:text-gray-300">
+                      CPF ou CNPJ
+                    </Label>
+                    <Input
+                      id="cpfCnpj"
+                      name="cpfCnpj"
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="000.000.000-00"
+                      required
+                      className="border-rose-200 dark:border-white/10 focus-visible:ring-rose-300"
+                    />
+                    <p className="text-xs text-gray-400 dark:text-gray-500">
+                      Necessário para emitir o pagamento. Aceita PIX, cartão ou boleto.
+                    </p>
+                  </div>
+                )}
+                {userCpf && <input type="hidden" name="cpfCnpj" value={userCpf} />}
                 <Button
                   type="submit"
                   className="w-full bg-rose-600 hover:bg-rose-700"
