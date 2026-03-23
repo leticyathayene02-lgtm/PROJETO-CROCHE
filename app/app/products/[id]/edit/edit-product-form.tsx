@@ -18,6 +18,8 @@ import { useState } from "react";
 import {
   updateProductSchema,
   type UpdateProductFormData,
+} from "@/app/app/products/schema";
+import {
   updateProduct,
   archiveProduct,
   deleteProduct,

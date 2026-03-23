@@ -11,6 +11,7 @@ import { TimerWidget } from "@/components/time/TimerWidget";
 import { TimeSummary } from "@/components/time/TimeSummary";
 import { getOrderTimeSummary } from "@/lib/time/actions";
 import { updateOrder, deleteOrder, duplicateOrder } from "@/lib/orders/actions";
+import { DeleteOrderButton } from "@/components/orders/DeleteOrderButton";
 import { ChevronLeft, CheckSquare, Copy } from "lucide-react";
 import type { ChecklistItem } from "@/lib/orders/validators";
 
@@ -142,19 +143,7 @@ export default async function OrderDetailPage({
         <p className="mb-3 text-sm font-medium text-red-700 dark:text-red-400">
           Excluir este pedido permanentemente
         </p>
-        <form action={deleteWithId}>
-          <button
-            type="submit"
-            className="rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 dark:border-red-800 dark:bg-transparent dark:text-red-400 dark:hover:bg-red-950/30"
-            onClick={(e) => {
-              if (!confirm("Excluir este pedido? Esta ação não pode ser desfeita.")) {
-                e.preventDefault();
-              }
-            }}
-          >
-            Excluir pedido
-          </button>
-        </form>
+        <DeleteOrderButton action={deleteWithId} />
       </div>
     </div>
   );

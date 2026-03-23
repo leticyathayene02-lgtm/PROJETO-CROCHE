@@ -12,7 +12,7 @@ const schema = z.object({
 
 export async function createOverheadCost(
   values: { name: string; amount: number }
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: true; data: { id: string; name: string; amount: number } } | { success: false; error?: string }> {
   const parsed = schema.safeParse(values);
   if (!parsed.success) return { success: false, error: parsed.error.issues[0]?.message };
 
@@ -23,16 +23,17 @@ export async function createOverheadCost(
     return { success: false, error: "Não autenticado" };
   }
 
-  await prisma.overheadCost.create({
+  const created = await prisma.overheadCost.create({
     data: {
       workspaceId: workspace.id,
       name: parsed.data.name.trim(),
       amount: parsed.data.amount,
     },
+    select: { id: true, name: true, amount: true },
   });
 
   revalidatePath("/app/overhead");
-  return { success: true };
+  return { success: true as const, data: created };
 }
 
 export async function updateOverheadCost(

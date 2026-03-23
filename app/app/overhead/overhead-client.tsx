@@ -156,11 +156,12 @@ function AddCostForm({ onAdded }: { onAdded: (cost: Cost) => void }) {
     }
     start(async () => {
       const res = await createOverheadCost({ name: name.trim(), amount: amt });
-      if (res.success) {
+      if (res.success && res.data) {
+        onAdded(res.data);
         toast.success("Custo adicionado.");
         setName("");
         setAmount("");
-      } else {
+      } else if (!res.success) {
         toast.error(res.error ?? "Erro ao adicionar.");
       }
     });

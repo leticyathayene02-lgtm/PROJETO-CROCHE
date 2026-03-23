@@ -11,8 +11,8 @@ import { useState } from "react";
 import {
   productSchema,
   type ProductFormData,
-  createProduct,
-} from "@/app/app/products/actions";
+} from "@/app/app/products/schema";
+import { createProduct } from "@/app/app/products/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,

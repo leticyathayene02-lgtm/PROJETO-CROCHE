@@ -88,13 +88,11 @@ function NumInput({
   onChange,
   placeholder,
   className,
-  step,
 }: {
   value: number;
   onChange: (v: number) => void;
   placeholder?: string;
   className?: string;
-  step?: string;
 }) {
   const [raw, setRaw] = useState(value > 0 ? String(value) : "");
   return (
@@ -689,7 +687,7 @@ export default function NewPricingPage() {
               <label className="mb-1 block text-sm font-medium text-gray-900 dark:text-white">
                 Horas gastas
               </label>
-              <NumInput value={horas} onChange={setHoras} placeholder="0" step="0.5" />
+              <NumInput value={horas} onChange={setHoras} placeholder="0" />
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Aceita decimal (ex: 2.5)</p>
             </div>
             <div>
@@ -1061,10 +1059,10 @@ function Row({
 }) {
   return (
     <div className="flex items-center justify-between py-0.5">
-      <span className={`${bold ? "font-semibold" : ""} text-gray-900 dark:text-white`}>
+      <span className={`${bold ? "font-semibold" : ""} ${accent ? "text-rose-700 dark:text-rose-400" : "text-gray-900 dark:text-white"}`}>
         {label}
       </span>
-      <span className={`tabular-nums ${bold ? "font-bold" : "font-medium"} text-gray-900 dark:text-white`}>
+      <span className={`tabular-nums ${bold ? "font-bold" : "font-medium"} ${accent ? "text-rose-700 dark:text-rose-400" : "text-gray-900 dark:text-white"}`}>
         {brl(value)}
       </span>
     </div>

@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/lib/admin";
 import { PageHeader } from "@/components/admin/page-header";
-import { Settings, Shield, Database, CreditCard, ChevronRight } from "lucide-react";
+import { Shield, Database, CreditCard, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 export const metadata = { title: "Configurações — Admin Trama Pro" };
