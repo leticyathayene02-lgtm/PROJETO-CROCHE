@@ -8,7 +8,6 @@ import { redirect } from "next/navigation";
 
 const ADMIN_EMAILS = [
   "admin2328@tramapro.com",
-  "leticya331331@gmail.com",
 ];
 
 export async function adminLogin(

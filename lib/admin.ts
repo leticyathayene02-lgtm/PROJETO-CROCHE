@@ -6,7 +6,6 @@ import { redirect } from "next/navigation";
  */
 const ADMIN_EMAILS: string[] = [
   "admin2328@tramapro.com",
-  "leticya331331@gmail.com",
 ];
 
 /**
