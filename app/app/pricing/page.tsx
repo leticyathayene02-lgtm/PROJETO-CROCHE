@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calculator, Plus, RotateCcw } from "lucide-react";
+import { DeletePricingButton } from "./delete-button";
 
 export default async function PricingPage() {
   const { workspace } = await requireWorkspace();
@@ -11,7 +12,7 @@ export default async function PricingPage() {
   const calculations = await prisma.priceCalculation.findMany({
     where: { workspaceId: workspace.id },
     orderBy: { createdAt: "desc" },
-    take: 10,
+    take: 50,
   });
 
   return (
@@ -91,43 +92,46 @@ export default async function PricingPage() {
                 className="border-rose-100 dark:border-rose-800/30 transition-shadow hover:shadow-md hover:shadow-rose-100 dark:hover:shadow-black/10"
               >
                 <CardContent className="p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-100 dark:bg-rose-900/40">
-                        <Calculator className="h-5 w-5 text-rose-600 dark:text-rose-400" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900 dark:text-white">
-                          {calc.name ?? "Sem nome"}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{formattedDate}</p>
-                        {custoBase > 0 && (
-                          <p className="mt-0.5 text-xs text-gray-400">
-                            Custo: {fmt(custoBase)}
+                  <Link href={`/app/pricing/${calc.id}`} className="block">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-100 dark:bg-rose-900/40">
+                          <Calculator className="h-5 w-5 text-rose-600 dark:text-rose-400" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900 dark:text-white">
+                            {calc.name ?? "Sem nome"}
                           </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{formattedDate}</p>
+                          {custoBase > 0 && (
+                            <p className="mt-0.5 text-xs text-gray-400">
+                              Custo: {fmt(custoBase)}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] font-medium uppercase text-emerald-500">PIX</span>
+                          <span className="text-base font-bold text-emerald-700 dark:text-emerald-400">
+                            {formattedPix}
+                          </span>
+                        </div>
+                        {precoCartao > 0 && precoCartao !== precoPix && (
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-medium uppercase text-blue-500">Cartão</span>
+                            <span className="text-sm font-semibold text-blue-700">
+                              {formattedCartao}
+                            </span>
+                          </div>
                         )}
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-medium uppercase text-emerald-500">PIX</span>
-                        <span className="text-base font-bold text-emerald-700 dark:text-emerald-400">
-                          {formattedPix}
-                        </span>
-                      </div>
-                      {precoCartao > 0 && precoCartao !== precoPix && (
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] font-medium uppercase text-blue-500">Cartão</span>
-                          <span className="text-sm font-semibold text-blue-700">
-                            {formattedCartao}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  </Link>
 
-                  {/* Action: Usar novamente */}
-                  <div className="mt-3 flex justify-end">
+                  {/* Actions */}
+                  <div className="mt-3 flex items-center justify-between">
+                    <DeletePricingButton id={calc.id} />
                     <Button
                       asChild
                       variant="outline"

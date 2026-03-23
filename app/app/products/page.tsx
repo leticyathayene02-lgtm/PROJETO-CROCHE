@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ShoppingBag, Plus } from "lucide-react";
+import { ShoppingBag, Plus, Pencil } from "lucide-react";
 import type { ProductStatus } from "@prisma/client";
 
 // ─────────────────────────────────────────
@@ -123,16 +123,23 @@ export default async function ProductsPage() {
       {products.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((product) => (
-            <Card
+            <Link
               key={product.id}
-              className="group card-3d border-0 shadow-sm transition-shadow hover:shadow-md"
+              href={`/app/products/${product.id}/edit`}
+              className="block"
+            >
+            <Card
+              className="group card-3d border-0 shadow-sm transition-shadow hover:shadow-md cursor-pointer"
             >
               <CardHeader className="pb-2 pt-4">
                 <div className="flex items-start justify-between gap-2">
                   <CardTitle className="text-base font-semibold text-gray-900 dark:text-white leading-tight">
                     {product.name}
                   </CardTitle>
-                  <StatusBadge status={product.status} />
+                  <div className="flex items-center gap-2">
+                    <StatusBadge status={product.status} />
+                    <Pencil className="h-3.5 w-3.5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
                 </div>
               </CardHeader>
 
@@ -204,6 +211,7 @@ export default async function ProductsPage() {
                 })()}
               </CardContent>
             </Card>
+            </Link>
           ))}
         </div>
       )}

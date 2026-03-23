@@ -15,6 +15,9 @@ import {
   Plus,
   Trash2,
   Package,
+  Wrench,
+  ChevronDown,
+  ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -31,7 +34,9 @@ import {
   createPricingCalculation,
   getWorkspaceMaterials,
   getDefaultHourlyRate,
+  getWorkspaceOverheadCosts,
   type CatalogMaterial,
+  type OverheadCostItem,
 } from "../actions";
 import {
   computePricingTotals,
@@ -198,6 +203,16 @@ export default function NewPricingPage() {
       .catch(() => toast.error("Erro ao carregar materiais"))
       .finally(() => setLoadingMaterials(false));
 
+    getWorkspaceOverheadCosts()
+      .then(({ costs, total }) => {
+        setOverheadCosts(costs);
+        setOverheadTotal(total);
+        // Auto-open if there are overhead costs
+        if (costs.length > 0 && !prefill?.overheadPerPiece) setOverheadOpen(true);
+      })
+      .catch(() => {})
+      .finally(() => setLoadingOverhead(false));
+
     // Pre-fill hourly rate from workspace profile (only if not already set via prefill)
     if (!prefill?.valorHora) {
       getDefaultHourlyRate().then((rate) => {
@@ -237,6 +252,17 @@ export default function NewPricingPage() {
   // Frete / Envio
   const [includeFrete, setIncludeFrete] = useState<boolean>(!!(prefill?.frete > 0));
   const [frete, setFrete] = useState<number>(prefill?.frete ?? 0);
+
+  // Custos fixos (overhead)
+  const [overheadCosts, setOverheadCosts] = useState<OverheadCostItem[]>([]);
+  const [overheadTotal, setOverheadTotal] = useState(0);
+  const [loadingOverhead, setLoadingOverhead] = useState(true);
+  const [overheadOpen, setOverheadOpen] = useState(!!(prefill?.overheadPerPiece > 0));
+  const [piecesPerMonth, setPiecesPerMonth] = useState<number>(prefill?.piecesPerMonth ?? 0);
+  const overheadPerPiece = useMemo(
+    () => (piecesPerMonth > 0 && overheadTotal > 0 ? Math.round((overheadTotal / piecesPerMonth) * 100) / 100 : 0),
+    [overheadTotal, piecesPerMonth]
+  );
 
   // Material selector state
   const [showSelector, setShowSelector] = useState(false);
@@ -297,11 +323,13 @@ export default function NewPricingPage() {
       profitMode,
       margemPercent,
       lucroFixo,
+      overheadPerPiece,
+      piecesPerMonth: piecesPerMonth > 0 ? piecesPerMonth : undefined,
       frete: includeFrete ? frete : 0,
       name,
       selectedMaterials,
     }),
-    [material, complementaresTotal, horas, valorHora, taxaCartao, impostoMarketplace, profitMode, margemPercent, lucroFixo, frete, includeFrete, name, selectedMaterials]
+    [material, complementaresTotal, horas, valorHora, taxaCartao, impostoMarketplace, profitMode, margemPercent, lucroFixo, overheadPerPiece, piecesPerMonth, frete, includeFrete, name, selectedMaterials]
   );
 
   const totals = useMemo(() => computePricingTotals(inputs), [inputs]);
@@ -321,6 +349,8 @@ export default function NewPricingPage() {
       profitMode,
       margemPercent,
       lucroFixo,
+      overheadPerPiece: overheadPerPiece > 0 ? overheadPerPiece : undefined,
+      piecesPerMonth: piecesPerMonth > 0 ? piecesPerMonth : undefined,
       frete: includeFrete ? frete : 0,
     });
     setSaving(false);
@@ -330,7 +360,7 @@ export default function NewPricingPage() {
       return;
     }
     toast.success("Cálculo salvo com sucesso!");
-    router.push("/app/pricing");
+    router.push(`/app/pricing/${result.data.id}`);
   }
 
   // Gate: no materials registered yet
@@ -536,6 +566,114 @@ export default function NewPricingPage() {
             </div>
           )}
         </CardContent>
+      </Card>
+
+      {/* ── Card: Custos Fixos (Overhead) ───────────────────────────── */}
+      <Card className="border-rose-100 dark:border-rose-800/30">
+        <CardHeader className="pb-3">
+          <button
+            type="button"
+            onClick={() => setOverheadOpen((v) => !v)}
+            className="flex w-full items-center justify-between"
+          >
+            <div className="flex items-center gap-2">
+              <Wrench className="h-4 w-4 text-rose-500" />
+              <CardTitle className="text-base text-gray-900 dark:text-white">
+                Custos Fixos
+              </CardTitle>
+            </div>
+            <ChevronDown
+              className={`h-4 w-4 text-gray-400 transition-transform ${
+                overheadOpen ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Aluguel, luz, internet — rateados por peça produzida
+          </p>
+        </CardHeader>
+        {overheadOpen && (
+          <CardContent className="space-y-4">
+            {loadingOverhead ? (
+              <div className="flex items-center justify-center gap-2 py-3 text-sm text-gray-400">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Carregando custos fixos...
+              </div>
+            ) : overheadCosts.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-rose-200 dark:border-rose-800/40 bg-rose-50/50 dark:bg-rose-950/10 p-4 text-center">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                  Nenhum custo fixo cadastrado
+                </p>
+                <Link
+                  href="/app/overhead"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300"
+                >
+                  <Plus className="h-4 w-4" />
+                  Cadastrar custos fixos
+                </Link>
+              </div>
+            ) : (
+              <>
+                {/* Lista de custos */}
+                <div className="space-y-1.5">
+                  {overheadCosts.map((c) => (
+                    <div
+                      key={c.id}
+                      className="flex items-center justify-between rounded-lg bg-white dark:bg-white/5 border border-rose-100 dark:border-rose-800/30 px-3 py-2"
+                    >
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{c.name}</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white tabular-nums">
+                        {brl(c.amount)}/mês
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Total mensal */}
+                <div className="flex items-center justify-between rounded-xl bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-800/30 px-3 py-2.5">
+                  <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Total mensal</span>
+                  <span className="text-sm font-bold text-gray-900 dark:text-white tabular-nums">{brl(overheadTotal)}</span>
+                </div>
+
+                {/* Peças por mês */}
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-900 dark:text-white">
+                    Peças produzidas por mês
+                  </label>
+                  <NumInput
+                    value={piecesPerMonth}
+                    onChange={setPiecesPerMonth}
+                    placeholder="Ex: 20"
+                  />
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    Quantas peças você produz em média por mês?
+                  </p>
+                </div>
+
+                {/* Custo fixo por peça */}
+                {overheadPerPiece > 0 && (
+                  <div className="flex items-center justify-between rounded-xl bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800/40 px-3 py-2.5">
+                    <span className="text-xs font-semibold text-amber-700 dark:text-amber-300">
+                      Custo fixo por peça
+                    </span>
+                    <span className="text-sm font-bold text-amber-700 dark:text-amber-300 tabular-nums">
+                      {brl(overheadPerPiece)}
+                    </span>
+                  </div>
+                )}
+
+                {/* Link para gerenciar */}
+                <Link
+                  href="/app/overhead"
+                  className="inline-flex items-center gap-1.5 text-xs text-rose-500 dark:text-rose-400 hover:text-rose-600 dark:hover:text-rose-300"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Gerenciar custos fixos
+                </Link>
+              </>
+            )}
+          </CardContent>
+        )}
       </Card>
 
       {/* ── Card: Tempo ───────────────────────────────────────────────── */}
@@ -750,7 +888,7 @@ export default function NewPricingPage() {
             Resultado
           </CardTitle>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            Custo base: {brl(totals.custoBase)} (materiais {brl(totals.materialTotal)} + mão de obra {brl(totals.maoObra)})
+            Custo base: {brl(totals.custoBase)} (materiais {brl(totals.materialTotal)} + mão de obra {brl(totals.maoObra)}{totals.overheadPerPiece > 0 ? ` + fixos ${brl(totals.overheadPerPiece)}` : ""})
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -861,6 +999,9 @@ export default function NewPricingPage() {
             ))}
             <Row label="Material total" value={totals.materialTotal} />
             <Row label="Mão de obra" value={totals.maoObra} />
+            {totals.overheadPerPiece > 0 && (
+              <Row label="Custos fixos / peça" value={totals.overheadPerPiece} />
+            )}
             <div className="my-1.5 border-t border-rose-100 dark:border-rose-800/30" />
             <Row label="Custo base" value={totals.custoBase} bold />
             <Row label="Lucro alvo" value={totals.lucroAlvo} />

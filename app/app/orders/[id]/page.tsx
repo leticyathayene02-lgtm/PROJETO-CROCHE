@@ -8,6 +8,8 @@ import { ProductionStatusBadge } from "@/components/orders/ProductionStatusBadge
 import { ChecklistEditor } from "@/components/orders/ChecklistEditor";
 import { ReceiptActions } from "@/components/orders/ReceiptActions";
 import { TimerWidget } from "@/components/time/TimerWidget";
+import { TimeSummary } from "@/components/time/TimeSummary";
+import { getOrderTimeSummary } from "@/lib/time/actions";
 import { updateOrder, deleteOrder, duplicateOrder } from "@/lib/orders/actions";
 import { ChevronLeft, CheckSquare, Copy } from "lucide-react";
 import type { ChecklistItem } from "@/lib/orders/validators";
@@ -36,6 +38,8 @@ export default async function OrderDetailPage({
   ]);
 
   if (!order) notFound();
+
+  const timeSummary = await getOrderTimeSummary(order.id);
 
   const updateWithId = updateOrder.bind(null, order.id);
   const deleteWithId = deleteOrder.bind(null, order.id);
@@ -79,6 +83,9 @@ export default async function OrderDetailPage({
 
       {/* Timer */}
       <TimerWidget orderId={order.id} label="Cronômetro desta peça" />
+
+      {/* Tempo investido */}
+      <TimeSummary summary={timeSummary} orderAmount={order.amount} />
 
       {/* Checklist */}
       <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-white/8 dark:bg-[oklch(0.18_0.01_280)]">

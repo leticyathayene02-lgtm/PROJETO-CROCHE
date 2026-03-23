@@ -43,6 +43,11 @@ export interface PricingInputs {
   margemPercent: number;  // usado quando profitMode = "percent"
   lucroFixo: number;      // usado quando profitMode = "fixed"
 
+  // Custos fixos (overhead) rateado por peça
+  overheadPerPiece?: number;
+  /** Peças por mês (salvo para prefill, não usado no cálculo) */
+  piecesPerMonth?: number;
+
   // Frete / Envio (passa direto, não entra no markup)
   frete?: number;
 
@@ -54,6 +59,7 @@ export interface PricingTotals {
   // Decomposição
   materialTotal: number;
   maoObra: number;
+  overheadPerPiece: number;
   custoBase: number;
 
   // Lucro alvo
@@ -105,8 +111,11 @@ export function computePricingTotals(data: PricingInputs): PricingTotals {
   // --- Mão de obra ---
   const maoObra = round2((data.horas || 0) * (data.valorHora || 0));
 
+  // --- Custos fixos (overhead) por peça ---
+  const overheadPerPiece = round2(data.overheadPerPiece ?? 0);
+
   // --- Custo base ---
-  const custoBase = round2(materialTotal + maoObra);
+  const custoBase = round2(materialTotal + maoObra + overheadPerPiece);
 
   // --- Lucro alvo ---
   let lucroAlvo: number;
@@ -167,6 +176,7 @@ export function computePricingTotals(data: PricingInputs): PricingTotals {
   return {
     materialTotal,
     maoObra,
+    overheadPerPiece,
     custoBase,
     lucroAlvo,
     precoPix,

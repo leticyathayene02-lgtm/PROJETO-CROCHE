@@ -8,6 +8,7 @@ import {
 } from "@/lib/limits";
 import { computePricingTotals, type PricingInputs } from "@/lib/pricing";
 import { pricingSchema, type PricingFormValues } from "./schema";
+import { revalidatePath } from "next/cache";
 
 // ─── Buscar materiais cadastrados do workspace ──────────────────────
 
@@ -39,6 +40,30 @@ export async function getWorkspaceMaterials(): Promise<CatalogMaterial[]> {
     orderBy: { name: "asc" },
   });
   return materials;
+}
+
+// ─── Buscar custos fixos (overhead) do workspace ────────────────────
+
+export interface OverheadCostItem {
+  id: string;
+  name: string;
+  amount: number;
+}
+
+export interface WorkspaceOverheadResult {
+  costs: OverheadCostItem[];
+  total: number;
+}
+
+export async function getWorkspaceOverheadCosts(): Promise<WorkspaceOverheadResult> {
+  const { workspace } = await requireWorkspace();
+  const costs = await prisma.overheadCost.findMany({
+    where: { workspaceId: workspace.id },
+    select: { id: true, name: true, amount: true },
+    orderBy: { createdAt: "asc" },
+  });
+  const total = costs.reduce((sum, c) => sum + c.amount, 0);
+  return { costs, total };
 }
 
 // ─── Buscar valor da hora padrão do workspace ───────────────────────
@@ -91,6 +116,7 @@ export async function createPricingCalculation(
     profitMode: data.profitMode,
     margemPercent: data.margemPercent,
     lucroFixo: data.lucroFixo,
+    overheadPerPiece: data.overheadPerPiece,
     name: data.name,
     selectedMaterials: data.selectedMaterials,
   };
@@ -110,4 +136,30 @@ export async function createPricingCalculation(
   await incrementPricingCounter(workspace.id);
 
   return { success: true, data: { id: record.id } };
+}
+
+// ─── Excluir cálculo de precificação ──────────────────────────────
+
+export async function deletePricingCalculation(
+  id: string
+): Promise<{ success: true } | { success: false; error: string }> {
+  const { workspace } = await requireWorkspace();
+
+  const calc = await prisma.priceCalculation.findUnique({
+    where: { id },
+    select: { workspaceId: true },
+  });
+
+  if (!calc) {
+    return { success: false, error: "Cálculo não encontrado" };
+  }
+
+  if (calc.workspaceId !== workspace.id) {
+    return { success: false, error: "Sem permissão para excluir este cálculo" };
+  }
+
+  await prisma.priceCalculation.delete({ where: { id } });
+
+  revalidatePath("/app/pricing");
+  return { success: true };
 }

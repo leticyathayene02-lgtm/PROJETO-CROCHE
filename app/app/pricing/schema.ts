@@ -34,6 +34,10 @@ export const pricingSchema = z.object({
   margemPercent: z.number().min(0).max(500),
   lucroFixo: z.number().min(0),
 
+  // Custos fixos (overhead) rateado por peça
+  overheadPerPiece: z.number().min(0).optional(),
+  piecesPerMonth: z.number().min(1).optional(),
+
   // Frete
   frete: z.number().min(0).optional(),
 });

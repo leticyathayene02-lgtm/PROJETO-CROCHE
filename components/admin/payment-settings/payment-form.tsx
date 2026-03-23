@@ -240,7 +240,7 @@ export function PaymentForm({
           </div>
         ) : (
           <p className="text-sm text-gray-600">
-            Nenhum teste realizado ainda. Salve a configuração e clique em "Testar conexão".
+            Nenhum teste realizado ainda. Salve a configuração e clique em &quot;Testar conexão&quot;.
           </p>
         )}
       </div>

@@ -215,7 +215,7 @@ export async function duplicateOrder(orderId: string) {
       productionStatus: "TODO",
       notes: order.notes,
       channel: order.channel,
-      checklistJson: order.checklistJson,
+      checklistJson: order.checklistJson ?? undefined,
     },
   });
 

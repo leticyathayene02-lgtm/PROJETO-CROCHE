@@ -64,3 +64,50 @@ export async function listTimeEntriesForOrder(orderId: string) {
     orderBy: { createdAt: "desc" },
   });
 }
+
+const STAGE_LABELS: Record<string, string> = {
+  production: "Produção",
+  finishing: "Acabamento",
+  packaging: "Embalagem",
+  other: "Outros",
+};
+
+export type StageBreakdown = {
+  stage: string;
+  label: string;
+  minutes: number;
+};
+
+export type OrderTimeSummary = {
+  totalMinutes: number;
+  stages: StageBreakdown[];
+};
+
+export async function getOrderTimeSummary(
+  orderId: string
+): Promise<OrderTimeSummary> {
+  const { workspace } = await requireWorkspace();
+
+  const entries = await prisma.timeEntry.findMany({
+    where: { workspaceId: workspace.id, orderId },
+    select: { stage: true, minutes: true },
+  });
+
+  const byStage: Record<string, number> = {};
+  let totalMinutes = 0;
+
+  for (const e of entries) {
+    byStage[e.stage] = (byStage[e.stage] ?? 0) + e.minutes;
+    totalMinutes += e.minutes;
+  }
+
+  const stages: StageBreakdown[] = Object.entries(byStage)
+    .map(([stage, minutes]) => ({
+      stage,
+      label: STAGE_LABELS[stage] ?? stage,
+      minutes,
+    }))
+    .sort((a, b) => b.minutes - a.minutes);
+
+  return { totalMinutes, stages };
+}
