@@ -12,7 +12,7 @@ export default async function AppLayout({
 }) {
   const { user, workspace, subscription } = await requireWorkspace();
 
-  const access = await checkAccess(workspace.id);
+  const access = await checkAccess(workspace.id, subscription);
 
   // If access is blocked, render paywall instead of the dashboard
   if (!access.allowed) {

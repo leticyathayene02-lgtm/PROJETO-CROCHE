@@ -6,8 +6,21 @@ export type AccessResult =
   | { allowed: false; status: "TRIAL_EXPIRED" }
   | { allowed: false; status: "BLOCKED" };
 
-export async function checkAccess(workspaceId: string): Promise<AccessResult> {
-  const sub = await prisma.subscription.findUnique({ where: { workspaceId } });
+type SubscriptionLike = {
+  workspaceId: string;
+  status: string;
+  accessStatus: string;
+  trialEndAt?: Date | null;
+};
+
+/**
+ * Check workspace access. Accepts optional subscription to avoid extra DB query.
+ */
+export async function checkAccess(
+  workspaceId: string,
+  existingSub?: SubscriptionLike | null
+): Promise<AccessResult> {
+  const sub = existingSub ?? await prisma.subscription.findUnique({ where: { workspaceId } });
   if (!sub) return { allowed: false, status: "BLOCKED" };
 
   // Assinatura ativa com pagamento confirmado

@@ -46,20 +46,19 @@ function StatusBadge({ status }: { status: ProductStatus }) {
 export default async function ProductsPage() {
   const { workspace } = await requireWorkspace();
 
-  const products = await prisma.product.findMany({
-    where: {
-      workspaceId: workspace.id,
-      status: { not: "ARCHIVED" },
-    },
-    include: {
-      variants: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
-
-  const archivedCount = await prisma.product.count({
-    where: { workspaceId: workspace.id, status: "ARCHIVED" },
-  });
+  const [products, archivedCount] = await Promise.all([
+    prisma.product.findMany({
+      where: {
+        workspaceId: workspace.id,
+        status: { not: "ARCHIVED" },
+      },
+      include: { variants: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.product.count({
+      where: { workspaceId: workspace.id, status: "ARCHIVED" },
+    }),
+  ]);
 
   return (
     <div className="space-y-6">
