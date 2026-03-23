@@ -5,7 +5,7 @@ import { encrypt, decrypt } from "@/lib/crypto";
 
 const ASAAS_BASE: Record<"SANDBOX" | "PRODUCTION", string> = {
   SANDBOX: "https://sandbox.asaas.com/api/v3",
-  PRODUCTION: "https://api.asaas.com/api/v3",
+  PRODUCTION: "https://api.asaas.com/v3",
 };
 
 export async function savePaymentConfig(data: {
@@ -50,27 +50,28 @@ export async function testPaymentConnection() {
   const baseUrl = ASAAS_BASE[config.environment];
 
   try {
-    const res = await fetch(`${baseUrl}/myAccount`, {
+    const res = await fetch(`${baseUrl}/customers?limit=1`, {
       headers: { access_token: apiKey },
       signal: AbortSignal.timeout(8000),
     });
 
     if (res.ok) {
-      const data = await res.json();
       await prisma.paymentConfig.update({
         where: { id: config.id },
         data: {
           lastTestedAt: new Date(),
           lastTestOk: true,
-          lastTestMsg: `Conectado: ${data.name ?? "conta válida"}`,
+          lastTestMsg: `Conectado com sucesso (${config.environment})`,
         },
       });
-      return { success: true, message: `Conectado: ${data.name ?? "conta válida"}` };
+      return { success: true, message: `Conectado com sucesso (${config.environment})` };
     } else {
       const msg =
         res.status === 401
           ? "API Key inválida (401 Unauthorized)."
-          : `Erro ${res.status} da API Asaas.`;
+          : res.status === 403
+            ? "API Key sem permissão (403 Forbidden)."
+            : `Erro ${res.status} da API Asaas.`;
       await prisma.paymentConfig.update({
         where: { id: config.id },
         data: { lastTestedAt: new Date(), lastTestOk: false, lastTestMsg: msg },
