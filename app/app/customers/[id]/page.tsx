@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireWorkspace } from "@/lib/workspace";
 import { prisma } from "@/lib/prisma";
 import { CustomerForm } from "@/components/customers/CustomerForm";
+import { DeleteCustomerButton } from "@/components/customers/DeleteCustomerButton";
 import { updateCustomer, deleteCustomer } from "@/lib/customers/actions";
 import { ChevronLeft, Instagram, Phone, MapPin, ShoppingBag, MessageCircle } from "lucide-react";
 
@@ -167,19 +168,7 @@ export default async function CustomerDetailPage({
         <p className="mb-3 text-sm font-medium text-red-700 dark:text-red-400">
           Excluir esta cliente permanentemente
         </p>
-        <form action={deleteWithId}>
-          <button
-            type="submit"
-            className="rounded-lg border border-red-300 dark:border-red-800 bg-white dark:bg-transparent px-4 py-2 text-sm font-semibold text-red-600 dark:text-red-400 transition hover:bg-red-50 dark:hover:bg-red-950/30"
-            onClick={(e) => {
-              if (!confirm("Excluir esta cliente? Os pedidos vinculados não serão apagados.")) {
-                e.preventDefault();
-              }
-            }}
-          >
-            Excluir cliente
-          </button>
-        </form>
+        <DeleteCustomerButton action={deleteWithId} />
       </div>
     </div>
   );

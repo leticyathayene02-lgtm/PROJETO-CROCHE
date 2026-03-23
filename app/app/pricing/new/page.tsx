@@ -35,9 +35,8 @@ import {
   getWorkspaceMaterials,
   getDefaultHourlyRate,
   getWorkspaceOverheadCosts,
-  type CatalogMaterial,
-  type OverheadCostItem,
 } from "../actions";
+import type { CatalogMaterial, OverheadCostItem } from "../types";
 import {
   computePricingTotals,
   getPricingAlerts,

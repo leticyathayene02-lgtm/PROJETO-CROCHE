@@ -65,22 +65,13 @@ export async function listTimeEntriesForOrder(orderId: string) {
   });
 }
 
+import type { StageBreakdown, OrderTimeSummary } from "./types";
+
 const STAGE_LABELS: Record<string, string> = {
   production: "Produção",
   finishing: "Acabamento",
   packaging: "Embalagem",
   other: "Outros",
-};
-
-export type StageBreakdown = {
-  stage: string;
-  label: string;
-  minutes: number;
-};
-
-export type OrderTimeSummary = {
-  totalMinutes: number;
-  stages: StageBreakdown[];
 };
 
 export async function getOrderTimeSummary(

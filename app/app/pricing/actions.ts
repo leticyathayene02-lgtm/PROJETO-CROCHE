@@ -9,19 +9,9 @@ import {
 import { computePricingTotals, type PricingInputs } from "@/lib/pricing";
 import { pricingSchema, type PricingFormValues } from "./schema";
 import { revalidatePath } from "next/cache";
+import type { CatalogMaterial, WorkspaceOverheadResult } from "./types";
 
 // ─── Buscar materiais cadastrados do workspace ──────────────────────
-
-export interface CatalogMaterial {
-  id: string;
-  name: string;
-  category: string;
-  brand: string | null;
-  color: string | null;
-  unit: string;
-  costPerUnit: number;
-  stock: number;
-}
 
 export async function getWorkspaceMaterials(): Promise<CatalogMaterial[]> {
   const { workspace } = await requireWorkspace();
@@ -43,17 +33,6 @@ export async function getWorkspaceMaterials(): Promise<CatalogMaterial[]> {
 }
 
 // ─── Buscar custos fixos (overhead) do workspace ────────────────────
-
-export interface OverheadCostItem {
-  id: string;
-  name: string;
-  amount: number;
-}
-
-export interface WorkspaceOverheadResult {
-  costs: OverheadCostItem[];
-  total: number;
-}
 
 export async function getWorkspaceOverheadCosts(): Promise<WorkspaceOverheadResult> {
   const { workspace } = await requireWorkspace();

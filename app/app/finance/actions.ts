@@ -1,24 +1,10 @@
 "use server";
 
-import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { requireWorkspace } from "@/lib/workspace";
 import { prisma } from "@/lib/prisma";
 import { checkTransactionLimit, incrementTransactionCounter } from "@/lib/limits";
-
-// ─────────────────────────────────────────
-// Zod Schema
-// ─────────────────────────────────────────
-
-const transactionSchema = z.object({
-  type: z.enum(["IN", "OUT"]),
-  category: z.string().min(1, "Categoria é obrigatória"),
-  amount: z.number().positive("Valor deve ser positivo"),
-  date: z.string().min(1, "Data é obrigatória"),
-  notes: z.string().optional(),
-});
-
-export type TransactionFormValues = z.infer<typeof transactionSchema>;
+import { transactionSchema, type TransactionFormValues } from "./types";
 
 // ─────────────────────────────────────────
 // Create Transaction

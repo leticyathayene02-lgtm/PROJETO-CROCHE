@@ -1,5 +1,5 @@
 import { TrendingUp, Timer } from "lucide-react";
-import type { OrderTimeSummary } from "@/lib/time/actions";
+import type { OrderTimeSummary } from "@/lib/time/types";
 
 type Props = {
   summary: OrderTimeSummary;
