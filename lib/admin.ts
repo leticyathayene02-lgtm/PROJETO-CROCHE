@@ -1,7 +1,13 @@
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 
-const ADMIN_EMAIL = "admin2328@tramapro.com";
+/**
+ * Emails que têm acesso ao painel administrativo.
+ */
+const ADMIN_EMAILS: string[] = [
+  "admin2328@tramapro.com",
+  "leticya331331@gmail.com",
+];
 
 /**
  * Emails that always have lifetime PREMIUM access regardless of subscription status.
@@ -16,7 +22,7 @@ export function isSuperAdmin(email: string): boolean {
 
 export async function requireAdmin() {
   const session = await getSession();
-  if (!session || session.user.email !== ADMIN_EMAIL) {
+  if (!session || !ADMIN_EMAILS.includes(session.user.email.toLowerCase())) {
     redirect("/admin/login");
   }
   return session.user;

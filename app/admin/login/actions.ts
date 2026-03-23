@@ -6,7 +6,10 @@ import { createSession, sessionCookieOptions, SESSION_TTL_MS } from "@/lib/sessi
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-const ADMIN_EMAIL = "admin2328@tramapro.com";
+const ADMIN_EMAILS = [
+  "admin2328@tramapro.com",
+  "leticya331331@gmail.com",
+];
 
 export async function adminLogin(
   _prevState: { error: string } | undefined,
@@ -15,7 +18,7 @@ export async function adminLogin(
   const email = (formData.get("email") as string)?.trim().toLowerCase();
   const password = formData.get("password") as string;
 
-  if (email !== ADMIN_EMAIL) {
+  if (!ADMIN_EMAILS.includes(email)) {
     return { error: "Acesso negado." };
   }
 

@@ -107,11 +107,11 @@ export default async function AdminSubscriptionsPage({ searchParams }: Props) {
                 {subs.map((s) => (
                   <tr key={s.id} className="transition hover:bg-white/[0.02]">
                     <td className="px-6 py-4">
-                      <p className="font-medium text-gray-200">{s.workspace.name}</p>
+                      <p className="font-medium text-gray-200">{s.workspace?.name ?? "—"}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-gray-300">{s.workspace.owner.name ?? "—"}</p>
-                      <p className="text-xs text-gray-600">{s.workspace.owner.email}</p>
+                      <p className="text-gray-300">{s.workspace?.owner?.name ?? "—"}</p>
+                      <p className="text-xs text-gray-600">{s.workspace?.owner?.email ?? "—"}</p>
                     </td>
                     <td className="px-6 py-4">
                       <StatusBadge
