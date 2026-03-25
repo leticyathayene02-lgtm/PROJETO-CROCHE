@@ -117,6 +117,88 @@ export async function createPricingCalculation(
   return { success: true, data: { id: record.id } };
 }
 
+// ─── Buscar cálculo para edição ──────────────────────────────────
+
+export async function getPricingCalculation(id: string) {
+  const { workspace } = await requireWorkspace();
+
+  const calc = await prisma.priceCalculation.findUnique({
+    where: { id },
+    select: { id: true, workspaceId: true, inputsJson: true },
+  });
+
+  if (!calc || calc.workspaceId !== workspace.id) {
+    return null;
+  }
+
+  return calc.inputsJson as Record<string, unknown>;
+}
+
+// ─── Atualizar cálculo de precificação ──────────────────────────────
+
+export async function updatePricingCalculation(
+  id: string,
+  raw: PricingFormValues
+): Promise<{ success: true; data: { id: string } } | { success: false; error: string }> {
+  const parsed = pricingSchema.safeParse(raw);
+  if (!parsed.success) {
+    const firstError = parsed.error.issues[0]?.message ?? "Dados inválidos";
+    return { success: false, error: firstError };
+  }
+
+  const data = parsed.data;
+  const { workspace } = await requireWorkspace();
+
+  const existing = await prisma.priceCalculation.findUnique({
+    where: { id },
+    select: { workspaceId: true },
+  });
+
+  if (!existing || existing.workspaceId !== workspace.id) {
+    return { success: false, error: "Cálculo não encontrado" };
+  }
+
+  const complementaresTotal = (data.selectedMaterials ?? []).reduce(
+    (sum, m) => sum + m.cost,
+    0
+  );
+
+  const inputs: PricingInputs = {
+    material: data.material,
+    embalagem: 0,
+    mimo: 0,
+    acessorios: 0,
+    grafica: 0,
+    complementares: complementaresTotal,
+    horas: data.horas,
+    valorHora: data.valorHora,
+    taxaCartao: data.taxaCartao,
+    impostoMarketplace: data.impostoMarketplace,
+    profitMode: data.profitMode,
+    margemPercent: data.margemPercent,
+    lucroFixo: data.lucroFixo,
+    overheadPerPiece: data.overheadPerPiece,
+    name: data.name,
+    selectedMaterials: data.selectedMaterials,
+  };
+
+  const totals = computePricingTotals(inputs);
+
+  await prisma.priceCalculation.update({
+    where: { id },
+    data: {
+      name: data.name?.trim() || null,
+      inputsJson: JSON.parse(JSON.stringify(inputs)),
+      totalsJson: JSON.parse(JSON.stringify(totals)),
+    },
+  });
+
+  revalidatePath("/app/pricing");
+  revalidatePath(`/app/pricing/${id}`);
+
+  return { success: true, data: { id } };
+}
+
 // ─── Excluir cálculo de precificação ──────────────────────────────
 
 export async function deletePricingCalculation(

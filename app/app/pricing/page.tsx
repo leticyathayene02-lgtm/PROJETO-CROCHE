@@ -3,7 +3,7 @@ import { requireWorkspace } from "@/lib/workspace";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calculator, Plus, RotateCcw } from "lucide-react";
+import { Calculator, Plus, RotateCcw, Pencil } from "lucide-react";
 import { DeletePricingButton } from "./delete-button";
 
 export default async function PricingPage() {
@@ -132,17 +132,30 @@ export default async function PricingPage() {
                   {/* Actions */}
                   <div className="mt-3 flex items-center justify-between">
                     <DeletePricingButton id={calc.id} />
-                    <Button
-                      asChild
-                      variant="outline"
-                      size="sm"
-                      className="border-rose-200 dark:border-rose-800/40 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30"
-                    >
-                      <Link href={`/app/pricing/new?prefill=${prefillData}`}>
-                        <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
-                        Usar novamente
-                      </Link>
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        asChild
+                        variant="outline"
+                        size="sm"
+                        className="border-rose-200 dark:border-rose-800/40 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                      >
+                        <Link href={`/app/pricing/new?edit=${calc.id}`}>
+                          <Pencil className="mr-1.5 h-3.5 w-3.5" />
+                          Editar
+                        </Link>
+                      </Button>
+                      <Button
+                        asChild
+                        variant="outline"
+                        size="sm"
+                        className="border-rose-200 dark:border-rose-800/40 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                      >
+                        <Link href={`/app/pricing/new?prefill=${prefillData}`}>
+                          <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
+                          Duplicar
+                        </Link>
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

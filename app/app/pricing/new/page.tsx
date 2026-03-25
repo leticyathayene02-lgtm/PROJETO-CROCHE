@@ -32,6 +32,8 @@ import {
 
 import {
   createPricingCalculation,
+  updatePricingCalculation,
+  getPricingCalculation,
   getWorkspaceMaterials,
   getDefaultHourlyRate,
   getWorkspaceOverheadCosts,
@@ -190,9 +192,25 @@ export default function NewPricingPage() {
   const searchParams = useSearchParams();
   const [saving, setSaving] = useState(false);
 
+  // Edit mode: ?edit=<calcId>
+  const editId = searchParams.get("edit");
+  const isEditMode = !!editId;
+  const [editLoaded, setEditLoaded] = useState(false);
+
   // Catalog materials from DB
   const [catalogMaterials, setCatalogMaterials] = useState<CatalogMaterial[]>([]);
   const [loadingMaterials, setLoadingMaterials] = useState(true);
+
+  // Prefill from query params (used by "Usar novamente")
+  const prefill = useMemo(() => {
+    const raw = searchParams.get("prefill");
+    if (!raw) return null;
+    try {
+      return JSON.parse(decodeURIComponent(raw));
+    } catch {
+      return null;
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     getWorkspaceMaterials()
@@ -216,18 +234,39 @@ export default function NewPricingPage() {
         if (rate > 0) setValorHora(rate);
       });
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Prefill from query params (used by "Usar novamente")
-  const prefill = useMemo(() => {
-    const raw = searchParams.get("prefill");
-    if (!raw) return null;
-    try {
-      return JSON.parse(decodeURIComponent(raw));
-    } catch {
-      return null;
+    // Load existing calculation for edit mode
+    if (editId) {
+      getPricingCalculation(editId).then((data) => {
+        if (!data) {
+          toast.error("Cálculo não encontrado");
+          router.push("/app/pricing");
+          return;
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const d = data as any;
+        if (d.name) setName(d.name);
+        if (d.material) setMaterial(d.material);
+        if (d.selectedMaterials) setSelectedMaterials(d.selectedMaterials);
+        if (d.horas) setHoras(d.horas);
+        if (d.valorHora) setValorHora(d.valorHora);
+        if (d.taxaCartao) setTaxaCartao(d.taxaCartao);
+        if (d.impostoMarketplace) setImpostoMarketplace(d.impostoMarketplace);
+        if (d.profitMode) setProfitMode(d.profitMode);
+        if (d.margemPercent != null) setMargemPercent(d.margemPercent);
+        if (d.lucroFixo) setLucroFixo(d.lucroFixo);
+        if (d.overheadPerPiece > 0) {
+          setOverheadOpen(true);
+          if (d.piecesPerMonth) setPiecesPerMonth(d.piecesPerMonth);
+        }
+        if (d.frete > 0) {
+          setIncludeFrete(true);
+          setFrete(d.frete);
+        }
+        setEditLoaded(true);
+      });
     }
-  }, [searchParams]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Form state
   const [name, setName] = useState(prefill?.name ?? "");
@@ -335,7 +374,7 @@ export default function NewPricingPage() {
   // Submit
   async function onSubmit() {
     setSaving(true);
-    const result = await createPricingCalculation({
+    const formData = {
       name,
       material,
       selectedMaterials,
@@ -349,14 +388,18 @@ export default function NewPricingPage() {
       overheadPerPiece: overheadPerPiece > 0 ? overheadPerPiece : undefined,
       piecesPerMonth: piecesPerMonth > 0 ? piecesPerMonth : undefined,
       frete: includeFrete ? frete : 0,
-    });
+    };
+
+    const result = isEditMode
+      ? await updatePricingCalculation(editId!, formData)
+      : await createPricingCalculation(formData);
     setSaving(false);
 
     if (!result.success) {
       toast.error(result.error);
       return;
     }
-    toast.success("Cálculo salvo com sucesso!");
+    toast.success(isEditMode ? "Cálculo atualizado!" : "Cálculo salvo com sucesso!");
     router.push(`/app/pricing/${result.data.id}`);
   }
 
@@ -409,10 +452,10 @@ export default function NewPricingPage() {
           Voltar ao histórico
         </Link>
         <h1 className="font-heading text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-          Calculadora de Preços
+          {isEditMode ? "Editar Cálculo" : "Calculadora de Preços"}
         </h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          Descubra o preço ideal da sua peça
+          {isEditMode ? "Altere os valores e salve" : "Descubra o preço ideal da sua peça"}
         </p>
       </div>
 
@@ -1033,10 +1076,10 @@ export default function NewPricingPage() {
         {saving ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Salvando...
+            {isEditMode ? "Atualizando..." : "Salvando..."}
           </>
         ) : (
-          "Salvar cálculo"
+          isEditMode ? "Atualizar cálculo" : "Salvar cálculo"
         )}
       </Button>
     </div>

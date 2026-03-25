@@ -13,6 +13,7 @@ import {
   Clock,
   Package,
   Wrench,
+  Pencil,
 } from "lucide-react";
 import { DeleteCalcButton } from "./delete-calc-button";
 import type { PricingTotals } from "@/lib/pricing";
@@ -268,9 +269,9 @@ export default async function PricingDetailPage({
           variant="outline"
           className="flex-1 border-rose-200 dark:border-rose-800/40 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 h-12 text-base"
         >
-          <Link href="/app/pricing">
-            <Calculator className="mr-2 h-5 w-5" />
-            Voltar ao histórico
+          <Link href={`/app/pricing/new?edit=${calc.id}`}>
+            <Pencil className="mr-2 h-5 w-5" />
+            Editar cálculo
           </Link>
         </Button>
       </div>
