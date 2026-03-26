@@ -542,11 +542,20 @@ export default function NewPricingPage() {
               />
               <div className="max-h-48 overflow-y-auto rounded-xl border border-rose-100 dark:border-rose-800/30 bg-white dark:bg-white/5">
                 {availableMaterials.length === 0 ? (
-                  <p className="p-3 text-center text-sm text-gray-400 dark:text-gray-500">
-                    {searchTerm
-                      ? "Nenhum material encontrado"
-                      : "Todos os materiais já foram adicionados"}
-                  </p>
+                  <div className="p-3 text-center">
+                    <p className="text-sm text-gray-400 dark:text-gray-500 mb-2">
+                      {searchTerm
+                        ? "Nenhum material encontrado"
+                        : "Todos os materiais já foram adicionados"}
+                    </p>
+                    <Link
+                      href="/app/materials/new"
+                      className="inline-flex items-center gap-1.5 text-sm font-medium text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      Cadastrar novo material
+                    </Link>
+                  </div>
                 ) : (
                   availableMaterials.map((mat) => (
                     <button
@@ -588,14 +597,23 @@ export default function NewPricingPage() {
               </button>
             </div>
           ) : (
-            <button
-              type="button"
-              onClick={() => setShowSelector(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-rose-600 dark:text-rose-400 transition-colors hover:bg-rose-50 dark:hover:bg-rose-950/30"
-            >
-              <Plus className="h-4 w-4" />
-              Adicionar material complementar
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowSelector(true)}
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-rose-600 dark:text-rose-400 transition-colors hover:bg-rose-50 dark:hover:bg-rose-950/30"
+              >
+                <Plus className="h-4 w-4" />
+                Adicionar material complementar
+              </button>
+              <Link
+                href="/app/materials/new"
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-700 dark:hover:text-gray-300"
+              >
+                <Package className="h-4 w-4" />
+                Cadastrar novo material
+              </Link>
+            </div>
           )}
 
           {/* Total materiais */}
