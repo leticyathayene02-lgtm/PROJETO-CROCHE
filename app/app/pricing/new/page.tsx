@@ -29,6 +29,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 import {
   createPricingCalculation,
@@ -47,6 +54,7 @@ import {
   type ProfitMode,
 } from "@/lib/pricing";
 import type { SelectedMaterial } from "../schema";
+import { createMaterial } from "@/lib/materials/actions";
 
 // ─── Helpers ────────────────────────────────────────────────────────
 
@@ -304,6 +312,61 @@ export default function NewPricingPage() {
   const [showSelector, setShowSelector] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Quick material creation modal
+  const [showNewMaterial, setShowNewMaterial] = useState(false);
+  const [newMatName, setNewMatName] = useState("");
+  const [newMatCategory, setNewMatCategory] = useState("YARN");
+  const [newMatUnit, setNewMatUnit] = useState("GRAMS");
+  const [newMatCostStr, setNewMatCostStr] = useState("");
+  const [newMatCost, setNewMatCost] = useState(0);
+  const [newMatBrand, setNewMatBrand] = useState("");
+  const [newMatSaving, setNewMatSaving] = useState(false);
+
+  function resetNewMaterialForm() {
+    setNewMatName("");
+    setNewMatCategory("YARN");
+    setNewMatUnit("GRAMS");
+    setNewMatCostStr("");
+    setNewMatCost(0);
+    setNewMatBrand("");
+  }
+
+  async function handleCreateMaterial() {
+    if (!newMatName.trim()) { toast.error("Nome é obrigatório"); return; }
+    if (newMatCost <= 0) { toast.error("Informe o custo por unidade"); return; }
+
+    setNewMatSaving(true);
+    const result = await createMaterial({
+      name: newMatName.trim(),
+      category: newMatCategory as "YARN",
+      unit: newMatUnit as "GRAMS",
+      costPerUnit: newMatCost,
+      brand: newMatBrand || undefined,
+      stock: 0,
+    });
+    setNewMatSaving(false);
+
+    if (!result.success) { toast.error(result.error); return; }
+
+    // Add to local catalog + auto-select
+    const newMat: CatalogMaterial = {
+      id: result.data.id,
+      name: newMatName.trim(),
+      category: newMatCategory,
+      brand: newMatBrand || null,
+      color: null,
+      unit: newMatUnit,
+      costPerUnit: newMatCost,
+      stock: 0,
+    };
+    setCatalogMaterials((prev) => [...prev, newMat]);
+    addMaterial(newMat);
+
+    toast.success("Material cadastrado e adicionado!");
+    resetNewMaterialForm();
+    setShowNewMaterial(false);
+  }
+
   // Filtered materials for selector (exclude already selected)
   const availableMaterials = useMemo(() => {
     const selectedIds = new Set(selectedMaterials.map((m) => m.materialId));
@@ -403,43 +466,6 @@ export default function NewPricingPage() {
     router.push(`/app/pricing/${result.data.id}`);
   }
 
-  // Gate: no materials registered yet
-  if (!loadingMaterials && catalogMaterials.length === 0) {
-    return (
-      <div className="mx-auto max-w-xl space-y-5 pb-24">
-        <div>
-          <Link
-            href="/app/pricing"
-            className="mb-3 inline-flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Voltar ao histórico
-          </Link>
-        </div>
-        <div className="rounded-3xl border border-rose-100 dark:border-rose-800/30 bg-white dark:bg-[oklch(0.18_0.01_280)] p-8 text-center shadow-sm">
-          <div className="mb-4 flex justify-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-900/40">
-              <Package className="h-8 w-8 text-rose-500 dark:text-rose-400" />
-            </div>
-          </div>
-          <h2 className="mb-2 text-lg font-bold text-gray-900 dark:text-white">
-            Cadastre pelo menos 1 material primeiro
-          </h2>
-          <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
-            Para usar a calculadora, você precisa ter pelo menos um material cadastrado no seu catálogo (fios, olhos, enchimento, etc.).
-          </p>
-          <Link
-            href="/app/materials/new"
-            className="inline-flex items-center gap-2 rounded-xl bg-rose-600 hover:bg-rose-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            Cadastrar primeiro material
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="mx-auto max-w-xl space-y-5 pb-24">
       {/* Header */}
@@ -524,13 +550,14 @@ export default function NewPricingPage() {
               Carregando materiais...
             </div>
           ) : catalogMaterials.length === 0 ? (
-            <Link
-              href="/app/materials/new"
+            <button
+              type="button"
+              onClick={() => setShowNewMaterial(true)}
               className="flex items-center gap-2 text-sm text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300"
             >
               <Plus className="h-4 w-4" />
-              Cadastrar materiais para usar aqui
-            </Link>
+              Cadastrar primeiro material
+            </button>
           ) : showSelector ? (
             <div className="space-y-2">
               <Input
@@ -548,13 +575,17 @@ export default function NewPricingPage() {
                         ? "Nenhum material encontrado"
                         : "Todos os materiais já foram adicionados"}
                     </p>
-                    <Link
-                      href="/app/materials/new"
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (searchTerm) setNewMatName(searchTerm);
+                        setShowNewMaterial(true);
+                      }}
                       className="inline-flex items-center gap-1.5 text-sm font-medium text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300"
                     >
                       <Plus className="h-3.5 w-3.5" />
                       Cadastrar novo material
-                    </Link>
+                    </button>
                   </div>
                 ) : (
                   availableMaterials.map((mat) => (
@@ -604,15 +635,16 @@ export default function NewPricingPage() {
                 className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-rose-600 dark:text-rose-400 transition-colors hover:bg-rose-50 dark:hover:bg-rose-950/30"
               >
                 <Plus className="h-4 w-4" />
-                Adicionar material complementar
+                Adicionar do catálogo
               </button>
-              <Link
-                href="/app/materials/new"
+              <button
+                type="button"
+                onClick={() => setShowNewMaterial(true)}
                 className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-700 dark:hover:text-gray-300"
               >
                 <Package className="h-4 w-4" />
                 Cadastrar novo material
-              </Link>
+              </button>
             </div>
           )}
 
@@ -1100,6 +1132,109 @@ export default function NewPricingPage() {
           isEditMode ? "Atualizar cálculo" : "Salvar cálculo"
         )}
       </Button>
+
+      {/* ── Modal: Cadastro rápido de material ──────────────────────── */}
+      <Dialog open={showNewMaterial} onOpenChange={(open) => { setShowNewMaterial(open); if (!open) resetNewMaterialForm(); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Cadastrar material</DialogTitle>
+            <DialogDescription>
+              Cadastro rápido — o material ficará salvo no seu catálogo.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-900 dark:text-white">
+                Nome *
+              </label>
+              <Input
+                autoFocus
+                placeholder="Ex.: Fio Amigurumi Círculo"
+                value={newMatName}
+                onChange={(e) => setNewMatName(e.target.value)}
+                className="border-rose-200 dark:border-rose-800/40 dark:bg-white/5 dark:text-white"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-900 dark:text-white">
+                  Categoria
+                </label>
+                <select
+                  value={newMatCategory}
+                  onChange={(e) => setNewMatCategory(e.target.value)}
+                  className="w-full rounded-md border border-rose-200 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-2 text-sm dark:text-white"
+                >
+                  {Object.entries(CATEGORY_LABELS).map(([val, label]) => (
+                    <option key={val} value={val}>{label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-900 dark:text-white">
+                  Unidade
+                </label>
+                <select
+                  value={newMatUnit}
+                  onChange={(e) => setNewMatUnit(e.target.value)}
+                  className="w-full rounded-md border border-rose-200 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-2 text-sm dark:text-white"
+                >
+                  {Object.entries(UNIT_LABELS).map(([val, label]) => (
+                    <option key={val} value={val}>{label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-900 dark:text-white">
+                  Custo por unidade (R$) *
+                </label>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="0,12"
+                  value={newMatCostStr}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/[^0-9.,]/g, "");
+                    setNewMatCostStr(raw);
+                    setNewMatCost(parseDecimal(raw));
+                  }}
+                  className="border-rose-200 dark:border-rose-800/40 dark:bg-white/5 dark:text-white"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-900 dark:text-white">
+                  Marca
+                </label>
+                <Input
+                  placeholder="Ex.: Círculo"
+                  value={newMatBrand}
+                  onChange={(e) => setNewMatBrand(e.target.value)}
+                  className="border-rose-200 dark:border-rose-800/40 dark:bg-white/5 dark:text-white"
+                />
+              </div>
+            </div>
+            <Button
+              onClick={handleCreateMaterial}
+              disabled={newMatSaving}
+              className="w-full bg-rose-600 hover:bg-rose-700 text-white"
+            >
+              {newMatSaving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                <>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Cadastrar e adicionar ao cálculo
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
