@@ -6,8 +6,6 @@
  * never from the persisted `accessStatus` field alone.
  */
 
-import { SUPER_ADMIN_EMAILS } from "@/lib/admin";
-
 /** Trial lasts exactly 7 calendar days. */
 export const TRIAL_DURATION_DAYS = 7;
 export const TRIAL_DURATION_MS = TRIAL_DURATION_DAYS * 24 * 60 * 60 * 1000;
@@ -25,14 +23,9 @@ export type TrialStatus =
 
 /**
  * Compute the real display status for a subscription based on timestamps.
- * Pass ownerEmail to auto-detect super admins (always "Ativo").
+ * Reads only the subscription data — no email hacks, no hardcodes.
  */
-export function computeTrialStatus(sub: SubscriptionInput | null | undefined, ownerEmail?: string | null): TrialStatus {
-  // Super admins are always active regardless of subscription state
-  if (ownerEmail && SUPER_ADMIN_EMAILS.includes(ownerEmail.toLowerCase())) {
-    return { label: "Ativo", variant: "success", expired: false };
-  }
-
+export function computeTrialStatus(sub: SubscriptionInput | null | undefined): TrialStatus {
   if (!sub) {
     return { label: "Inativo", variant: "danger", expired: true };
   }
