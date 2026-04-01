@@ -44,7 +44,7 @@ export default async function AdminSubscriptionsPage({ searchParams }: Props) {
   // Compute statuses for all subscriptions
   const subsWithStatus = subs.map((s) => ({
     ...s,
-    computed: computeTrialStatus(s),
+    computed: computeTrialStatus(s, s.workspace?.owner?.email),
   }));
 
   const total = subsWithStatus.length;

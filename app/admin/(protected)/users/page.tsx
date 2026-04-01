@@ -92,7 +92,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                 {users.map((user) => {
                   const ws = user.ownedWorkspaces[0];
                   const plan = ws?.subscription?.plan ?? "FREE";
-                  const computed = computeTrialStatus(ws?.subscription);
+                  const computed = computeTrialStatus(ws?.subscription, user.email);
                   return (
                     <tr key={user.id} className="group transition hover:bg-white/[0.02]">
                       <td className="px-6 py-4">

@@ -36,6 +36,7 @@ async function getStats() {
         accessStatus: true,
         trialStartAt: true,
         trialEndAt: true,
+        workspace: { select: { owner: { select: { email: true } } } },
       },
     }),
     prisma.subscription.count({ where: { plan: "PREMIUM" } }),
@@ -68,7 +69,7 @@ async function getStats() {
   ]);
 
   // Compute inactive count from timestamps (not from DB field)
-  const inactiveUsers = allSubscriptions.filter((s) => computeTrialStatus(s).expired).length;
+  const inactiveUsers = allSubscriptions.filter((s) => computeTrialStatus(s, s.workspace?.owner?.email).expired).length;
   const freePlans = allSubscriptions.filter((s) => s.plan === "FREE").length;
 
   return {
@@ -186,7 +187,7 @@ export default async function AdminDashboard() {
             stats.recentUsers.map((u) => {
               const sub = u.ownedWorkspaces[0]?.subscription;
               const plan = sub?.plan ?? "FREE";
-              const computed = computeTrialStatus(sub);
+              const computed = computeTrialStatus(sub, u.email);
               return (
                 <div key={u.id} className="flex items-center justify-between px-6 py-3.5 transition hover:bg-white/[0.02]">
                   <div className="flex items-center gap-3">
