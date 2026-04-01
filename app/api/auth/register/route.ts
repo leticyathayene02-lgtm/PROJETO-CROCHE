@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { createSession, sessionCookieOptions, SESSION_TTL_MS } from "@/lib/session";
 import { sendWelcomeEmail } from "@/lib/email";
+import { TRIAL_DURATION_MS } from "@/lib/trial";
 
 export async function POST(req: NextRequest) {
   try {
@@ -70,7 +71,7 @@ export async function POST(req: NextRequest) {
             status: "TRIALING",
             accessStatus: "TRIAL",
             trialStartAt: new Date(),
-            trialEndAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 dias
+            trialEndAt: new Date(Date.now() + TRIAL_DURATION_MS), // 7 dias
           },
         },
       },

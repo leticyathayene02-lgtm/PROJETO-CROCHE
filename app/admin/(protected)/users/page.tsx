@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/admin/page-header";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { SearchBar } from "@/components/admin/search-bar";
+import { computeTrialStatus } from "@/lib/trial";
 import { Users } from "lucide-react";
 import { Suspense } from "react";
 
@@ -27,7 +28,15 @@ async function getUsers(query?: string) {
       ownedWorkspaces: {
         select: {
           name: true,
-          subscription: { select: { plan: true, status: true } },
+          subscription: {
+            select: {
+              plan: true,
+              status: true,
+              accessStatus: true,
+              trialStartAt: true,
+              trialEndAt: true,
+            },
+          },
           _count: { select: { materials: true, orders: true, products: true } },
         },
       },
@@ -69,7 +78,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/[0.06]">
-                  {["Usuário", "Workspace", "Plano", "Materiais", "Pedidos", "Cadastrado em"].map((h) => (
+                  {["Usuário", "Workspace", "Plano", "Status", "Materiais", "Pedidos", "Cadastrado em"].map((h) => (
                     <th
                       key={h}
                       className="px-6 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-600"
@@ -83,6 +92,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                 {users.map((user) => {
                   const ws = user.ownedWorkspaces[0];
                   const plan = ws?.subscription?.plan ?? "FREE";
+                  const computed = computeTrialStatus(ws?.subscription);
                   return (
                     <tr key={user.id} className="group transition hover:bg-white/[0.02]">
                       <td className="px-6 py-4">
@@ -101,6 +111,13 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                         <StatusBadge
                           label={plan}
                           variant={plan === "PREMIUM" ? "premium" : "neutral"}
+                          dot
+                        />
+                      </td>
+                      <td className="px-6 py-4">
+                        <StatusBadge
+                          label={computed.label}
+                          variant={computed.variant}
                           dot
                         />
                       </td>

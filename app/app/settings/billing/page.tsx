@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { subscribeAction, cancelSubscriptionAction } from "./billing-actions";
 import { SubscribeButton } from "./subscribe-button";
+import { TRIAL_DURATION_MS } from "@/lib/trial";
 
 
 function formatDate(date: Date | null | undefined) {
@@ -38,10 +39,14 @@ export default async function BillingPage({
   });
   const userCpf = fullUser?.cpfCnpj ?? "";
 
-  const isTrial =
-    subscription?.accessStatus === "TRIAL" &&
-    subscription?.trialEndAt &&
-    new Date() < new Date(subscription.trialEndAt);
+  // Compute trial status from trialStartAt + 7 days (source of truth)
+  const trialEnd = subscription?.trialStartAt
+    ? new Date(new Date(subscription.trialStartAt).getTime() + TRIAL_DURATION_MS)
+    : subscription?.trialEndAt
+      ? new Date(subscription.trialEndAt)
+      : null;
+
+  const isTrial = trialEnd && new Date() < trialEnd;
 
   const plan =
     subscription?.plan === "PREMIUM" && subscription.status === "ACTIVE"
@@ -109,7 +114,7 @@ export default async function BillingPage({
             {plan === "PREMIUM"
               ? `Renovação em ${formatDate(subscription?.currentPeriodEnd)}`
               : isTrial
-                ? `Período de teste gratuito — expira em ${formatDate(subscription?.trialEndAt)}`
+                ? `Período de teste gratuito — expira em ${formatDate(trialEnd)}`
                 : "Acesso limitado. Faça upgrade para recursos ilimitados."}
           </CardDescription>
         </CardHeader>

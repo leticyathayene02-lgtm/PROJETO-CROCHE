@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { StatCard } from "@/components/admin/stat-card";
 import { PageHeader } from "@/components/admin/page-header";
 import { StatusBadge } from "@/components/admin/status-badge";
+import { computeTrialStatus } from "@/lib/trial";
 import {
   Users,
   Star,
@@ -10,6 +11,7 @@ import {
   ShoppingBag,
   ArrowUpRight,
   Activity,
+  UserX,
 } from "lucide-react";
 
 export const metadata = { title: "Dashboard — Admin Trama Pro" };
@@ -18,7 +20,7 @@ async function getStats() {
   const [
     totalUsers,
     totalWorkspaces,
-    freePlans,
+    allSubscriptions,
     premiumPlans,
     totalMaterials,
     totalOrders,
@@ -27,7 +29,15 @@ async function getStats() {
   ] = await Promise.all([
     prisma.user.count(),
     prisma.workspace.count(),
-    prisma.subscription.count({ where: { plan: "FREE" } }),
+    prisma.subscription.findMany({
+      select: {
+        plan: true,
+        status: true,
+        accessStatus: true,
+        trialStartAt: true,
+        trialEndAt: true,
+      },
+    }),
     prisma.subscription.count({ where: { plan: "PREMIUM" } }),
     prisma.material.count(),
     prisma.order.count(),
@@ -41,12 +51,37 @@ async function getStats() {
         email: true,
         createdAt: true,
         ownedWorkspaces: {
-          select: { subscription: { select: { plan: true } } },
+          select: {
+            subscription: {
+              select: {
+                plan: true,
+                status: true,
+                accessStatus: true,
+                trialStartAt: true,
+                trialEndAt: true,
+              },
+            },
+          },
         },
       },
     }),
   ]);
-  return { totalUsers, totalWorkspaces, freePlans, premiumPlans, totalMaterials, totalOrders, totalTransactions, recentUsers };
+
+  // Compute inactive count from timestamps (not from DB field)
+  const inactiveUsers = allSubscriptions.filter((s) => computeTrialStatus(s).expired).length;
+  const freePlans = allSubscriptions.filter((s) => s.plan === "FREE").length;
+
+  return {
+    totalUsers,
+    totalWorkspaces,
+    freePlans,
+    premiumPlans,
+    inactiveUsers,
+    totalMaterials,
+    totalOrders,
+    totalTransactions,
+    recentUsers,
+  };
 }
 
 export default async function AdminDashboard() {
@@ -63,9 +98,10 @@ export default async function AdminDashboard() {
       <PageHeader title="Dashboard" description="Visão geral da plataforma Trama Pro" />
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard label="Usuários" value={stats.totalUsers} icon={Users} description={`${stats.totalWorkspaces} workspaces`} accent="indigo" />
         <StatCard label="Plano Premium" value={stats.premiumPlans} icon={Star} description={`${stats.freePlans} no plano free`} accent="amber" />
+        <StatCard label="Inativos" value={stats.inactiveUsers} icon={UserX} description="trial vencido / sem assinatura" accent="rose" />
         <StatCard label="Pedidos" value={stats.totalOrders} icon={ShoppingBag} description="total na plataforma" accent="emerald" />
         <StatCard label="Materiais" value={stats.totalMaterials} icon={Package} description={`${stats.totalTransactions} transações`} accent="violet" />
       </div>
@@ -148,7 +184,9 @@ export default async function AdminDashboard() {
             </div>
           ) : (
             stats.recentUsers.map((u) => {
-              const plan = u.ownedWorkspaces[0]?.subscription?.plan ?? "FREE";
+              const sub = u.ownedWorkspaces[0]?.subscription;
+              const plan = sub?.plan ?? "FREE";
+              const computed = computeTrialStatus(sub);
               return (
                 <div key={u.id} className="flex items-center justify-between px-6 py-3.5 transition hover:bg-white/[0.02]">
                   <div className="flex items-center gap-3">
@@ -160,8 +198,9 @@ export default async function AdminDashboard() {
                       <p className="text-xs text-gray-500">{u.email}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3">
                     <StatusBadge label={plan} variant={plan === "PREMIUM" ? "premium" : "neutral"} />
+                    <StatusBadge label={computed.label} variant={computed.variant} dot />
                     <span className="hidden text-xs tabular-nums text-gray-600 sm:block">
                       {new Date(u.createdAt).toLocaleDateString("pt-BR")}
                     </span>
