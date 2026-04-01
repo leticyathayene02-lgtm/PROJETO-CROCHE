@@ -37,7 +37,7 @@ async function getUsers(query?: string) {
               trialEndAt: true,
             },
           },
-          _count: { select: { materials: true, orders: true, products: true } },
+          _count: { select: { materials: true, orders: true, products: true, priceCalculations: true } },
         },
       },
     },
@@ -78,7 +78,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/[0.06]">
-                  {["Usuário", "Workspace", "Plano", "Status", "Materiais", "Pedidos", "Cadastrado em"].map((h) => (
+                  {["Usuário", "Workspace", "Plano", "Status", "Cálculos", "Materiais", "Pedidos", "Cadastrado em"].map((h) => (
                     <th
                       key={h}
                       className="px-6 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-600"
@@ -120,6 +120,9 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                           variant={computed.variant}
                           dot
                         />
+                      </td>
+                      <td className="px-6 py-4 text-center text-sm tabular-nums text-gray-400">
+                        {ws?._count.priceCalculations ?? 0}
                       </td>
                       <td className="px-6 py-4 text-center text-sm tabular-nums text-gray-400">
                         {ws?._count.materials ?? 0}
