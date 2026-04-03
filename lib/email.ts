@@ -138,7 +138,7 @@ export async function sendWelcomeEmail(email: string, name?: string | null) {
         organizar seu ateliê e vender com lucro real.
       </p>
       <p style="color:#4b5563; line-height:1.6; margin:0 0 16px;">
-        Seu período de teste gratuito de <strong>3 dias</strong> já está ativo. Aproveite para explorar:
+        Seu período de teste gratuito de <strong>7 dias</strong> já está ativo. Aproveite para explorar:
       </p>
       <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 16px;">
         <tr>
