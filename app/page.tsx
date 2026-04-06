@@ -2,6 +2,11 @@ import Link from "next/link";
 import { LandingHeader } from "./_components/landing-header";
 import { LandingFaq } from "./_components/landing-faq";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
+import { BallpitBackground } from "@/components/ui/ballpit-background";
+import { HeroCardCarousel } from "./_components/hero-card-carousel";
+import { TestimonialCardSwap } from "./_components/testimonial-card-swap";
+import { HeadlineReveal } from "./_components/headline-reveal";
+import { CardGlowEffect } from "./_components/card-glow-effect";
 import {
   Calculator,
   TrendingUp,
@@ -27,93 +32,194 @@ function AppMockCard() {
   ];
 
   return (
-    <div className="animate-float w-full max-w-sm rounded-3xl border border-white/20 bg-white/90 p-5 shadow-2xl shadow-rose-300/30 backdrop-blur-xl dark:border-white/10 dark:bg-gray-900/90 dark:shadow-rose-900/20">
-      {/* Window chrome */}
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex gap-1.5">
-            <div className="h-3 w-3 rounded-full bg-red-400" />
-            <div className="h-3 w-3 rounded-full bg-yellow-400" />
-            <div className="h-3 w-3 rounded-full bg-green-400" />
+    <div className="group/card animate-float relative w-full max-w-sm overflow-hidden rounded-3xl border border-white/30 bg-white/95 shadow-[0_8px_40px_-8px_rgba(225,29,72,0.25),0_2px_12px_-2px_rgba(0,0,0,0.08)] backdrop-blur-2xl transition-shadow duration-500 hover:shadow-[0_12px_50px_-8px_rgba(225,29,72,0.35),0_4px_20px_-4px_rgba(0,0,0,0.1)] dark:border-white/10 dark:bg-gray-900/95 dark:shadow-[0_8px_40px_-8px_rgba(225,29,72,0.15),0_2px_12px_-2px_rgba(0,0,0,0.3)]">
+      {/* Top shimmer accent */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-rose-400/60 to-transparent" />
+      <div className="relative p-5">
+        {/* Window chrome */}
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1.5">
+              <div className="h-2.5 w-2.5 rounded-full bg-red-400 shadow-sm shadow-red-400/40" />
+              <div className="h-2.5 w-2.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400/40" />
+              <div className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/40" />
+            </div>
+            <span className="ml-2 text-xs font-semibold text-gray-600 dark:text-gray-300">
+              Ateliê da Ana
+            </span>
           </div>
-          <span className="ml-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
-            Ateliê da Ana ✨
+          <span className="rounded-full bg-gradient-to-r from-rose-500 to-pink-500 px-2.5 py-0.5 text-[10px] font-bold text-white shadow-sm shadow-rose-500/30">
+            Premium
           </span>
         </div>
-        <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-600 dark:bg-rose-900/50 dark:text-rose-400">
-          Premium
-        </span>
-      </div>
 
-      {/* KPIs */}
-      <div className="mb-4 grid grid-cols-3 gap-2">
-        {[
-          { label: "Lucro", value: "R$ 2.340", color: "text-emerald-600 dark:text-emerald-400" },
-          { label: "Receita", value: "R$ 4.200", color: "text-rose-600 dark:text-rose-400" },
-          { label: "Produtos", value: "18", color: "text-violet-600 dark:text-violet-400" },
-        ].map((kpi) => (
-          <div
-            key={kpi.label}
-            className="rounded-xl bg-gray-50 p-2.5 text-center dark:bg-white/5"
-          >
-            <p className={`font-heading text-sm font-bold ${kpi.color}`}>{kpi.value}</p>
-            <p className="text-[10px] text-gray-400">{kpi.label}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Mini bar chart */}
-      <div className="mb-4 rounded-xl bg-gray-50 p-3 dark:bg-white/5">
-        <p className="mb-2 text-[10px] font-semibold text-gray-400">
-          Faturamento — últimos 6 meses
-        </p>
-        <div className="flex h-12 items-end gap-1.5">
-          {bars.map((h, i) => (
+        {/* KPIs */}
+        <div className="mb-4 grid grid-cols-3 gap-2">
+          {[
+            { label: "Lucro", value: "R$ 2.340", color: "text-emerald-500 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/30", ring: "ring-1 ring-emerald-100 dark:ring-emerald-900/30" },
+            { label: "Receita", value: "R$ 4.200", color: "text-rose-500 dark:text-rose-400", bg: "bg-rose-50 dark:bg-rose-950/30", ring: "ring-1 ring-rose-100 dark:ring-rose-900/30" },
+            { label: "Produtos", value: "18", color: "text-violet-500 dark:text-violet-400", bg: "bg-violet-50 dark:bg-violet-950/30", ring: "ring-1 ring-violet-100 dark:ring-violet-900/30" },
+          ].map((kpi) => (
             <div
-              key={i}
-              className="flex-1 rounded-t-sm"
-              style={{
-                height: `${h}%`,
-                background:
-                  i === 5
-                    ? "linear-gradient(to top, #e11d48, #f43f5e)"
-                    : "linear-gradient(to top, #fecdd3, #fda4af)",
-              }}
-            />
+              key={kpi.label}
+              className={`rounded-2xl p-2.5 text-center ${kpi.bg} ${kpi.ring}`}
+            >
+              <p className={`font-heading text-sm font-extrabold ${kpi.color}`}>{kpi.value}</p>
+              <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400">{kpi.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Mini bar chart */}
+        <div className="mb-4 rounded-2xl bg-gray-50/80 p-3 ring-1 ring-gray-100 dark:bg-white/[0.03] dark:ring-white/5">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-[10px] font-semibold text-gray-500 dark:text-gray-400">
+              Faturamento mensal
+            </p>
+            <span className="text-[9px] font-bold text-emerald-500">+32%</span>
+          </div>
+          <div className="flex h-14 items-end gap-1.5">
+            {bars.map((h, i) => (
+              <div
+                key={i}
+                className="flex-1 rounded-t transition-all duration-300"
+                style={{
+                  height: `${h}%`,
+                  background:
+                    i === 5
+                      ? "linear-gradient(to top, #be123c, #e11d48, #f43f5e)"
+                      : "linear-gradient(to top, #ffe4e6, #fecdd3, #fda4af)",
+                  boxShadow:
+                    i === 5 ? "0 -4px 12px -2px rgba(225,29,72,0.3)" : "none",
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Recent items */}
+        <div className="space-y-1.5">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+            Últimos cálculos
+          </p>
+          {items.map((item) => (
+            <div
+              key={item.name}
+              className="flex items-center justify-between rounded-2xl bg-gray-50/80 px-3 py-2.5 ring-1 ring-gray-100/80 transition-colors dark:bg-white/[0.03] dark:ring-white/5"
+            >
+              <span className="text-xs font-medium text-gray-700 dark:text-gray-200">
+                {item.name}
+              </span>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[9px] font-bold shadow-sm ${
+                    item.badge === "nova"
+                      ? "bg-blue-50 text-blue-600 ring-1 ring-blue-100 dark:bg-blue-950/40 dark:text-blue-400 dark:ring-blue-900/30"
+                      : "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400 dark:ring-emerald-900/30"
+                  }`}
+                >
+                  {item.badge}
+                </span>
+                <span className="text-xs font-bold text-rose-600 dark:text-rose-400">
+                  {item.price}
+                </span>
+              </div>
+            </div>
           ))}
         </div>
       </div>
 
-      {/* Recent items */}
-      <div className="space-y-2">
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">
-          Últimos cálculos
-        </p>
-        {items.map((item) => (
-          <div
-            key={item.name}
-            className="flex items-center justify-between rounded-xl bg-gray-50 px-3 py-2 dark:bg-white/5"
-          >
-            <span className="text-xs font-medium text-gray-700 dark:text-gray-200">
-              {item.name}
-            </span>
-            <div className="flex items-center gap-2">
-              <span
-                className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold ${
-                  item.badge === "nova"
-                    ? "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
-                    : "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400"
-                }`}
-              >
-                {item.badge}
-              </span>
-              <span className="text-xs font-semibold text-rose-600 dark:text-rose-400">
-                {item.price}
-              </span>
+      {/* Bottom accent line */}
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-rose-300/40 to-transparent" />
+    </div>
+  );
+}
+
+// ─── Product catalog mock card ───────────────────────────────────────────────
+
+function ProductCatalogCard() {
+  const products = [
+    { name: "Amigurumi gatinho", category: "Amigurumi", price: "R$ 65,00", status: "pronta", img: "🐱" },
+    { name: "Bolsa de crochê", category: "Bolsas", price: "R$ 89,90", status: "vendida", img: "👜" },
+    { name: "Sousplat cru", category: "Mesa", price: "R$ 34,00", status: "pronta", img: "🍽️" },
+    { name: "Top cropped", category: "Roupas", price: "R$ 75,00", status: "encomenda", img: "👚" },
+    { name: "Cesto organizador", category: "Decoração", price: "R$ 58,00", status: "pronta", img: "🧺" },
+  ];
+
+  const statusStyles: Record<string, string> = {
+    pronta: "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100 shadow-sm dark:bg-emerald-950/40 dark:text-emerald-400 dark:ring-emerald-900/30",
+    vendida: "bg-rose-50 text-rose-600 ring-1 ring-rose-100 shadow-sm dark:bg-rose-950/40 dark:text-rose-400 dark:ring-rose-900/30",
+    encomenda: "bg-amber-50 text-amber-600 ring-1 ring-amber-100 shadow-sm dark:bg-amber-950/40 dark:text-amber-400 dark:ring-amber-900/30",
+  };
+
+  return (
+    <div className="group/card animate-float relative w-full max-w-sm overflow-hidden rounded-3xl border border-white/30 bg-white/95 shadow-[0_8px_40px_-8px_rgba(139,92,246,0.2),0_2px_12px_-2px_rgba(0,0,0,0.08)] backdrop-blur-2xl transition-shadow duration-500 hover:shadow-[0_12px_50px_-8px_rgba(139,92,246,0.3),0_4px_20px_-4px_rgba(0,0,0,0.1)] dark:border-white/10 dark:bg-gray-900/95 dark:shadow-[0_8px_40px_-8px_rgba(139,92,246,0.12),0_2px_12px_-2px_rgba(0,0,0,0.3)]">
+      {/* Top accent */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-400/60 to-transparent" />
+      <div className="relative p-5">
+        {/* Window chrome */}
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1.5">
+              <div className="h-2.5 w-2.5 rounded-full bg-red-400 shadow-sm shadow-red-400/40" />
+              <div className="h-2.5 w-2.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400/40" />
+              <div className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/40" />
             </div>
+            <span className="ml-2 text-xs font-semibold text-gray-600 dark:text-gray-300">
+              Meus Produtos
+            </span>
           </div>
-        ))}
+          <span className="rounded-full bg-gradient-to-r from-violet-500 to-purple-500 px-2.5 py-0.5 text-[10px] font-bold text-white shadow-sm shadow-violet-500/30">
+            5 itens
+          </span>
+        </div>
+
+        {/* Search bar */}
+        <div className="mb-3 flex items-center gap-2 rounded-2xl bg-gray-50/80 px-3 py-2 ring-1 ring-gray-100 dark:bg-white/[0.03] dark:ring-white/5">
+          <svg className="h-3.5 w-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <span className="text-[10px] text-gray-400">Buscar produto...</span>
+        </div>
+
+        {/* Column headers */}
+        <div className="mb-2 grid grid-cols-[1fr_auto_auto] items-center gap-2 px-1">
+          <span className="text-[9px] font-semibold uppercase tracking-wider text-gray-400">Produto</span>
+          <span className="text-[9px] font-semibold uppercase tracking-wider text-gray-400">Status</span>
+          <span className="text-right text-[9px] font-semibold uppercase tracking-wider text-gray-400">Preço</span>
+        </div>
+
+        {/* Product list */}
+        <div className="space-y-1.5">
+          {products.map((p) => (
+            <div
+              key={p.name}
+              className="grid grid-cols-[1fr_auto_auto] items-center gap-2 rounded-2xl bg-gray-50/80 px-3 py-2.5 ring-1 ring-gray-100/80 transition-colors dark:bg-white/[0.03] dark:ring-white/5"
+            >
+              <div className="flex items-center gap-2.5 overflow-hidden">
+                <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-white text-sm shadow-sm ring-1 ring-gray-100 dark:bg-white/5 dark:ring-white/10">{p.img}</span>
+                <div className="min-w-0">
+                  <p className="truncate text-xs font-medium text-gray-700 dark:text-gray-200">{p.name}</p>
+                  <p className="text-[9px] font-medium text-gray-400">{p.category}</p>
+                </div>
+              </div>
+              <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${statusStyles[p.status]}`}>
+                {p.status}
+              </span>
+              <span className="text-xs font-bold text-gray-700 dark:text-gray-200">{p.price}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <div className="mt-3 flex items-center justify-between border-t border-gray-100/80 pt-3 dark:border-white/5">
+          <span className="text-[10px] font-medium text-gray-400">Total em catálogo</span>
+          <span className="font-heading text-sm font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-pink-500 dark:from-rose-400 dark:to-pink-400">R$ 321,90</span>
+        </div>
       </div>
+
+      {/* Bottom accent */}
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-violet-300/40 to-transparent" />
     </div>
   );
 }
@@ -151,6 +257,7 @@ function StarRating({ count = 5 }: { count?: number }) {
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
+      <CardGlowEffect />
       <LandingHeader />
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
@@ -158,24 +265,11 @@ export default function HomePage() {
         aria-label="Apresentação"
         className="relative overflow-hidden bg-gradient-to-br from-rose-50 via-pink-50/60 to-purple-50/40 dark:from-gray-950 dark:via-rose-950/15 dark:to-gray-950"
       >
-        {/* Background blobs */}
-        <div
-          aria-hidden="true"
-          className="animate-blob pointer-events-none absolute -left-32 -top-32 h-[500px] w-[500px] rounded-full bg-rose-300/20 blur-3xl dark:bg-rose-600/8"
-        />
-        <div
-          aria-hidden="true"
-          className="animate-blob pointer-events-none absolute -bottom-24 left-1/3 h-96 w-96 rounded-full bg-pink-300/15 blur-3xl dark:bg-pink-700/6"
-          style={{ animationDelay: "3s" }}
-        />
-        <div
-          aria-hidden="true"
-          className="animate-blob pointer-events-none absolute -right-16 top-1/4 h-80 w-80 rounded-full bg-violet-300/12 blur-3xl dark:bg-violet-700/6"
-          style={{ animationDelay: "6s" }}
-        />
+        {/* Interactive ballpit background */}
+        <BallpitBackground className="opacity-60 dark:opacity-40" />
 
-        <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-24 lg:py-32">
-          <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+        <div className="relative z-10 mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-24 lg:py-32">
+          <div className="grid items-center gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-16">
             {/* Left: copy */}
             <div>
               <ScrollReveal direction="left" delay={0} duration={600}>
@@ -184,16 +278,18 @@ export default function HomePage() {
                 </div>
               </ScrollReveal>
 
-              <ScrollReveal direction="left" delay={150} duration={600}>
-                <h1 className="font-heading text-display-xl mb-6 text-gray-900 dark:text-white">
-                  Seu ateliê,{" "}
-                  <em className="text-rose-600 not-italic dark:text-rose-400">organizado</em>
-                  {" "}e{" "}
-                  <span className="bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent dark:from-rose-400 dark:to-pink-400">
-                    lucrativo.
-                  </span>
-                </h1>
-              </ScrollReveal>
+              <HeadlineReveal
+                className="font-heading text-display-xl mb-6 text-gray-900 dark:text-white"
+                startDelay={250}
+                stagger={100}
+                words={[
+                  { text: "Seu" },
+                  { text: "ateliê,"},
+                  { text: "organizado", tag: "em", className: "text-rose-600 not-italic dark:text-rose-400" },
+                  { text: "e" },
+                  { text: "lucrativo.", tag: "span", className: "bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent dark:from-rose-400 dark:to-pink-400" },
+                ]}
+              />
 
               <ScrollReveal direction="left" delay={300} duration={600}>
                 <p className="mb-8 max-w-lg text-lg leading-relaxed text-gray-600 dark:text-gray-300">
@@ -251,16 +347,14 @@ export default function HomePage() {
               </ScrollReveal>
             </div>
 
-            {/* Right: floating app mock */}
+            {/* Right: alternating app mock cards */}
             <ScrollReveal direction="right" delay={300} duration={800} className="flex items-center justify-center lg:justify-end">
-              <div className="relative">
-                {/* Glow behind card */}
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 -z-10 rounded-3xl bg-gradient-to-br from-rose-300/40 to-pink-300/30 blur-3xl dark:from-rose-700/20 dark:to-pink-700/15"
-                />
-                <AppMockCard />
-              </div>
+              <HeroCardCarousel
+                cards={[
+                  <AppMockCard key="dashboard" />,
+                  <ProductCatalogCard key="catalog" />,
+                ]}
+              />
             </ScrollReveal>
           </div>
         </div>
@@ -280,10 +374,19 @@ export default function HomePage() {
               { value: "4.9 ★", label: "Avaliação média" },
             ].map((stat, i) => (
               <ScrollReveal key={stat.label} direction="up" delay={i * 100} duration={500}>
-                <p className="font-heading text-2xl font-bold text-rose-700 dark:text-rose-400">
-                  {stat.value}
-                </p>
-                <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{stat.label}</p>
+                <div
+                  className="animate-gentle-float"
+                  style={{ animationDelay: `${i * 0.6}s` }}
+                >
+                  <p className="font-heading relative inline-block text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-rose-600 to-rose-800 drop-shadow-[0_0_12px_rgba(225,29,72,0.4)] dark:from-rose-300 dark:to-rose-500 dark:drop-shadow-[0_0_12px_rgba(251,113,133,0.35)]">
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute -inset-3 -z-10 rounded-full bg-rose-500/20 blur-2xl dark:bg-rose-400/15"
+                    />
+                    {stat.value}
+                  </p>
+                  <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{stat.label}</p>
+                </div>
               </ScrollReveal>
             ))}
           </div>
@@ -295,9 +398,17 @@ export default function HomePage() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <ScrollReveal direction="up" className="mb-14 text-center">
             <SectionTag>Tudo que você precisa</SectionTag>
-            <h2 className="font-heading text-title mt-4 text-gray-900 dark:text-white">
-              Quatro ferramentas. Um só lugar.
-            </h2>
+            <HeadlineReveal
+              as="h2"
+              className="font-heading text-title mt-4 text-gray-900 dark:text-white"
+              words={[
+                { text: "Quatro" },
+                { text: "ferramentas." },
+                { text: "Um" },
+                { text: "só" },
+                { text: "lugar." },
+              ]}
+            />
             <p className="mx-auto mt-3 max-w-xl text-base text-gray-500 dark:text-gray-400">
               Chega de planilha bagunçada. O Trama Pro reúne tudo que uma
               artesã precisa para crescer.
@@ -404,14 +515,26 @@ export default function HomePage() {
       <section
         id="como-funciona"
         aria-label="Como funciona"
-        className="bg-gradient-to-br from-rose-50/60 via-pink-50/30 to-white py-20 dark:from-gray-900 dark:via-rose-950/10 dark:to-gray-950"
+        className="relative overflow-hidden bg-gradient-to-br from-rose-50/60 via-pink-50/30 to-white py-20 dark:from-gray-900 dark:via-rose-950/10 dark:to-gray-950"
       >
-        <div className="mx-auto max-w-5xl px-4 sm:px-6">
+        {/* Decorative glow orbs */}
+        <div aria-hidden="true" className="pointer-events-none absolute -left-20 top-1/4 h-72 w-72 rounded-full bg-rose-300/15 blur-3xl dark:bg-rose-700/8" />
+        <div aria-hidden="true" className="pointer-events-none absolute -right-20 bottom-1/4 h-64 w-64 rounded-full bg-violet-300/10 blur-3xl dark:bg-violet-700/6" />
+
+        <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
           <ScrollReveal direction="up" className="mb-14 text-center">
             <SectionTag>Simples de usar</SectionTag>
-            <h2 className="font-heading text-title mt-4 text-gray-900 dark:text-white">
-              Comece em menos de 5 minutos
-            </h2>
+            <HeadlineReveal
+              as="h2"
+              className="font-heading text-title mt-4 text-gray-900 dark:text-white"
+              words={[
+                { text: "Comece" },
+                { text: "em" },
+                { text: "menos" },
+                { text: "de" },
+                { text: "5 minutos", tag: "span", className: "bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent dark:from-rose-400 dark:to-pink-400" },
+              ]}
+            />
             <p className="mx-auto mt-3 max-w-xl text-base text-gray-500 dark:text-gray-400">
               Sem tutorial complicado. Em três passos simples seu ateliê está organizado.
             </p>
@@ -447,13 +570,15 @@ export default function HomePage() {
                       className="absolute left-[calc(50%+64px)] top-10 hidden h-px w-[calc(100%-128px)] border-t-2 border-dashed border-rose-200 dark:border-rose-900/50 sm:block"
                     />
                   )}
-                  <div className="relative mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-300/40 dark:shadow-rose-900/30">
+                  <div className="group/step relative mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-300/40 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-rose-400/50 dark:shadow-rose-900/30">
+                    {/* Glow behind icon */}
+                    <span aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 rounded-3xl bg-rose-500/30 blur-xl transition-opacity duration-300 group-hover/step:opacity-100 opacity-50" />
                     {item.icon}
-                    <span className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-black text-rose-600 shadow-sm dark:bg-gray-900 dark:text-rose-400">
+                    <span className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-black text-rose-600 shadow-md ring-2 ring-rose-100 dark:bg-gray-900 dark:text-rose-400 dark:ring-rose-900/50">
                       {item.step}
                     </span>
                   </div>
-                  <h3 className="font-heading mb-2 font-bold text-gray-900 dark:text-white">
+                  <h3 className="font-heading mb-2 text-lg font-bold text-gray-900 dark:text-white">
                     {item.title}
                   </h3>
                   <p className="text-sm leading-relaxed text-gray-500 dark:text-gray-400">
@@ -467,10 +592,11 @@ export default function HomePage() {
           <div className="mt-14 text-center">
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-rose-600 to-pink-500 px-8 py-4 font-semibold text-white shadow-lg shadow-rose-300/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl dark:shadow-rose-900/30"
+              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-2xl bg-gradient-to-r from-rose-600 to-pink-500 px-8 py-4 font-semibold text-white shadow-lg shadow-rose-300/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-rose-400/50 dark:shadow-rose-900/30"
             >
-              <Sparkles className="h-4 w-4" />
+              <Sparkles className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
               Quero começar grátis
+              <span aria-hidden="true" className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
             </Link>
           </div>
         </div>
@@ -480,17 +606,29 @@ export default function HomePage() {
       <section
         id="resultados"
         aria-label="Resultados"
-        className="bg-gradient-to-br from-rose-700 via-rose-600 to-pink-500 py-20"
+        className="relative overflow-hidden bg-gradient-to-br from-rose-800 via-rose-600 to-pink-500 py-20"
       >
-        <div className="mx-auto max-w-5xl px-4 sm:px-6">
+        {/* Background shimmer orbs */}
+        <div aria-hidden="true" className="animate-blob pointer-events-none absolute -left-24 top-1/3 h-80 w-80 rounded-full bg-white/[0.07] blur-3xl" />
+        <div aria-hidden="true" className="animate-blob pointer-events-none absolute -right-16 bottom-1/4 h-64 w-64 rounded-full bg-pink-300/10 blur-3xl" style={{ animationDelay: "4s" }} />
+
+        <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
           <ScrollReveal direction="up" className="mb-14 text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-4 py-1.5 text-xs font-semibold text-white backdrop-blur-sm">
-              <span className="h-1.5 w-1.5 rounded-full bg-white" aria-hidden="true" />
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" aria-hidden="true" />
               Resultados reais
             </div>
-            <h2 className="font-heading text-title mt-4 text-white">
-              O que nossas usuárias alcançaram
-            </h2>
+            <HeadlineReveal
+              as="h2"
+              className="font-heading text-title mt-4 text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+              words={[
+                { text: "O" },
+                { text: "que" },
+                { text: "nossas" },
+                { text: "usuárias" },
+                { text: "alcançaram" },
+              ]}
+            />
           </ScrollReveal>
 
           <div className="grid gap-6 sm:grid-cols-3">
@@ -516,12 +654,13 @@ export default function HomePage() {
             ].map((metric, i) => (
               <ScrollReveal key={metric.label} direction="up" delay={i * 150} duration={600}>
                 <div
-                  className="landing-card rounded-3xl border border-white/15 bg-white/10 p-7 backdrop-blur-sm"
+                  className="landing-card group/metric rounded-3xl border border-white/15 bg-white/10 p-7 backdrop-blur-sm transition-all duration-300 hover:border-white/25 hover:bg-white/[0.14]"
                 >
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 text-white">
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 text-white shadow-lg shadow-rose-900/20 ring-1 ring-white/10 transition-transform duration-300 group-hover/metric:scale-110">
                     {metric.icon}
                   </div>
-                  <p className="font-heading mb-1 text-4xl font-black text-white">
+                  <p className="font-heading relative mb-1 inline-block text-4xl font-black text-white drop-shadow-[0_0_16px_rgba(255,255,255,0.25)]">
+                    <span aria-hidden="true" className="pointer-events-none absolute -inset-2 -z-10 rounded-full bg-white/10 blur-xl" />
                     {metric.value}
                   </p>
                   <p className="mb-2 text-sm font-semibold text-rose-200">{metric.label}</p>
@@ -537,18 +676,25 @@ export default function HomePage() {
       <section
         id="depoimentos"
         aria-label="Depoimentos"
-        className="py-20 dark:bg-gray-950"
+        className="relative overflow-hidden py-20 dark:bg-gray-950"
       >
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <BallpitBackground className="opacity-40 dark:opacity-25" />
+        <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6">
           <ScrollReveal direction="up" className="mb-14 text-center">
             <SectionTag>Depoimentos</SectionTag>
-            <h2 className="font-heading text-title mt-4 text-gray-900 dark:text-white">
-              Quem usa, recomenda
-            </h2>
+            <HeadlineReveal
+              as="h2"
+              className="font-heading text-title mt-4 text-gray-900 dark:text-white"
+              words={[
+                { text: "Quem" },
+                { text: "usa," },
+                { text: "recomenda" },
+              ]}
+            />
           </ScrollReveal>
 
-          <div className="grid gap-6 sm:grid-cols-3">
-            {[
+          <TestimonialCardSwap
+            cards={[
               {
                 name: "Mariana S.",
                 role: "Artesã há 5 anos",
@@ -573,10 +719,10 @@ export default function HomePage() {
                 quote:
                   "Recomendo para todas as minhas seguidoras. Simples de usar, funciona lindo no celular e me ajudou a profissionalizar meu ateliê.",
               },
-            ].map((t, i) => (
-              <ScrollReveal key={t.name} direction="up" delay={i * 150} duration={600}>
+            ].map((t) => (
               <figure
-                className="landing-card flex h-full flex-col rounded-3xl border border-gray-100 bg-white p-6 shadow-sm dark:border-white/8 dark:bg-white/3"
+                key={t.name}
+                className="landing-card flex h-full flex-col rounded-3xl border border-gray-100 bg-white p-6 shadow-lg dark:border-white/8 dark:bg-gray-900/95"
               >
                 <StarRating />
                 <blockquote className="my-4 flex-1">
@@ -599,9 +745,8 @@ export default function HomePage() {
                   </div>
                 </figcaption>
               </figure>
-              </ScrollReveal>
             ))}
-          </div>
+          />
         </div>
       </section>
 
@@ -610,9 +755,17 @@ export default function HomePage() {
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <ScrollReveal direction="up" className="mb-14 text-center">
             <SectionTag>Planos</SectionTag>
-            <h2 className="font-heading text-title mt-4 text-gray-900 dark:text-white">
-              Comece grátis, cresça sem limites
-            </h2>
+            <HeadlineReveal
+              as="h2"
+              className="font-heading text-title mt-4 text-gray-900 dark:text-white"
+              words={[
+                { text: "Comece" },
+                { text: "grátis," },
+                { text: "cresça" },
+                { text: "sem" },
+                { text: "limites" },
+              ]}
+            />
           </ScrollReveal>
 
           <div className="grid gap-6 sm:grid-cols-2">
@@ -706,13 +859,22 @@ export default function HomePage() {
       </section>
 
       {/* ── FAQ ──────────────────────────────────────────────────────────── */}
-      <section id="faq" aria-label="Perguntas frequentes" className="py-20 dark:bg-gray-950">
-        <div className="mx-auto max-w-2xl px-4 sm:px-6">
+      <section id="faq" aria-label="Perguntas frequentes" className="relative overflow-hidden py-20 dark:bg-gray-950">
+        {/* Subtle background glow */}
+        <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-rose-200/20 blur-[100px] dark:bg-rose-800/10" />
+
+        <div className="relative mx-auto max-w-2xl px-4 sm:px-6">
           <ScrollReveal direction="up" className="mb-14 text-center">
             <SectionTag>Dúvidas frequentes</SectionTag>
-            <h2 className="font-heading text-title mt-4 text-gray-900 dark:text-white">
-              Ficou alguma dúvida?
-            </h2>
+            <HeadlineReveal
+              as="h2"
+              className="font-heading text-title mt-4 text-gray-900 dark:text-white"
+              words={[
+                { text: "Ficou" },
+                { text: "alguma" },
+                { text: "dúvida?", tag: "span", className: "bg-gradient-to-r from-rose-600 to-pink-500 bg-clip-text text-transparent dark:from-rose-400 dark:to-pink-400" },
+              ]}
+            />
           </ScrollReveal>
           <ScrollReveal direction="up" delay={150}>
             <LandingFaq />
@@ -723,42 +885,58 @@ export default function HomePage() {
       {/* ── FINAL CTA ────────────────────────────────────────────────────── */}
       <section
         aria-label="Chamada para ação final"
-        className="relative overflow-hidden bg-gradient-to-br from-rose-700 via-rose-600 to-pink-500 py-20"
+        className="relative overflow-hidden bg-gradient-to-br from-rose-800 via-rose-600 to-pink-400 py-24"
       >
+        {/* Animated background orbs */}
         <div
           aria-hidden="true"
-          className="animate-blob pointer-events-none absolute -left-16 -top-16 h-64 w-64 rounded-full bg-white/10 blur-2xl"
+          className="animate-blob pointer-events-none absolute -left-20 -top-20 h-80 w-80 rounded-full bg-white/[0.07] blur-3xl"
         />
         <div
           aria-hidden="true"
-          className="animate-blob pointer-events-none absolute -bottom-16 -right-16 h-64 w-64 rounded-full bg-pink-400/20 blur-2xl"
+          className="animate-blob pointer-events-none absolute -bottom-20 -right-20 h-80 w-80 rounded-full bg-pink-300/15 blur-3xl"
           style={{ animationDelay: "4s" }}
         />
+        <div
+          aria-hidden="true"
+          className="animate-blob pointer-events-none absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-400/8 blur-3xl"
+          style={{ animationDelay: "7s" }}
+        />
+
         <div className="relative mx-auto max-w-2xl px-4 text-center sm:px-6">
           <ScrollReveal direction="up" duration={600}>
-            <span className="mb-5 inline-block text-5xl" aria-hidden="true">
+            <span className="mb-5 inline-block animate-gentle-float text-5xl drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]" aria-hidden="true">
               🧶
             </span>
-            <h2 className="font-heading text-display mb-4 text-white">
-              Sua arte merece um ateliê organizado.
-            </h2>
-            <p className="mb-8 text-base text-rose-100/90">
+            <HeadlineReveal
+              as="h2"
+              className="font-heading text-display mb-4 text-white drop-shadow-[0_0_24px_rgba(255,255,255,0.12)]"
+              words={[
+                { text: "Sua" },
+                { text: "arte" },
+                { text: "merece" },
+                { text: "um" },
+                { text: "ateliê" },
+                { text: "organizado.", tag: "span", className: "bg-gradient-to-r from-white via-rose-100 to-pink-200 bg-clip-text text-transparent" },
+              ]}
+            />
+            <p className="mb-8 text-base leading-relaxed text-rose-100/90">
               Junte-se a mais de 2.400 artesãs que já precificam com consciência,
               controlam suas finanças e lucram mais.
             </p>
           </ScrollReveal>
           <Link
             href="/login"
-            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-2xl bg-white px-8 py-4 font-bold text-rose-600 shadow-lg shadow-rose-900/30 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0"
+            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-2xl bg-white px-8 py-4 font-bold text-rose-600 shadow-xl shadow-rose-900/30 ring-1 ring-white/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-rose-900/40 active:translate-y-0"
           >
-            <Sparkles className="h-4 w-4" />
+            <Sparkles className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
             Criar conta grátis agora
             <span
-              className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-rose-50/60 to-transparent transition-transform duration-500 group-hover:translate-x-full"
+              className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-rose-100/60 to-transparent transition-transform duration-500 group-hover:translate-x-full"
               aria-hidden="true"
             />
           </Link>
-          <p className="mt-4 text-xs text-rose-200">
+          <p className="mt-5 text-xs text-rose-200/80">
             Grátis para sempre no plano básico · Sem cartão de crédito
           </p>
         </div>

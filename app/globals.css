@@ -628,6 +628,20 @@ button[class*="bg-gradient"]:active {
   transform-style: preserve-3d;
 }
 
+.animate-float-delayed {
+  animation: float 6s ease-in-out 3s infinite;
+  transform-style: preserve-3d;
+}
+
+@keyframes gentle-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-gentle-float {
+  animation: gentle-float 8s ease-in-out infinite;
+}
+
 @keyframes shimmer {
   0% { background-position: -200% center; }
   100% { background-position: 200% center; }

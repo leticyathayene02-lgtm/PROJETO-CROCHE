@@ -34,10 +34,10 @@ export function LandingFaq() {
       {QUESTIONS.map((item, i) => (
         <div
           key={i}
-          className={`overflow-hidden rounded-2xl border transition-all duration-200 ${
+          className={`landing-card overflow-hidden rounded-2xl border shadow-sm transition-all duration-300 ${
             open === i
-              ? "border-rose-200 bg-rose-50/50 dark:border-rose-800/50 dark:bg-rose-950/20"
-              : "border-gray-100 bg-white/60 hover:border-rose-100 dark:border-white/8 dark:bg-white/3 dark:hover:border-white/12"
+              ? "border-rose-200 bg-rose-50/60 shadow-rose-200/30 dark:border-rose-800/50 dark:bg-rose-950/20 dark:shadow-rose-900/10"
+              : "border-gray-100 bg-white/80 hover:border-rose-100 hover:shadow-md dark:border-white/8 dark:bg-white/3 dark:hover:border-white/12"
           } backdrop-blur-sm`}
         >
           <button
@@ -49,11 +49,17 @@ export function LandingFaq() {
             <span className="text-sm font-semibold text-gray-900 dark:text-white">
               {item.q}
             </span>
-            <ChevronDown
-              className={`h-4 w-4 shrink-0 text-rose-500 transition-transform duration-300 dark:text-rose-400 ${
-                open === i ? "rotate-180" : ""
-              }`}
-            />
+            <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-all duration-300 ${
+              open === i
+                ? "bg-rose-500 text-white shadow-sm shadow-rose-500/30"
+                : "bg-gray-100 text-rose-500 dark:bg-white/10 dark:text-rose-400"
+            }`}>
+              <ChevronDown
+                className={`h-4 w-4 transition-transform duration-300 ${
+                  open === i ? "rotate-180" : ""
+                }`}
+              />
+            </div>
           </button>
           <div
             className={`overflow-hidden transition-all duration-300 ${
