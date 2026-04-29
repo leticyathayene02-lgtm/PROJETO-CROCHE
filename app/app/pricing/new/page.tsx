@@ -283,6 +283,15 @@ export default function NewPricingPage() {
     prefill?.selectedMaterials ?? []
   );
 
+  // Linha/Fio principal: modo manual (R$) ou pelo catálogo (g/m)
+  const [principalMode, setPrincipalMode] = useState<"manual" | "catalog">(
+    prefill?.principalYarnId ? "catalog" : "manual"
+  );
+  const [principalYarnId, setPrincipalYarnId] = useState<string | null>(
+    prefill?.principalYarnId ?? null
+  );
+  const [principalQty, setPrincipalQty] = useState<number>(prefill?.principalQty ?? 0);
+
   const [horas, setHoras] = useState<number>(prefill?.horas ?? 0);
   const [valorHora, setValorHora] = useState<number>(prefill?.valorHora ?? 0);
 
@@ -386,6 +395,24 @@ export default function NewPricingPage() {
     [selectedMaterials]
   );
 
+  // Fio principal pelo catálogo (filtra apenas YARN cadastrados em g ou m)
+  const yarnCatalog = useMemo(
+    () =>
+      catalogMaterials.filter(
+        (m) => m.category === "YARN" && (m.unit === "GRAMS" || m.unit === "METERS")
+      ),
+    [catalogMaterials]
+  );
+  const principalYarn = useMemo(
+    () => yarnCatalog.find((m) => m.id === principalYarnId) ?? null,
+    [yarnCatalog, principalYarnId]
+  );
+  const principalCatalogCost = useMemo(() => {
+    if (!principalYarn || principalQty <= 0) return 0;
+    return Math.round(principalQty * principalYarn.costPerUnit * 100) / 100;
+  }, [principalYarn, principalQty]);
+  const principalTotal = principalMode === "catalog" ? principalCatalogCost : material;
+
   // Add material from catalog
   const addMaterial = useCallback(
     (mat: CatalogMaterial) => {
@@ -409,7 +436,7 @@ export default function NewPricingPage() {
   // Compute em tempo real
   const inputs: PricingInputs = useMemo(
     () => ({
-      material,
+      material: principalTotal,
       embalagem: 0,
       mimo: 0,
       acessorios: 0,
@@ -428,7 +455,7 @@ export default function NewPricingPage() {
       name,
       selectedMaterials,
     }),
-    [material, complementaresTotal, horas, valorHora, taxaCartao, impostoMarketplace, profitMode, margemPercent, lucroFixo, overheadPerPiece, piecesPerMonth, frete, includeFrete, name, selectedMaterials]
+    [principalTotal, complementaresTotal, horas, valorHora, taxaCartao, impostoMarketplace, profitMode, margemPercent, lucroFixo, overheadPerPiece, piecesPerMonth, frete, includeFrete, name, selectedMaterials]
   );
 
   const totals = useMemo(() => computePricingTotals(inputs), [inputs]);
@@ -439,7 +466,7 @@ export default function NewPricingPage() {
     setSaving(true);
     const formData = {
       name,
-      material,
+      material: principalTotal,
       selectedMaterials,
       horas,
       valorHora,
@@ -511,15 +538,101 @@ export default function NewPricingPage() {
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Campo manual: linha/fio principal */}
+          {/* Linha / Fio principal: modo manual (R$) ou pelo catálogo (g/m) */}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-900 dark:text-white">
-              Linha / Fio principal (R$)
+              Linha / Fio principal
             </label>
-            <NumInput value={material} onChange={setMaterial} placeholder="0.00" />
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              Custo do fio, linha ou lã usado na peça
-            </p>
+            {/* Toggle de modo */}
+            <div className="mb-2 flex rounded-xl bg-rose-100/60 dark:bg-rose-900/40 p-1">
+              <button
+                type="button"
+                onClick={() => setPrincipalMode("manual")}
+                className={`flex-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+                  principalMode === "manual"
+                    ? "bg-white dark:bg-[oklch(0.18_0.01_280)] text-gray-900 dark:text-white shadow-sm"
+                    : "text-gray-400 hover:text-gray-600"
+                }`}
+              >
+                Valor manual (R$)
+              </button>
+              <button
+                type="button"
+                onClick={() => setPrincipalMode("catalog")}
+                className={`flex-1 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+                  principalMode === "catalog"
+                    ? "bg-white dark:bg-[oklch(0.18_0.01_280)] text-gray-900 dark:text-white shadow-sm"
+                    : "text-gray-400 hover:text-gray-600"
+                }`}
+              >
+                Pelo catálogo (g ou m)
+              </button>
+            </div>
+
+            {principalMode === "manual" ? (
+              <>
+                <NumInput value={material} onChange={setMaterial} placeholder="0.00" />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Digite o custo total do fio usado na peça
+                </p>
+              </>
+            ) : (
+              <div className="space-y-2">
+                {yarnCatalog.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-rose-200 dark:border-rose-800/40 bg-rose-50/50 dark:bg-rose-950/10 p-3 text-center">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Você ainda não tem fios cadastrados em gramas ou metros.{" "}
+                      <button
+                        type="button"
+                        onClick={() => setShowNewMaterial(true)}
+                        className="font-medium text-rose-600 dark:text-rose-400 hover:underline"
+                      >
+                        Cadastrar fio
+                      </button>
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <select
+                      value={principalYarnId ?? ""}
+                      onChange={(e) => setPrincipalYarnId(e.target.value || null)}
+                      className="w-full rounded-md border border-rose-200 dark:border-rose-800/40 bg-white dark:bg-white/5 px-3 py-2 text-sm dark:text-white"
+                    >
+                      <option value="">Escolha o fio principal...</option>
+                      {yarnCatalog.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.name}
+                          {m.brand ? ` — ${m.brand}` : ""} ({brl(m.costPerUnit)}/
+                          {UNIT_LABELS[m.unit] || m.unit})
+                        </option>
+                      ))}
+                    </select>
+                    {principalYarn && (
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1">
+                          <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">
+                            Quantidade usada ({UNIT_LABELS[principalYarn.unit] || principalYarn.unit})
+                          </label>
+                          <NumInput
+                            value={principalQty}
+                            onChange={setPrincipalQty}
+                            placeholder={principalYarn.unit === "METERS" ? "Ex: 50" : "Ex: 80"}
+                          />
+                        </div>
+                        <div className="shrink-0 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/30 px-3 py-2 text-right self-end">
+                          <span className="block text-[10px] text-emerald-700 dark:text-emerald-400">
+                            Custo do fio
+                          </span>
+                          <span className="text-sm font-bold text-emerald-800 dark:text-emerald-300 tabular-nums">
+                            {brl(principalCatalogCost)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Materiais complementares do catálogo */}
@@ -1079,7 +1192,16 @@ export default function NewPricingPage() {
 
           {/* ── Resumo detalhado ── */}
           <div className="space-y-1 rounded-xl bg-white/80 dark:bg-white/5 p-3 text-sm">
-            {material > 0 && <Row label="Linha / Fio principal" value={material} />}
+            {principalTotal > 0 && (
+              <Row
+                label={
+                  principalMode === "catalog" && principalYarn
+                    ? `${principalYarn.name} (${principalQty} ${UNIT_LABELS[principalYarn.unit] || principalYarn.unit})`
+                    : "Linha / Fio principal"
+                }
+                value={principalTotal}
+              />
+            )}
             {selectedMaterials.filter(m => m.cost > 0).map((m) => (
               <Row
                 key={m.materialId}

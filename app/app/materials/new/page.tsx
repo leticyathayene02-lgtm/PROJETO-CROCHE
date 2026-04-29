@@ -126,15 +126,20 @@ export default function NewMaterialPage() {
   const [rolls, setRolls] = useState(0);
 
   const isYarn = category === "YARN";
+  const isMeters = unit === "METERS";
+  const isYarnRoll = isYarn && (unit === "GRAMS" || unit === "METERS");
+  const unitShort = isMeters ? "m" : "g";
+  const unitWord = isMeters ? "metro" : "grama";
+  const unitDescriptor = isMeters ? "Tamanho" : "Peso";
 
-  // Auto-calcula custo/g quando tem preço e peso do rolo
-  const autoCalcCost = isYarn && pricePerRoll > 0 && weightPerRoll > 0;
+  // Auto-calcula custo/unidade quando tem preço e tamanho/peso do rolo
+  const autoCalcCost = isYarnRoll && pricePerRoll > 0 && weightPerRoll > 0;
   const calculatedCostPerUnit = autoCalcCost
     ? Math.round((pricePerRoll / weightPerRoll) * 10000) / 10000
     : costPerUnit;
 
-  // Auto-calcula estoque total em gramas
-  const autoCalcStock = isYarn && weightPerRoll > 0 && rolls > 0;
+  // Auto-calcula estoque total na unidade do material (g ou m)
+  const autoCalcStock = isYarnRoll && weightPerRoll > 0 && rolls > 0;
   const calculatedStock = autoCalcStock
     ? weightPerRoll * rolls
     : stock;
@@ -280,14 +285,14 @@ export default function NewMaterialPage() {
         </Card>
 
         {/* Card específico para fio/lã: dados do rolo */}
-        {isYarn && (
+        {isYarnRoll && (
           <Card className="card-3d border-0 dark:border-rose-900/30">
             <CardHeader className="pb-3">
               <CardTitle className="text-base text-gray-900 dark:text-white">
                 🧶 Dados do rolo
               </CardTitle>
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                Informe os dados do rolo para calcular o custo por grama automaticamente
+                Informe os dados do rolo para calcular o custo por {unitWord} automaticamente
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -307,7 +312,7 @@ export default function NewMaterialPage() {
                 </div>
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-900 dark:text-rose-300">
-                    Peso por rolo (g)
+                    {unitDescriptor} por rolo ({unitShort})
                   </label>
                   <MoneyInput
                     value={weightPerRollStr}
@@ -315,7 +320,7 @@ export default function NewMaterialPage() {
                       setWeightPerRollStr(raw);
                       setWeightPerRoll(num);
                     }}
-                    placeholder="100"
+                    placeholder={isMeters ? "200" : "100"}
                   />
                 </div>
               </div>
@@ -327,19 +332,19 @@ export default function NewMaterialPage() {
                 <IntInput value={rolls} onChange={setRolls} placeholder="0" />
               </div>
 
-              {/* Auto-cálculo custo/g */}
+              {/* Auto-cálculo custo/unidade */}
               {autoCalcCost && (
                 <div className="rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/30 px-3 py-2.5">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                      Custo por grama (calculado)
+                      Custo por {unitWord} (calculado)
                     </span>
                     <span className="text-sm font-bold text-emerald-800 dark:text-emerald-300">
                       {brl(calculatedCostPerUnit)}
                     </span>
                   </div>
                   <p className="mt-1 text-[10px] text-emerald-600 dark:text-emerald-500">
-                    {brl(pricePerRoll)} ÷ {weightPerRoll}g = {brl(calculatedCostPerUnit)}/g
+                    {brl(pricePerRoll)} ÷ {weightPerRoll}{unitShort} = {brl(calculatedCostPerUnit)}/{unitShort}
                   </p>
                 </div>
               )}
@@ -352,11 +357,11 @@ export default function NewMaterialPage() {
                       Estoque total (calculado)
                     </span>
                     <span className="text-sm font-bold text-blue-800 dark:text-blue-300">
-                      {calculatedStock}g
+                      {calculatedStock}{unitShort}
                     </span>
                   </div>
                   <p className="mt-1 text-[10px] text-blue-600 dark:text-blue-500">
-                    {rolls} rolos × {weightPerRoll}g = {calculatedStock}g
+                    {rolls} rolos × {weightPerRoll}{unitShort} = {calculatedStock}{unitShort}
                   </p>
                 </div>
               )}
@@ -377,7 +382,7 @@ export default function NewMaterialPage() {
               </label>
               {autoCalcCost ? (
                 <div className="rounded-md border border-emerald-200 dark:border-emerald-800/40 bg-emerald-50/50 dark:bg-emerald-950/10 px-3 py-2 text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                  {brl(calculatedCostPerUnit)}/g — calculado automaticamente
+                  {brl(calculatedCostPerUnit)}/{unitShort} — calculado automaticamente
                 </div>
               ) : (
                 <>
@@ -390,7 +395,9 @@ export default function NewMaterialPage() {
                     placeholder="0,05"
                   />
                   <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Ex.: Se o novelo custa R$ 12 e tem 100g, o custo/g é R$ 0,12
+                    {isMeters
+                      ? "Ex.: Se o novelo custa R$ 12 e tem 200m, o custo/m é R$ 0,06"
+                      : "Ex.: Se o novelo custa R$ 12 e tem 100g, o custo/g é R$ 0,12"}
                   </p>
                 </>
               )}
@@ -403,7 +410,7 @@ export default function NewMaterialPage() {
                 </label>
                 {autoCalcStock ? (
                   <div className="rounded-md border border-blue-200 dark:border-blue-800/40 bg-blue-50/50 dark:bg-blue-950/10 px-3 py-2 text-sm font-medium text-blue-700 dark:text-blue-400">
-                    {calculatedStock}g
+                    {calculatedStock}{unitShort}
                   </div>
                 ) : (
                   <MoneyInput
