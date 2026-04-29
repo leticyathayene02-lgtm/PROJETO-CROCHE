@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/admin/page-header";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { SearchBar } from "@/components/admin/search-bar";
+import { PremiumToggle } from "@/components/admin/premium-toggle";
 import { computeTrialStatus } from "@/lib/trial";
 import { Users } from "lucide-react";
 import { Suspense } from "react";
@@ -78,7 +79,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/[0.06]">
-                  {["Usuário", "Workspace", "Plano", "Status", "Cálculos", "Materiais", "Pedidos", "Cadastrado em"].map((h) => (
+                  {["Usuário", "Workspace", "Plano", "Status", "Premium grátis", "Cálculos", "Materiais", "Pedidos", "Cadastrado em"].map((h) => (
                     <th
                       key={h}
                       className="px-6 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-600"
@@ -93,6 +94,10 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                   const ws = user.ownedWorkspaces[0];
                   const plan = ws?.subscription?.plan ?? "FREE";
                   const computed = computeTrialStatus(ws?.subscription);
+                  const premiumGranted =
+                    ws?.subscription?.plan === "PREMIUM" &&
+                    ws?.subscription?.status === "ACTIVE" &&
+                    ws?.subscription?.accessStatus === "ACTIVE";
                   return (
                     <tr key={user.id} className="group transition hover:bg-white/[0.02]">
                       <td className="px-6 py-4">
@@ -119,6 +124,13 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                           label={computed.label}
                           variant={computed.variant}
                           dot
+                        />
+                      </td>
+                      <td className="px-6 py-4">
+                        <PremiumToggle
+                          userId={user.id}
+                          initialGranted={premiumGranted}
+                          disabled={!ws}
                         />
                       </td>
                       <td className="px-6 py-4 text-center text-sm tabular-nums text-gray-400">
